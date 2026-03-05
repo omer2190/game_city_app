@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1033131122028",
+    "firebase_url": "https://gaming-city-94354-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "gaming-city-94354",
+    "storage_bucket": "gaming-city-94354.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1033131122028:android:8c59eb30f90389bf0f2749",
+        "android_client_info": {
+          "package_name": "com.gamingcityapp.gaming2190"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1033131122028-098d07lbtc9pigjl8kclg2s18d77e0qg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gamingcityapp.gaming2190",
+            "certificate_hash": "2a489fb70bf9bfb1a0ac42ee686d4e8294b821ea"
+          }
+        },
+        {
+          "client_id": "1033131122028-uiehqmoi4ufjken3n8g9r2kv865o3e0a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDlE0vCvB-ZARCp21wblgeYPtiqPRanSU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1033131122028-d2efonjh7gl7dk1k4a4gmvm8ql90dgf1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1033131122028-518fg6lvhrsmjfe1vo25guvg4c77epf2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.gamingcityapp.gaming2190"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
