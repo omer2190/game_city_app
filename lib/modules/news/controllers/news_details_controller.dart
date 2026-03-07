@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import '../../../data/models/news_model.dart';
 import '../../../data/repositories/news_repository.dart';
@@ -26,7 +27,7 @@ class NewsDetailsController extends GetxController {
       likesCount.value = data['likes'];
       isLiked.value = data['userLiked'];
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -55,7 +56,7 @@ class NewsDetailsController extends GetxController {
       isLoadingComments(true);
       comments.value = await _newsRepository.getComments(newsId);
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     } finally {
       isLoadingComments(false);
     }

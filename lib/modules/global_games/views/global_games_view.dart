@@ -12,8 +12,9 @@ class GlobalGamesView extends StatelessWidget {
   GlobalGamesView({super.key});
 
   final GlobalGamesController controller = Get.put(GlobalGamesController());
-  final UserPlayNowController playNowController =
-      Get.find<UserPlayNowController>();
+  final UserPlayNowController playNowController = Get.put(
+    UserPlayNowController(),
+  );
 
   @override
   Widget build(BuildContext context) {

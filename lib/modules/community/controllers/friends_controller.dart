@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/repositories/social_repository.dart';
@@ -94,7 +95,7 @@ class FriendsController extends GetxController {
             _sortFriendsInternal();
           }
         } catch (e) {
-          print('Error parsing message for room $roomId: $e');
+          debugPrint('Error parsing message for room $roomId: $e');
         }
       }
     });
@@ -135,7 +136,7 @@ class FriendsController extends GetxController {
       _setupChatListeners();
       _sortFriendsInternal();
     } catch (e) {
-      print('Error fetching friends: $e');
+      debugPrint('Error fetching friends: $e');
     } finally {
       isFriendsLoading(false);
     }
@@ -147,7 +148,7 @@ class FriendsController extends GetxController {
       final list = await _socialRepository.getPendingRequests();
       pendingRequests.assignAll(list);
     } catch (e) {
-      print('Error fetching pending: $e');
+      debugPrint('Error fetching pending: $e');
     } finally {
       isPendingLoading(false);
     }
@@ -163,7 +164,7 @@ class FriendsController extends GetxController {
       final list = await _socialRepository.searchUsers(query);
       searchResults.assignAll(list);
     } catch (e) {
-      print('Search error: $e');
+      debugPrint('Search error: $e');
     } finally {
       isSearchLoading(false);
     }

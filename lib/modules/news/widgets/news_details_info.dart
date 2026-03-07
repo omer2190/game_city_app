@@ -61,6 +61,17 @@ class NewsDetailsInfo extends StatelessWidget {
                 ),
               ),
             const Spacer(),
+
+            Obx(
+              () => Text(
+                '${controller.likesCount.value}',
+                style: TextStyle(
+                  color: colorScheme.primary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
             Obx(
               () => IconButton(
                 icon: Icon(
@@ -73,16 +84,6 @@ class NewsDetailsInfo extends StatelessWidget {
                   size: 28,
                 ),
                 onPressed: () => controller.toggleLike(news.id!),
-              ),
-            ),
-            Obx(
-              () => Text(
-                '${controller.likesCount.value}',
-                style: TextStyle(
-                  color: colorScheme.primary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
               ),
             ),
           ],

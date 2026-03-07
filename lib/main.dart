@@ -12,6 +12,7 @@ import 'core/values/app_strings.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/theme_service.dart';
+import 'core/services/version_service.dart';
 import 'core/bindings/initial_binding.dart';
 
 // Must be top-level or static
@@ -37,9 +38,15 @@ void main() async {
   // Initialize Services
   final notificationService = NotificationService();
   Get.put(notificationService);
-  await notificationService.init();
+  if (GetPlatform.isMobile) {
+    await notificationService.init();
+  }
 
   Get.put(ThemeService());
+
+  // Version Check
+  final versionService = Get.put(VersionService());
+  versionService.checkVersion();
 
   runApp(const MyApp());
 }

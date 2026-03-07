@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/models/news_model.dart';
 import '../../../data/repositories/news_repository.dart';
@@ -5,8 +6,13 @@ import '../../../data/repositories/news_repository.dart';
 class NewsController extends GetxController {
   final NewsRepository _newsRepository = NewsRepository();
   var isLoading = true.obs;
+  var isMoreLoading = false.obs;
   var newsList = <News>[].obs;
   var newsTypes = <NewsType>[].obs;
+
+  // Pagination
+  var currentPage = 1.obs;
+  var hasMore = true.obs;
 
   // Filtering and Searching
   var selectedTypeId = ''.obs;
@@ -35,21 +41,61 @@ class NewsController extends GetxController {
   void fetchNews() async {
     try {
       isLoading(true);
+      currentPage.value = 1;
+      hasMore.value = true;
+
       var response = await _newsRepository.getNews(
+        page: currentPage.value,
         newsType: selectedTypeId.value,
         search: searchText.value,
       );
+
       if (response.news != null) {
         newsList.assignAll(response.news!);
+        // Update hasMore based on totalPages
+        if (response.totalPages != null) {
+          hasMore.value = currentPage.value < response.totalPages!;
+        } else {
+          hasMore.value = response.news!.isNotEmpty;
+        }
       }
       if (response.newsTypes != null) {
         newsTypes.assignAll(response.newsTypes!);
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       Get.snackbar('Error', 'Failed to load news: $e');
     } finally {
       isLoading(false);
+    }
+  }
+
+  void loadMoreNews() async {
+    if (isMoreLoading.value || !hasMore.value) return;
+
+    try {
+      isMoreLoading(true);
+      currentPage.value++;
+
+      var response = await _newsRepository.getNews(
+        page: currentPage.value,
+        newsType: selectedTypeId.value,
+        search: searchText.value,
+      );
+
+      if (response.news != null && response.news!.isNotEmpty) {
+        newsList.addAll(response.news!);
+        if (response.totalPages != null) {
+          hasMore.value = currentPage.value < response.totalPages!;
+        }
+      } else {
+        hasMore.value = false;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      currentPage.value--;
+    } finally {
+      isMoreLoading(false);
     }
   }
 

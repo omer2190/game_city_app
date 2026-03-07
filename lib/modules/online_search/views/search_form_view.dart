@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_city_app/modules/global_games/views/global_games_view.dart';
 import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
 import '../matchmaking_controller.dart';
@@ -26,7 +27,19 @@ class SearchFormView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildSectionTitle('اختر اللعبة', primary),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildSectionTitle('اختر اللعبة', primary),
+              IconButton(
+                // iconSize: 16,
+                onPressed: () => Get.to(() => GlobalGamesView()),
+
+                icon: Icon(Icons.add_rounded),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           _buildGameList(),
           const SizedBox(height: 32),

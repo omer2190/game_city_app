@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:game_city_app/core/values/api_constants.dart';
 import 'package:game_city_app/routes/app_routes.dart';
 import 'package:get/get.dart';
@@ -8,9 +9,7 @@ import 'dart:convert';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class SplashController extends GetxController {
-  SplashController() {
-    print('SplashController constructor called');
-  }
+  SplashController();
 
   final box = GetStorage();
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -19,7 +18,6 @@ class SplashController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('SplashController onInit called');
     _initializeApp();
   }
 
@@ -37,14 +35,12 @@ class SplashController extends GetxController {
       await Future.delayed(const Duration(seconds: 2));
 
       final token = box.read('token');
-      print('Token in SplashController: $token');
       if (token != null) {
         Get.offAllNamed(AppRoutes.home);
       } else {
         Get.offAllNamed(AppRoutes.login);
       }
     } catch (e) {
-      print('Error during app initialization: $e');
       // Still navigate to home even if error
       Get.offAllNamed(AppRoutes.home);
     }
@@ -53,18 +49,17 @@ class SplashController extends GetxController {
   Future<void> _initializeFirebaseMessaging() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-    // Request permission
-    NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    // // Request permission
+    // NotificationSettings settings = await messaging.requestPermission(
+    //   alert: true,
+    //   badge: true,
+    //   sound: true,
+    // );
 
-    print('User granted permission: ${settings.authorizationStatus}');
+    // debugPrint('User granted permission: ${settings.authorizationStatus}');
 
     // Get token
     String? token = await messaging.getToken();
-    print('FCM Token: $token');
 
     // Store token
     if (token != null) {
@@ -76,11 +71,7 @@ class SplashController extends GetxController {
 
     // Handle foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Got a message whilst in the foreground!');
-      print('Message data: ${message.data}');
-
       if (message.notification != null) {
-        print('Message also contained a notification: ${message.notification}');
         // Show local notification
         _showLocalNotification(message);
       }
@@ -88,7 +79,6 @@ class SplashController extends GetxController {
 
     // Handle when app is opened from notification
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Message clicked!');
       // Handle navigation or action
     });
   }
@@ -112,12 +102,12 @@ class SplashController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        print('FCM token sent successfully');
+        debugPrint('FCM token sent successfully');
       } else {
-        print('Failed to send FCM token: ${response.statusCode}');
+        debugPrint('Failed to send FCM token: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error sending FCM token: $e');
+      debugPrint('Error sending FCM token: $e');
     }
   }
 
@@ -146,5 +136,5 @@ class SplashController extends GetxController {
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('Handling a background message: ${message.messageId}');
+  debugPrint('Handling a background message: ${message.messageId}');
 }

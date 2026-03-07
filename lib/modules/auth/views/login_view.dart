@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../routes/app_routes.dart';
 import '../controllers/auth_controller.dart';
 import '../../../shared/widgets/widgets.dart';
 
@@ -80,9 +81,7 @@ class LoginView extends StatelessWidget {
                 Align(
                   alignment: Alignment.center,
                   child: TextButton(
-                    onPressed: () {
-                      // TODO: Implement forgot password
-                    },
+                    onPressed: () => Get.toNamed(AppRoutes.forgotPassword),
                     child: Text(
                       'نسيت كلمة السر؟',
                       style: TextStyle(

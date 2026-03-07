@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart' as dio;
 import 'package:get_storage/get_storage.dart';
+
+import '../../routes/app_routes.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -190,6 +193,12 @@ class ApiClient {
         decoded['statusCode'] = response.statusCode;
       }
       return decoded;
+    } else if (response.statusCode == 408) {
+      Get.offAndToNamed(
+        AppRoutes.login,
+        arguments: jsonDecode(response.body)['email'],
+      );
+      throw ApiException('يرجى التحقق من البريد الإلكتروني', statusCode: 408);
     } else {
       String errorMessage = 'Something went wrong';
       try {

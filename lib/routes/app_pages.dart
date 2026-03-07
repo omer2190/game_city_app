@@ -1,10 +1,16 @@
 import 'package:game_city_app/modules/community/views/community_view.dart';
+import 'package:game_city_app/modules/games/views/games_hub_view.dart';
+import 'package:game_city_app/modules/news/views/news_view.dart';
 import 'package:game_city_app/modules/profile/views/profile_view.dart';
 import 'package:get/get.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/home/controllers/home_controller.dart';
 import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/register_view.dart';
+import '../modules/auth/views/verify_account_view.dart';
+import '../modules/auth/views/forgot_password_view.dart';
+import '../modules/auth/views/reset_password_view.dart';
+import '../modules/auth/views/change_password_view.dart';
 import '../modules/news/views/news_details_view.dart';
 import '../modules/news/controllers/news_details_controller.dart';
 import '../modules/games/views/game_details_view.dart';
@@ -40,6 +46,23 @@ class AppPages {
     GetPage(name: AppRoutes.login, page: () => LoginView()),
     GetPage(name: AppRoutes.register, page: () => RegisterView()),
     GetPage(
+      name: AppRoutes.verifyAccount,
+      page: () => VerifyAccountView(email: Get.arguments ?? ''),
+    ),
+    GetPage(name: AppRoutes.forgotPassword, page: () => ForgotPasswordView()),
+    GetPage(
+      name: AppRoutes.resetPassword,
+      page: () => ResetPasswordView(email: Get.arguments ?? ''),
+    ),
+    GetPage(
+      name: AppRoutes.changePassword,
+      page: () => ChangePasswordView(),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(name: AppRoutes.profile, page: () => ProfileView()),
+    GetPage(name: AppRoutes.chatRoom, page: () => CommunityView()),
+    GetPage(name: AppRoutes.news, page: () => const NewsView()),
+    GetPage(
       name: AppRoutes.newsDetails,
       page: () {
         final news = Get.arguments;
@@ -50,6 +73,7 @@ class AppPages {
       }),
       middlewares: [AuthMiddleware()],
     ),
+    GetPage(name: AppRoutes.game, page: () => GamesHubView()),
     GetPage(
       name: AppRoutes.gameDetails,
       page: () {
@@ -68,7 +92,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.gameComingSoon,
-      page: () => const GameComingSoon(),
+      page: () => GameComingSoon(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => GameComingSoonController());
       }),
@@ -98,7 +122,7 @@ class AppPages {
 
     GetPage(
       name: AppRoutes.wishlist,
-      page: () => const WishlistView(),
+      page: () => WishlistView(),
       middlewares: [AuthMiddleware()],
     ),
   ];

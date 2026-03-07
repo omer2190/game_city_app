@@ -162,15 +162,38 @@ class GamesHubView extends StatelessWidget {
                     ),
                     indicatorSize: TabBarIndicatorSize.tab,
                     labelStyle: const TextStyle(
-                      fontSize: 13,
-                      overflow: TextOverflow.fade,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.white70,
+                    ),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                     dividerColor: Colors.transparent,
                     tabs: const [
-                      Tab(text: 'مجانية دائماً'),
-                      Tab(text: 'عروض محدودة'),
-                      Tab(text: 'تخفيضات'),
+                      Tab(
+                        child: Text(
+                          'مجانية دائماً',
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                      ),
+                      Tab(
+                        child: Text(
+                          'عروض محدودة',
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                      ),
+                      Tab(
+                        child: Text(
+                          'تخفيضات',
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                      ),
                     ],
                   ),
                 ),

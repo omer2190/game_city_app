@@ -6,6 +6,10 @@ class ApiConstants {
   // Auth Endpoints
   static const String login = '$baseUrl/api/users/login';
   static const String register = '$baseUrl/api/users/register';
+  static const String verifyAccount = '$baseUrl/api/users/verify';
+  static const String forgotPassword = '$baseUrl/api/users/forgot-password';
+  static const String resetPassword = '$baseUrl/api/users/reset-password';
+  static const String changePassword = '$baseUrl/api/users/change-password';
   static const String googleLogin = '$baseUrl/api/users/google-login';
   static const String userProfile = '$baseUrl/api/users/me/profile';
   static const String updateUser = '$baseUrl/api/users/';
@@ -42,4 +46,7 @@ class ApiConstants {
 
   // Home Dashboard
   static const String homeDashboard = '$baseUrl/api/reports/home';
+
+  // Version Check
+  static const String checkVersion = '$baseUrl/api/version/check';
 }

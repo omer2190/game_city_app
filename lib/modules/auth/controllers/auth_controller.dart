@@ -61,7 +61,7 @@ class AuthController extends GetxController {
           userModel.value = UserModel.fromJson(_storage.read('user'));
         } catch (e) {
           if (kDebugMode) {
-            print('Error loading user from storage: $e');
+            debugPrint('Error loading user from storage: $e');
           }
         }
       }
@@ -78,7 +78,7 @@ class AuthController extends GetxController {
       generalInfoTypes.value = List<Map<String, dynamic>>.from(types);
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching general info types: $e');
+        debugPrint('Error fetching general info types: $e');
       }
     }
   }
@@ -91,7 +91,7 @@ class AuthController extends GetxController {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching social media services: $e');
+        debugPrint('Error fetching social media services: $e');
       }
     }
   }
@@ -107,7 +107,7 @@ class AuthController extends GetxController {
       _isGoogleInitialized = true;
     } catch (e) {
       if (kDebugMode) {
-        print('Google Sign-In initialization failed: $e');
+        debugPrint('Google Sign-In initialization failed: $e');
       }
     }
   }
@@ -120,7 +120,7 @@ class AuthController extends GetxController {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error updating FCM token: $e');
+        debugPrint('Error updating FCM token: $e');
       }
     }
   }
@@ -137,7 +137,7 @@ class AuthController extends GetxController {
         logout();
       }
       if (kDebugMode) {
-        print('Error refreshing profile: $e');
+        debugPrint('Error refreshing profile: $e');
       }
     }
   }
@@ -161,7 +161,7 @@ class AuthController extends GetxController {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('Error updating profile: $e');
+        debugPrint('Error updating profile: $e');
       }
       Get.snackbar(
         'خطأ',
@@ -205,7 +205,7 @@ class AuthController extends GetxController {
       }
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        debugPrint(e.toString());
       }
       Get.snackbar(
         'خطأ',
@@ -315,18 +315,14 @@ class AuthController extends GetxController {
         if (userData != null) {
           _storage.write('user', userData);
           userModel.value = UserModel.fromJson(userData);
-        } else {
-          await refreshProfile();
         }
-        await fetchSocialMediaServices();
-        await fetchGeneralInfoTypes();
 
-        isLoggedIn.value = true;
-        updateFcmToken();
-        Get.offAllNamed(AppRoutes.home);
+        // Redirect to verification because isVerified is false by default
+        Get.offNamed(AppRoutes.verifyAccount, arguments: email);
+
         Get.snackbar(
           'نجاح',
-          'تم إنشاء الحساب بنجاح',
+          'تم إنشاء الحساب بنجاح، يرجى تفعيل بريدك الإلكتروني',
           backgroundColor: Colors.green.withOpacity(0.1),
           colorText: Colors.white,
         );
@@ -481,6 +477,112 @@ class AuthController extends GetxController {
       );
     } catch (e) {
       rethrow;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> verifyAccount(String email, String code) async {
+    try {
+      isLoading.value = true;
+      await _authRepository.verifyAccount(email, code);
+      Get.offAllNamed(AppRoutes.home);
+      Get.snackbar(
+        'نجاح',
+        'تم تفعيل الحساب بنجاح، يمكنك الآن تسجيل الدخول',
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'خطأ',
+        'فشل تفعيل الحساب: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> forgotPassword(String email) async {
+    try {
+      isLoading.value = true;
+      await _authRepository.forgotPassword(email);
+      Get.toNamed(AppRoutes.resetPassword, arguments: email);
+      Get.snackbar(
+        'نجاح',
+        'تم إرسال رمز إعادة التعيين لبريدك الإلكتروني',
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'خطأ',
+        'فشل إرسال الرمز: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> resetPassword(
+    String email,
+    String code,
+    String newPassword,
+  ) async {
+    try {
+      isLoading.value = true;
+      await _authRepository.resetPassword(
+        email: email,
+        code: code,
+        newPassword: newPassword,
+      );
+      Get.offAllNamed(AppRoutes.login);
+      Get.snackbar(
+        'نجاح',
+        'تم تغيير كلمة المرور بنجاح',
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'خطأ',
+        'فشل تغيير كلمة المرور: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      isLoading.value = true;
+      await _authRepository.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
+      Get.back();
+      Get.snackbar(
+        'نجاح',
+        'تم تغيير كلمة المرور بنجاح',
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'خطأ',
+        'فشل تغيير كلمة المرور: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }

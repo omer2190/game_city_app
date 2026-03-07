@@ -49,22 +49,22 @@ class ComingSoonCard extends StatelessWidget {
     );
   }
 
-  Widget _getPlatformIcon(String p) {
-    p = p.toLowerCase();
-    if (p.contains('pc') || p.contains('windows')) {
-      return const Icon(Icons.computer, size: 20, color: Colors.white);
-    }
-    if (p.contains('ps') || p.contains('playstation')) {
-      return const Icon(Icons.games, size: 20, color: Colors.white);
-    }
-    if (p.contains('xbox')) {
-      return const Icon(Icons.videogame_asset, size: 20, color: Colors.white);
-    }
-    if (p.contains('switch')) {
-      return const Icon(Icons.switch_left, size: 20, color: Colors.white);
-    }
-    return const Icon(Icons.gamepad, size: 20, color: Colors.white);
-  }
+  // Widget _getPlatformIcon(String p) {
+  //   p = p.toLowerCase();
+  //   if (p.contains('pc') || p.contains('windows')) {
+  //     return const Icon(Icons.computer, size: 20, color: Colors.white);
+  //   }
+  //   if (p.contains('ps') || p.contains('playstation')) {
+  //     return const Icon(Icons.games, size: 20, color: Colors.white);
+  //   }
+  //   if (p.contains('xbox')) {
+  //     return const Icon(Icons.videogame_asset, size: 20, color: Colors.white);
+  //   }
+  //   if (p.contains('switch')) {
+  //     return const Icon(Icons.switch_left, size: 20, color: Colors.white);
+  //   }
+  //   return const Icon(Icons.gamepad, size: 20, color: Colors.white);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -222,17 +222,36 @@ class ComingSoonCard extends StatelessWidget {
           // Platform Icons
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: (game.platforms ?? [])
-                  .take(3)
-                  .map(
-                    (p) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: _getPlatformIcon(p),
-                    ),
-                  )
-                  .toList(),
+            child: SingleChildScrollView(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: (game.platforms ?? [])
+                    .map(
+                      (p) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Get.theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            p,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import '../../routes/app_routes.dart';
 import 'dart:convert';
 
 class NotificationService extends GetxService {
@@ -61,6 +62,12 @@ class NotificationService extends GetxService {
       _handleNotificationClick(message.data);
     });
 
+    // 6. Handle notification that launched the app from terminated state
+    RemoteMessage? initialMessage = await _fcm.getInitialMessage();
+    if (initialMessage != null) {
+      _handleNotificationClick(initialMessage.data);
+    }
+
     return this;
   }
 
@@ -102,12 +109,27 @@ class NotificationService extends GetxService {
   }
 
   void _handleNotificationClick(Map<String, dynamic> data) {
+    print('Handling notification click with data: $data');
     final String? roomId = data['roomId'];
+    final String? type = data['type'];
+    final String? id = data['id'];
 
     if (roomId != null) {
-      // Navigate to chat room
-      // Get.toNamed('/chat-room', arguments: {'roomId': roomId, 'roomName': roomName});
-      // Adjust this based on your actual routing
+      // Get.toNamed(AppRoutes.chatRoom, arguments: {'roomId': roomId});
+    } else if (type == 'news' && id != null) {
+      Get.toNamed(AppRoutes.news, arguments: id);
+    } else if (type == 'new_game' && id != null) {
+      Get.toNamed(AppRoutes.game, arguments: id);
+    } else if (type == 'friend_request' || type == 'friend_accept') {
+      Get.toNamed(AppRoutes.profile, arguments: id);
+    } else if (type == 'chat_message') {
+      // For chat messages without a roomId, we might want to navigate to a general chat list or profile
+      Get.toNamed(AppRoutes.chatRoom);
+    } else {
+      // Default fallback
+      if (Get.currentRoute != AppRoutes.home) {
+        Get.offAllNamed(AppRoutes.home);
+      }
     }
   }
 

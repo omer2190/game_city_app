@@ -5,6 +5,7 @@ class MessageModel {
   final String type;
   final int timestamp;
   final bool read;
+  final bool isEdited;
 
   MessageModel({
     required this.id,
@@ -13,6 +14,7 @@ class MessageModel {
     required this.type,
     required this.timestamp,
     required this.read,
+    this.isEdited = false,
   });
 
   factory MessageModel.fromMap(String id, Map<dynamic, dynamic> map) {
@@ -31,6 +33,7 @@ class MessageModel {
                       ) ??
                       0),
       read: map['read'] == true,
+      isEdited: map['isEdited'] == true,
     );
   }
 
@@ -41,6 +44,7 @@ class MessageModel {
       'type': type,
       'createdAt': timestamp,
       'read': read,
+      'isEdited': isEdited,
     };
   }
 

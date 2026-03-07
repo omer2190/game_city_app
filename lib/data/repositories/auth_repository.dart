@@ -18,6 +18,41 @@ class AuthRepository {
     );
   }
 
+  Future<Map<String, dynamic>> verifyAccount(String email, String code) async {
+    return await _apiClient.post(
+      ApiConstants.verifyAccount,
+      body: {'email': email, 'code': code},
+    );
+  }
+
+  Future<Map<String, dynamic>> forgotPassword(String email) async {
+    return await _apiClient.post(
+      ApiConstants.forgotPassword,
+      body: {'email': email},
+    );
+  }
+
+  Future<Map<String, dynamic>> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    return await _apiClient.post(
+      ApiConstants.resetPassword,
+      body: {'email': email, 'code': code, 'newPassword': newPassword},
+    );
+  }
+
+  Future<Map<String, dynamic>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    return await _apiClient.post(
+      ApiConstants.changePassword,
+      body: {'oldPassword': oldPassword, 'newPassword': newPassword},
+    );
+  }
+
   Future<Map<String, dynamic>> register({
     required String userName,
     required String email,

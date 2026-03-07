@@ -131,7 +131,7 @@ class GlobalGamesController extends GetxController {
         );
       }
     } catch (e) {
-      print('Error requesting game addition: $e');
+      debugPrint('Error requesting game addition: $e');
       Get.snackbar('خطأ', 'فشل البحث المتقدم: $e');
     } finally {
       isLoading(false);

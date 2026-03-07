@@ -6,6 +6,7 @@ import 'package:game_city_app/shared/layout_mine.dart';
 import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../routes/app_routes.dart';
 
 class SettingsView extends GetView<SettingsController> {
   const SettingsView({super.key});
@@ -24,6 +25,18 @@ class SettingsView extends GetView<SettingsController> {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 10),
               children: [
+                _buildSectionHeader('الحساب والأمان'),
+                CustomCard(
+                  child: Column(
+                    children: [
+                      _buildListTile(
+                        icon: Icons.lock_outline_rounded,
+                        title: 'تغيير كلمة المرور',
+                        onTap: () => Get.toNamed(AppRoutes.changePassword),
+                      ),
+                    ],
+                  ),
+                ),
                 _buildSectionHeader('التواصل والدعم'),
                 CustomCard(
                   child: Column(

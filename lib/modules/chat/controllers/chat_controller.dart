@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/repositories/chat_repository.dart';
 import '../../../data/models/message_model.dart';
@@ -60,7 +61,7 @@ class ChatController extends GetxController {
               // Mark individual messages as read if they are sent to me
               markMessagesAsRead(chatRoomId);
             } catch (e) {
-              print('Error parsing message data: $e');
+              debugPrint('Error parsing message data: $e');
             }
           } else {
             messages.clear();
@@ -68,12 +69,12 @@ class ChatController extends GetxController {
           isLoading(false);
         },
         onError: (error) {
-          print('Chat Subscription Error: $error');
+          debugPrint('Chat Subscription Error: $error');
           isLoading(false);
         },
       );
     } catch (e) {
-      print('Error setting up chat: $e');
+      debugPrint('Error setting up chat: $e');
       isLoading(false);
     }
   }
@@ -90,6 +91,31 @@ class ChatController extends GetxController {
     }
   }
 
+  Future<void> updateMessage(
+    String chatRoomId,
+    String messageId,
+    String newContent,
+  ) async {
+    try {
+      await _db.ref('chats/$chatRoomId/messages/$messageId').update({
+        'content': newContent,
+        'text':
+            newContent, // Keeping both for compatibility with different map keys
+        'isEdited': true,
+      });
+    } catch (e) {
+      Get.snackbar('خطأ', 'فشل تعديل الرسالة: $e');
+    }
+  }
+
+  Future<void> deleteMessage(String chatRoomId, String messageId) async {
+    try {
+      await _db.ref('chats/$chatRoomId/messages/$messageId').remove();
+    } catch (e) {
+      Get.snackbar('خطأ', 'فشل حذف الرسالة: $e');
+    }
+  }
+
   void markMessagesAsRead(String chatRoomId) {
     if (messages.isEmpty) return;
 
@@ -103,7 +129,8 @@ class ChatController extends GetxController {
             .ref('chats/$chatRoomId/messages/${message.id}')
             .update({'read': true})
             .catchError(
-              (e) => print('Error marking message $message.id as read: $e'),
+              (e) =>
+                  debugPrint('Error marking message $message.id as read: $e'),
             );
       }
     }

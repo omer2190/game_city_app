@@ -22,6 +22,18 @@ class NewsDetailsBody extends StatelessWidget {
             style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
           ),
         ),
+        // تاريخ النشر
+        if (news.updatedAt != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              'اخر تحديث: ${news.updatedAt!.toLocal().toString().split(' ')[0]}',
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
+                fontSize: 12,
+              ),
+            ),
+          ),
         const SizedBox(height: 16),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -15,41 +15,75 @@
 - **POST** `/api/users/register`
   - Body: `{ userName, email, password, firstName, lastName }`
   - Response: `{ token, user }`
+  - **Note:** After successful registration, a 6-digit code will be sent to the user's email. The account will have `isVerified: false` initially.
+
+### Verify Account
+
+- **POST** `/api/users/verify`
+  - Body: `{ "email": "user@example.com", "code": "123456" }`
+  - Response:
+    - `200 OK`: Account activated successfully.
+    - `400 Bad Request`: Incorrect or expired code.
+
+### Forgot Password
+
+- **POST** `/api/users/forgot-password`
+  - Body: `{ "email": "user@example.com" }`
+  - Response:
+    - `200 OK`: Reset code sent to email.
+    - `404 Not Found`: Email not registered.
+
+### Reset Password
+
+- **POST** `/api/users/reset-password`
+  - Body: `{ "email": "user@example.com", "code": "123456", "newPassword": "new_secure_password" }`
+  - Response:
+    - `200 OK`: Password changed successfully.
+    - `400 Bad Request`: Incorrect or expired code.
+
+### Change Password (In-App)
+
+- **POST** `/api/users/change-password`
+  - Headers: `Authorization: Bearer {token}`
+  - Body: `{ "oldPassword": "password123", "newPassword": "newPassword456" }`
+  - Response:
+    - `200 OK`: Password changed successfully.
+    - `400 Bad Request`: Old password is incorrect.
 
 ### Get all users
 
 - **GET** `/api/users`
   - Headers: `Authorization: Bearer {token}`
   - Response: `[
-    "success": true,
-    "count": 10,
-    "data": [
-      {
-        "userProfile": {
-             "bgProfile": []
-             "bio": ******;
-             "prymaryColor": #****;
-        },
-        "points": 0,
-        "_id": "69************06",
-        "userName": "******",
-        "email": "**********@gmail.com",
-        "role": [
-            "user",
-            "admin",
-            "fdrfss"
-        ],
-        "gender": "other",
-        "userImage": [
-            "https://............jpg"
-        ],
-        "createdAt": "2025-11-22T16:30:13.627Z",
-        "updatedAt": "2025-11-26T11:59:38.463Z",
-        "__v": 0,
-        "firstName": "******",
-        "lastName": "****"
+"success": true,
+"count": 10,
+"data": [
+  {
+    "userProfile": {
+         "bgProfile": []
+         "bio": ******;
+         "prymaryColor": #****;
     },
-    ]]`
+    "points": 0,
+    "_id": "69************06",
+    "userName": "******",
+    "email": "**********@gmail.com",
+    "role": [
+        "user",
+        "admin",
+        "fdrfss"
+    ],
+    "gender": "other",
+    "userImage": [
+        "https://............jpg"
+    ],
+    "createdAt": "2025-11-22T16:30:13.627Z",
+    "updatedAt": "2025-11-26T11:59:38.463Z",
+    "__v": 0,
+    "firstName": "******",
+    "lastName": "****"
+},
+]]`
 
 ### Get user by ID
 
@@ -60,7 +94,6 @@
 ### Update user data {-role}
 
 - **PUT** `/api/users/:id`
-
   - Headers: `Authorization: Bearer {token}`
   - Body: `{ updates }`
   - Response: `{ user }`
@@ -288,7 +321,6 @@
 ### Update News Types
 
 - **PUT** `/api/newsType/:id`
-
   - Headers: `Authorization: Bearer {token}`
   - body: `{updates}`
   - Response: `{ updates }`

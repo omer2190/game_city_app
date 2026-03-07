@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/repositories/chat_repository.dart';
 
@@ -36,7 +37,7 @@ class RoomsController extends GetxController {
       _setupRoomListeners();
       _sortRoomsInternal();
     } catch (e) {
-      print('Failed to fetch rooms: $e');
+      debugPrint('Failed to fetch rooms: $e');
     } finally {
       isLoading.value = false;
     }
@@ -103,7 +104,7 @@ class RoomsController extends GetxController {
             _sortRoomsInternal();
           }
         } catch (e) {
-          print('Error parsing message for room $roomId: $e');
+          debugPrint('Error parsing message for room $roomId: $e');
         }
       }
     });
@@ -147,7 +148,7 @@ class RoomsController extends GetxController {
       final res = await _chatRepository.joinRoom(roomId);
       return res['success'] == true;
     } catch (e) {
-      print('Failed to join room: $e');
+      debugPrint('Failed to join room: $e');
       return false;
     }
   }

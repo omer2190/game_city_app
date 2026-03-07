@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/repositories/social_repository.dart';
@@ -17,7 +18,7 @@ class SuggestedFriendsController extends GetxController {
     try {
       isLoading(true);
       final list = await _socialRepository.getSuggestedFriends();
-      print(list);
+      debugPrint(list.toString());
       suggestions.assignAll(list);
     } catch (e) {
       Get.snackbar('Error', 'Failed to load suggestions: $e');
@@ -27,7 +28,7 @@ class SuggestedFriendsController extends GetxController {
   }
 
   void sendFriendRequest(String userId) async {
-    print(userId);
+    debugPrint(userId);
     try {
       await _socialRepository.sendFriendRequest(userId);
       Get.snackbar('نجاح', 'تم إرسال طلب الصداقة');

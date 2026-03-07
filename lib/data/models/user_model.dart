@@ -17,6 +17,7 @@ class UserModel {
   final String? phone;
   final List<GeneralInfoItem>? generalInfo;
   final bool? isFriend;
+  final bool? isVerified;
 
   UserModel({
     this.id,
@@ -37,6 +38,7 @@ class UserModel {
     this.phone,
     this.generalInfo,
     this.isFriend,
+    this.isVerified,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -100,6 +102,7 @@ class UserModel {
       phone: displayData['phone'],
       generalInfo: generalInfoList,
       isFriend: isFriendVal,
+      isVerified: displayData['isVerified'],
       id: requestId,
       userName: displayData['userName'],
       email: displayData['email'],
