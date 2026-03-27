@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../auth/controllers/auth_controller.dart';
 import '../controllers/user_profile_controller.dart';
 import '../../../data/models/user_model.dart';
@@ -391,18 +391,24 @@ class UserProfileView extends StatelessWidget {
           return InkWell(
             onTap: e.value != null
                 ? () async {
-                    final Uri uri = Uri.parse(e.value!);
+                    // نسخ الرابط إلى الحافظة
                     try {
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
-                      } else {
-                        Get.snackbar('تحذير', 'لا يمكن فتح الرابط');
-                      }
-                    } catch (ex) {
-                      Get.snackbar('خطأ', 'حدث خلل عند محاولة فتح الرابط');
+                      await Clipboard.setData(
+                        ClipboardData(text: e.value ?? ''),
+                      );
+                      Get.snackbar(
+                        'تم النسخ',
+                        'تم نسخ رابط ${e.name} إلى الحافظة',
+                        backgroundColor: Colors.green.withOpacity(0.1),
+                        colorText: Colors.white,
+                      );
+                    } catch (_) {
+                      Get.snackbar(
+                        'خطأ',
+                        'فشل نسخ الرابط، حاول مرة أخرى',
+                        backgroundColor: Colors.red.withOpacity(0.1),
+                        colorText: Colors.white,
+                      );
                     }
                   }
                 : null,
@@ -454,7 +460,7 @@ class UserProfileView extends StatelessWidget {
                   ),
                   if (e.value != null)
                     Icon(
-                      Icons.open_in_new_rounded,
+                      Icons.content_copy_rounded,
                       size: 14,
                       color: Theme.of(
                         context,

@@ -4,7 +4,8 @@ import '../../auth/controllers/auth_controller.dart';
 
 class UserPlayNowController extends GetxController {
   final AuthRepository _authRepository = AuthRepository();
-  final AuthController _authController = Get.find<AuthController>();
+  final AuthController _authController = Get.find<AuthController>()
+    ..refreshProfile();
   var playNowList = <String>[].obs;
   var isLoading = false.obs;
 
@@ -50,6 +51,7 @@ class UserPlayNowController extends GetxController {
       final response = await _authRepository.addGameToPlayNow(gameId);
       if (response['playNow'] != null) {
         playNowList.assignAll(List<String>.from(response['playNow']));
+        _authController.refreshProfile();
         Get.snackbar('نجاح', 'تمت إضافة اللعبة إلى قائمتك');
       }
     } catch (e) {
@@ -65,6 +67,7 @@ class UserPlayNowController extends GetxController {
       final response = await _authRepository.removeGameFromPlayNow(gameId);
       if (response['playNow'] != null) {
         playNowList.assignAll(List<String>.from(response['playNow']));
+        _authController.refreshProfile();
         Get.snackbar('نجاح', 'تمت إزالة اللعبة من قائمتك');
       }
     } catch (e) {

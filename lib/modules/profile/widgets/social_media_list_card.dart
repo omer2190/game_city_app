@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../data/models/user_model.dart';
 import '../../auth/controllers/auth_controller.dart';
 import '../../../shared/widgets/widgets.dart';
@@ -37,15 +37,25 @@ class SocialMediaListCard extends StatelessWidget {
                 value: e.value ?? '',
                 onTap: (e.value != null && e.value!.isNotEmpty)
                     ? () async {
+                        // نسخ الرابط إلى الحافظة
                         try {
-                          final Uri uri = Uri.parse(e.value!);
-                          if (await canLaunchUrl(uri)) {
-                            await launchUrl(
-                              uri,
-                              mode: LaunchMode.externalApplication,
-                            );
-                          }
-                        } catch (_) {}
+                          await Clipboard.setData(
+                            ClipboardData(text: e.value ?? ''),
+                          );
+                          Get.snackbar(
+                            'تم النسخ',
+                            'تم نسخ رابط ${e.name} إلى الحافظة',
+                            backgroundColor: Colors.green.withOpacity(0.1),
+                            colorText: Colors.white,
+                          );
+                        } catch (_) {
+                          Get.snackbar(
+                            'خطأ',
+                            'فشل نسخ الرابط، حاول مرة أخرى',
+                            backgroundColor: Colors.red.withOpacity(0.1),
+                            colorText: Colors.white,
+                          );
+                        }
                       }
                     : null,
                 onDelete: () {
@@ -81,7 +91,7 @@ class SocialMediaListCard extends StatelessWidget {
             ...notAdded.map((s) {
               return ProfileDetailItem(
                 label: s.name ?? '',
-                value: 'أضف رابط الـ ${s.name}',
+                value: 'أضف الـ ${s.name}',
                 onTap: () => _showAddDialog(context, authController, s),
               );
             }),
@@ -124,7 +134,7 @@ class SocialMediaListCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'أدخل رابط الحساب أو اسم المستخدم الخاص بك على ${service.name}',
+              'أدخل اسم المستخدم الخاص بك على ${service.name}',
               style: TextStyle(fontSize: 12, color: colorScheme.onSurface),
             ),
             const SizedBox(height: 15),
@@ -133,7 +143,7 @@ class SocialMediaListCard extends StatelessWidget {
               autofocus: true,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: 'https://...',
+                hintText: '',
                 hintStyle: TextStyle(
                   color: colorScheme.onSurface.withOpacity(0.35),
                 ),
@@ -166,14 +176,14 @@ class SocialMediaListCard extends StatelessWidget {
                   await authController.refreshProfile();
                   Get.snackbar(
                     'نجاح',
-                    'تم إضافة رابط ${service.name} بنجاح',
+                    'تم إضافة  ${service.name} بنجاح',
                     backgroundColor: Colors.green.withOpacity(0.1),
                     colorText: Colors.white,
                   );
                 } catch (_) {
                   Get.snackbar(
                     'خطأ',
-                    'فشل إضافة الرابط',
+                    'فشل إضافة ${service.name}، حاول مرة أخرى',
                     backgroundColor: Colors.red.withOpacity(0.1),
                     colorText: Colors.white,
                   );
