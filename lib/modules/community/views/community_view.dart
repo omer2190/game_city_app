@@ -227,10 +227,15 @@ class _CommunityViewState extends State<CommunityView>
           child: Row(
             children: [
               GestureDetector(
-                onTap: () =>
-                    Get.to(() => UserProfileView(userId: user.id ?? '')),
+                onTap: () => Get.to(
+                  () => UserProfileView(
+                    userId: user.id ?? '',
+                    heroTag:
+                        'avatar_${isFriend ? "friend" : "suggested"}_${user.id}',
+                  ),
+                ),
                 child: Hero(
-                  tag: 'avatar_${user.id}',
+                  tag: 'avatar_${isFriend ? "friend" : "suggested"}_${user.id}',
                   child: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,

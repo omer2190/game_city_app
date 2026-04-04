@@ -132,7 +132,11 @@ class FriendsController extends GetxController {
     try {
       isFriendsLoading(true);
       final list = await _socialRepository.getFriendsList();
-      friendsList.assignAll(list);
+      final Map<String, UserModel> uniqueMap = {};
+      for (var u in list) {
+        if (u.id != null) uniqueMap[u.id!] = u;
+      }
+      friendsList.assignAll(uniqueMap.values.toList());
       _setupChatListeners();
       _sortFriendsInternal();
     } catch (e) {
@@ -146,7 +150,11 @@ class FriendsController extends GetxController {
     try {
       isPendingLoading(true);
       final list = await _socialRepository.getPendingRequests();
-      pendingRequests.assignAll(list);
+      final Map<String, UserModel> uniqueMap = {};
+      for (var u in list) {
+        if (u.id != null) uniqueMap[u.id!] = u;
+      }
+      pendingRequests.assignAll(uniqueMap.values.toList());
     } catch (e) {
       debugPrint('Error fetching pending: $e');
     } finally {
@@ -162,7 +170,11 @@ class FriendsController extends GetxController {
     try {
       isSearchLoading(true);
       final list = await _socialRepository.searchUsers(query);
-      searchResults.assignAll(list);
+      final Map<String, UserModel> uniqueMap = {};
+      for (var u in list) {
+        if (u.id != null) uniqueMap[u.id!] = u;
+      }
+      searchResults.assignAll(uniqueMap.values.toList());
     } catch (e) {
       debugPrint('Search error: $e');
     } finally {

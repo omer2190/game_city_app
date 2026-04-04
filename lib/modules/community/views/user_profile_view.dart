@@ -11,8 +11,9 @@ import '../../../modules/profile/widgets/profile_detail_item.dart';
 
 class UserProfileView extends StatelessWidget {
   final String userId;
+  final String? heroTag;
 
-  UserProfileView({super.key, required this.userId});
+  UserProfileView({super.key, required this.userId, this.heroTag});
 
   final UserProfileController controller = Get.put(UserProfileController());
 
@@ -138,7 +139,7 @@ class UserProfileView extends StatelessWidget {
             const SizedBox(height: 30),
             // Avatar
             Hero(
-              tag: 'avatar_$userId',
+              tag: heroTag ?? 'avatar_$userId',
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(

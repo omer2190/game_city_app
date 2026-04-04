@@ -128,6 +128,19 @@ class UserModel {
           json['roomId'],
     );
   }
+
+  toJson() {
+    return {
+      '_id': id,
+      'userName': userName,
+      'email': email,
+      'firstName': firstName,
+      'lastName': lastName,
+      'userImage': userImage,
+      'role': role,
+      'points': points,
+    };
+  }
 }
 
 class GlobalGame {

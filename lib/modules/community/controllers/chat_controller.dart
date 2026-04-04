@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +10,7 @@ class ChatController extends GetxController {
   ChatController({required this.roomId});
 
   final ChatRepository _chatRepository = ChatRepository();
+  late final FirebaseDatabase _db;
   final _messages = <Map<String, dynamic>>[].obs;
   StreamSubscription<DatabaseEvent>? _sub;
 
@@ -17,12 +19,17 @@ class ChatController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _db = FirebaseDatabase.instanceFor(
+      app: Firebase.app(),
+      databaseURL:
+          'https://gaming-city-94354-default-rtdb.europe-west1.firebasedatabase.app/',
+    );
     _listenMessages();
   }
 
   void _listenMessages() {
     debugPrint('Listening to messages for room: $roomId');
-    final ref = FirebaseDatabase.instance.ref('chats/group_$roomId/messages');
+    final ref = _db.ref('chats/group_$roomId/messages');
 
     _sub = ref.onValue.listen((event) {
       if (event.snapshot.value != null) {
@@ -54,7 +61,7 @@ class ChatController extends GetxController {
 
   Future<void> updateMessage(String messageId, String newContent) async {
     try {
-      final ref = FirebaseDatabase.instance.ref(
+      final ref = _db.ref(
         'chats/group_$roomId/messages/$messageId',
       );
       await ref.update({'text': newContent, 'isEdited': true});
@@ -66,7 +73,7 @@ class ChatController extends GetxController {
 
   Future<void> deleteMessage(String messageId) async {
     try {
-      final ref = FirebaseDatabase.instance.ref(
+      final ref = _db.ref(
         'chats/group_$roomId/messages/$messageId',
       );
       await ref.remove();

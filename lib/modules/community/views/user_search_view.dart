@@ -180,8 +180,12 @@ class UserSearchView extends StatelessWidget {
           child: Row(
             children: [
               GestureDetector(
-                onTap: () =>
-                    Get.to(() => UserProfileView(userId: user.id ?? '')),
+                onTap: () => Get.to(
+                  () => UserProfileView(
+                    userId: user.id ?? '',
+                    heroTag: 'search_avatar_${user.id}',
+                  ),
+                ),
                 child: Hero(
                   tag: 'search_avatar_${user.id}',
                   child: CircleAvatar(

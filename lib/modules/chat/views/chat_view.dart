@@ -62,12 +62,17 @@ class _ChatViewState extends State<ChatView> {
         appBar: AppBar(
           title: GestureDetector(
             onTap: () {
-              Get.to(() => UserProfileView(userId: widget.recipient.id ?? ''));
+              Get.to(
+                () => UserProfileView(
+                  userId: widget.recipient.id ?? '',
+                  heroTag: 'chat_avatar_${widget.recipient.id}',
+                ),
+              );
             },
             child: Row(
               children: [
                 Hero(
-                  tag: 'avatar_${widget.recipient.id}',
+                  tag: 'chat_avatar_${widget.recipient.id}',
                   child: CircleAvatar(
                     radius: 18,
                     backgroundColor: colorScheme.primary.withOpacity(0.1),

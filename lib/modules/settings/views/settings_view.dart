@@ -88,11 +88,15 @@ class SettingsView extends GetView<SettingsController> {
                           await controller.openPrivacyPolicy();
                         },
                       ),
-                      _buildListTile(
-                        icon: Icons.numbers_rounded,
-                        title: 'إصدار التطبيق',
-                        subtitle: '1.1.0',
-                        onTap: null,
+                      Obx(
+                        () => _buildListTile(
+                          icon: Icons.numbers_rounded,
+                          title: 'إصدار التطبيق',
+                          subtitle: controller.appVersion.value.isEmpty
+                              ? 'جاري التحميل...'
+                              : controller.appVersion.value,
+                          onTap: null,
+                        ),
                       ),
                     ],
                   ),

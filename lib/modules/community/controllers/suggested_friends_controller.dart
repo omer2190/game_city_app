@@ -19,7 +19,11 @@ class SuggestedFriendsController extends GetxController {
       isLoading(true);
       final list = await _socialRepository.getSuggestedFriends();
       debugPrint(list.toString());
-      suggestions.assignAll(list);
+      final Map<String, UserModel> uniqueMap = {};
+      for (var u in list) {
+        if (u.id != null) uniqueMap[u.id!] = u;
+      }
+      suggestions.assignAll(uniqueMap.values.toList());
     } catch (e) {
       Get.snackbar('Error', 'Failed to load suggestions: $e');
     } finally {

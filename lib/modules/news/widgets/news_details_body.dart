@@ -10,6 +10,8 @@ class NewsDetailsBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    print('NewsDetailsBody: Building with news title: ${news.title}');
+    print('NewsDetailsBody: News content: ${news.userId?.toJson()}');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

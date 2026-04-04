@@ -42,12 +42,14 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBSRXQuCsqZOroa1Yr9kEf2k4KXDazY0Jw',
-    appId: '1:1033131122028:web:d32ac1a6fa4ff2f20f2749',
+    appId: '1:1033131122028:web:44d4d8bcf1e1e8c40f2749',
     messagingSenderId: '1033131122028',
     projectId: 'gaming-city-94354',
     authDomain: 'gaming-city-94354.firebaseapp.com',
+    databaseURL:
+        'https://gaming-city-94354-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'gaming-city-94354.firebasestorage.app',
-    measurementId: 'G-WB8E53TMJ1',
+    measurementId: 'G-EGXF290KDW',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -56,6 +58,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1033131122028',
     projectId: 'gaming-city-94354',
     storageBucket: 'gaming-city-94354.firebasestorage.app',
+    databaseURL: 'https://gaming-city-94354-default-rtdb.firebaseio.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -65,6 +68,7 @@ class DefaultFirebaseOptions {
     projectId: 'gaming-city-94354',
     storageBucket: 'gaming-city-94354.firebasestorage.app',
     iosBundleId: 'com.gamingcityapp.gaming2190',
+    databaseURL: 'https://gaming-city-94354-default-rtdb.firebaseio.com',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -82,6 +86,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1033131122028',
     projectId: 'gaming-city-94354',
     authDomain: 'gaming-city-94354.firebaseapp.com',
+    databaseURL:
+        'https://gaming-city-94354-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'gaming-city-94354.firebasestorage.app',
     measurementId: 'G-EGXF290KDW',
   );

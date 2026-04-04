@@ -24,8 +24,8 @@ class SocialRepository {
     );
   }
 
-  Future<void> acceptFriendRequest(String requestId) async {
-    await _apiClient.post(
+  Future<dynamic> acceptFriendRequest(String requestId) async {
+    return await _apiClient.post(
       ApiConstants.acceptFriendRequest,
       body: {'requestId': requestId},
     );

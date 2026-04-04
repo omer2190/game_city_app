@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/models/user_model.dart';
 import '../../../core/services/notification_service.dart';
@@ -96,19 +97,38 @@ class AuthController extends GetxController {
     }
   }
 
-  bool _isGoogleInitialized = false;
+  static bool _isGoogleInitialized = false;
+  static Future<void>? _googleInitFuture;
+
   Future<void> _initializeInternal() async {
     if (_isGoogleInitialized) return;
+
+    if (_googleInitFuture != null) {
+      await _googleInitFuture;
+      return;
+    }
+
     try {
-      await _googleSignIn.initialize(
-        serverClientId:
-            '1033131122028-uiehqmoi4ufjken3n8g9r2kv865o3e0a.apps.googleusercontent.com',
+      _googleInitFuture = _googleSignIn.initialize(
+        clientId: kIsWeb
+            ? '1033131122028-uiehqmoi4ufjken3n8g9r2kv865o3e0a.apps.googleusercontent.com'
+            : null,
+        serverClientId: kIsWeb
+            ? null
+            : '1033131122028-uiehqmoi4ufjken3n8g9r2kv865o3e0a.apps.googleusercontent.com',
       );
+      await _googleInitFuture;
       _isGoogleInitialized = true;
     } catch (e) {
-      if (kDebugMode) {
+      if (e.toString().contains('init()') ||
+          e.toString().contains('already initialized') ||
+          e.toString().contains('Bad state')) {
+        _isGoogleInitialized = true;
+      } else if (kDebugMode) {
         debugPrint('Google Sign-In initialization failed: $e');
       }
+    } finally {
+      _googleInitFuture = null;
     }
   }
 
@@ -221,26 +241,44 @@ class AuthController extends GetxController {
   Future<void> loginWithGoogle() async {
     try {
       isLoading.value = true;
+      String? googleIdToken;
 
-      // Ensure Google Sign In is initialized once with serverClientId
-      await _initializeInternal();
+      if (kIsWeb) {
+        // الاعتماد على Firebase Auth في إصدار الويب
+        GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        final UserCredential userCredential = await FirebaseAuth.instance
+            .signInWithPopup(googleProvider);
 
-      // 1. Sign in with Google to get account details
-      GoogleSignInAccount? googleUser;
-      try {
-        googleUser = await _googleSignIn.authenticate();
-      } on GoogleSignInException catch (e) {
-        if (e.code == GoogleSignInExceptionCode.canceled) {
-          isLoading.value = false;
-          return; // User cancelled
+        // 🔴 استخراج التوكن الخاص بجوجل (Google ID Token) بدلاً من توكن فايربيس
+        final OAuthCredential? credential =
+            userCredential.credential as OAuthCredential?;
+        googleIdToken = credential?.idToken;
+
+        // كخيار احتياطي في حال عدم عودته من الكريدينشال
+        if (googleIdToken == null) {
+          throw 'لم يتم العثور على رمز توثيق جوجل (Google ID Token) ضمن بيانات الاعتماد.';
         }
-        rethrow;
-      }
+      } else {
+        // Ensure Google Sign In is initialized once with serverClientId
+        await _initializeInternal();
 
-      // 2. Get authentication details (including tokens)
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-      final String? googleIdToken =
-          googleAuth.idToken; // هذا هو توكن جوجل المطلوب للسيرفر
+        // 1. Sign in with Google to get account details
+        GoogleSignInAccount googleUser;
+        try {
+          googleUser = await _googleSignIn.authenticate();
+        } on GoogleSignInException catch (e) {
+          if (e.code == GoogleSignInExceptionCode.canceled) {
+            isLoading.value = false;
+            return; // User cancelled
+          }
+          rethrow;
+        }
+
+        // 2. Get authentication details (including tokens)
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        googleIdToken = googleAuth.idToken;
+      }
 
       if (googleIdToken == null) {
         throw 'فشل الحصول على رمز التوثيق من جوجل. تأكد من إعداد SHA-1 في كونسول فايربيس.';

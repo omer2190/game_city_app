@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import '../../routes/app_routes.dart';
@@ -14,58 +15,66 @@ class NotificationService extends GetxService {
   static String? activeRoomId;
 
   Future<NotificationService> init() async {
-    // 1. Request permissions (especially for iOS and Android 13+)
-    await _fcm.requestPermission(alert: true, badge: true, sound: true);
+    try {
+      // 1. Request permissions (especially for iOS and Android 13+)
+      // On iOS Safari Web, this can throw if not triggered by a user gesture.
 
-    // 2. Initialize local notifications for foreground display
-    const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
-    );
-    const iosSettings = DarwinInitializationSettings();
-    const settings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
+      // 2. Initialize local notifications for foreground display
+      if (!kIsWeb) {
+        await _fcm.requestPermission(alert: true, badge: true, sound: true);
+        const androidSettings = AndroidInitializationSettings(
+          '@mipmap/ic_launcher',
+        );
+        const iosSettings = DarwinInitializationSettings();
+        const settings = InitializationSettings(
+          android: androidSettings,
+          iOS: iosSettings,
+        );
 
-    await _local.initialize(
-      settings,
-      onDidReceiveNotificationResponse: (details) {
-        if (details.payload != null) {
-          final data = jsonDecode(details.payload!);
-          _handleNotificationClick(data);
-        }
-      },
-    );
+        await _local.initialize(
+          settings,
+          onDidReceiveNotificationResponse: (details) {
+            if (details.payload != null) {
+              final data = jsonDecode(details.payload!);
+              _handleNotificationClick(data);
+            }
+          },
+        );
 
-    // 3. Create Android notification channel
-    const channel = AndroidNotificationChannel(
-      'chat_messages',
-      'رسائل الدردشة',
-      description: 'إشعارات الرسائل الجديدة في غرف الدردشة',
-      importance: Importance.max,
-      playSound: true,
-    );
+        // 3. Create Android notification channel
+        const channel = AndroidNotificationChannel(
+          'chat_messages',
+          'رسائل الدردشة',
+          description: 'إشعارات الرسائل الجديدة في غرف الدردشة',
+          importance: Importance.max,
+          playSound: true,
+        );
 
-    await _local
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(channel);
+        await _local
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >()
+            ?.createNotificationChannel(channel);
+      }
 
-    // 4. Handle foreground messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      _foregroundHandler(message);
-    });
+      // 4. Handle foreground messages
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        _foregroundHandler(message);
+      });
 
-    // 5. Handle app opening from notification
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      _handleNotificationClick(message.data);
-    });
+      // 5. Handle app opening from notification
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        _handleNotificationClick(message.data);
+      });
 
-    // 6. Handle notification that launched the app from terminated state
-    RemoteMessage? initialMessage = await _fcm.getInitialMessage();
-    if (initialMessage != null) {
-      _handleNotificationClick(initialMessage.data);
+      // 6. Handle notification that launched the app from terminated state
+      RemoteMessage? initialMessage = await _fcm.getInitialMessage();
+      if (initialMessage != null) {
+        _handleNotificationClick(initialMessage.data);
+      }
+    } catch (e) {
+      print('Notification Service Init Error: $e');
+      // Do not rethrow, so runApp() can still execute (fixes iOS Safari white screen)
     }
 
     return this;
@@ -85,27 +94,33 @@ class NotificationService extends GetxService {
   }
 
   Future<void> _showLocalNotification(RemoteMessage message) async {
+    if (kIsWeb) return; // Skip local notifications on web for now
+
     final notification = message.notification;
     final data = message.data;
 
     if (notification == null) return;
 
-    await _local.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          'chat_messages',
-          'رسائل الدردشة',
-          channelDescription: 'إشعارات الرسائل الجديدة في غرف الدردشة',
-          importance: Importance.max,
-          priority: Priority.high,
-          showWhen: true,
+    try {
+      await _local.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            'chat_messages',
+            'رسائل الدردشة',
+            channelDescription: 'إشعارات الرسائل الجديدة في غرف الدردشة',
+            importance: Importance.max,
+            priority: Priority.high,
+            showWhen: true,
+          ),
         ),
-      ),
-      payload: jsonEncode(data),
-    );
+        payload: jsonEncode(data),
+      );
+    } catch (e) {
+      print('Show local notification error: $e');
+    }
   }
 
   void _handleNotificationClick(Map<String, dynamic> data) {
@@ -134,6 +149,12 @@ class NotificationService extends GetxService {
   }
 
   Future<String?> getToken() async {
+    if (kIsWeb) {
+      return await _fcm.getToken(
+        vapidKey:
+            'BMD_vH0Y-XXXXXXXXX_PLACEHOLDER', // Required for Web. Replace with your actual VAPID key from Firebase Console.
+      );
+    }
     return await _fcm.getToken();
   }
 }

@@ -22,7 +22,7 @@ class CustomButton extends StatelessWidget {
     this.isLoading = false,
     this.icon,
     this.width,
-    this.height = 40,
+    this.height = 50,
     this.backgroundColor,
     this.textColor,
     this.borderRadius = 12,
@@ -75,7 +75,7 @@ class CustomButton extends StatelessWidget {
           elevation: type == ButtonType.primary || type == ButtonType.secondary
               ? 2
               : 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         ),
         child: isLoading
             ? SizedBox(
@@ -91,12 +91,17 @@ class CustomButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[icon!, const SizedBox(width: 8)],
-                  Text(
-                    text,
-                    style: TextStyle(
-                      // fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: foregroundColor,
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        text,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: foregroundColor,
+                        ),
+                      ),
                     ),
                   ),
                 ],
