@@ -26,7 +26,7 @@ doc/api/
 .flutter-plugins
 .flutter-plugins-dependencies
 
-# Android signing
-android/key.properties
-android/app/*.jks
-android/app/*.keystore
+# # Android signing
+# android/key.properties
+# android/app/*.jks
+# android/app/*.keystore
