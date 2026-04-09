@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:game_city_app/core/services/storage_service.dart';
 
 class ThemeService extends GetxController {
   final _storage = GetStorage();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:game_city_app/core/services/storage_service.dart';
 import '../../routes/app_routes.dart';
 
 class AuthMiddleware extends GetMiddleware {
@@ -8,6 +8,10 @@ class AuthMiddleware extends GetMiddleware {
   RouteSettings? redirect(String? route) {
     final storage = GetStorage();
     final token = storage.read('token');
+
+    debugPrint(
+      'AuthMiddleware: checking route $route, token exists: ${token != null}',
+    );
 
     // If the user is not logged in and is trying to access a restricted route,
     // redirect them to the login page.

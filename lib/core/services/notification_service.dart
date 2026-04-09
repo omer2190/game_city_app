@@ -1,6 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:game_city_app/data/repositories/games_repository.dart';
+import 'package:game_city_app/data/repositories/news_repository.dart';
 import 'package:get/get.dart';
 import '../../routes/app_routes.dart';
 import 'dart:convert';
@@ -20,45 +23,52 @@ class NotificationService extends GetxService {
       // On iOS Safari Web, this can throw if not triggered by a user gesture.
 
       // 2. Initialize local notifications for foreground display
-      if (!kIsWeb) {
-        await _fcm.requestPermission(alert: true, badge: true, sound: true);
-        const androidSettings = AndroidInitializationSettings(
-          '@mipmap/ic_launcher',
-        );
-        const iosSettings = DarwinInitializationSettings();
-        const settings = InitializationSettings(
-          android: androidSettings,
-          iOS: iosSettings,
-        );
+      // if (!kIsWeb) {
+      await _fcm.requestPermission(alert: true, badge: true, sound: true);
+      const androidSettings = AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      );
+      const iosSettings = DarwinInitializationSettings();
+      const settings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
 
-        await _local.initialize(
-          settings,
-          onDidReceiveNotificationResponse: (details) {
-            if (details.payload != null) {
-              final data = jsonDecode(details.payload!);
-              _handleNotificationClick(data);
-            }
-          },
-        );
+      await _local.initialize(
+        settings,
+        onDidReceiveNotificationResponse: (details) {
+          if (details.payload != null) {
+            final data = jsonDecode(details.payload!);
+            _handleNotificationClick(data);
+          }
+        },
+      );
 
-        // 3. Create Android notification channel
-        const channel = AndroidNotificationChannel(
-          'chat_messages',
-          'رسائل الدردشة',
-          description: 'إشعارات الرسائل الجديدة في غرف الدردشة',
-          importance: Importance.max,
-          playSound: true,
-        );
+      // 3. Create Android notification channel
+      const channel = AndroidNotificationChannel(
+        'chat_messages',
+        'رسائل الدردشة',
+        description: 'إشعارات الرسائل الجديدة في غرف الدردشة',
+        importance: Importance.max,
+        playSound: true,
+      );
 
-        await _local
-            .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin
-            >()
-            ?.createNotificationChannel(channel);
-      }
+      await _local
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.createNotificationChannel(channel);
+      // }
 
       // 4. Handle foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        if (kDebugMode) {
+          print('!!! Raw Foreground Message Received !!!');
+          print('From: ${message.from}');
+          print('Notification Title: ${message.notification?.title}');
+          print('Notification Body: ${message.notification?.body}');
+          print('Data Content: ${message.data}');
+        }
         _foregroundHandler(message);
       });
 
@@ -73,7 +83,9 @@ class NotificationService extends GetxService {
         _handleNotificationClick(initialMessage.data);
       }
     } catch (e) {
-      print('Notification Service Init Error: $e');
+      if (kDebugMode) {
+        print('Notification Service Init Error: $e');
+      }
       // Do not rethrow, so runApp() can still execute (fixes iOS Safari white screen)
     }
 
@@ -81,6 +93,14 @@ class NotificationService extends GetxService {
   }
 
   void _foregroundHandler(RemoteMessage message) {
+    if (kDebugMode) {
+      print('--- New Foreground Message ---');
+      print('Title: ${message.notification?.title}');
+      print('Body: ${message.notification?.body}');
+      print('Data: ${message.data}');
+      print('------------------------------');
+    }
+
     // Extract data
     final String? roomId = message.data['roomId'];
 
@@ -119,24 +139,82 @@ class NotificationService extends GetxService {
         payload: jsonEncode(data),
       );
     } catch (e) {
-      print('Show local notification error: $e');
+      if (kDebugMode) {
+        print('Error showing local notification: $e');
+      }
     }
   }
 
-  void _handleNotificationClick(Map<String, dynamic> data) {
-    print('Handling notification click with data: $data');
+  void _handleNotificationClick(Map<String, dynamic> data) async {
+    if (kDebugMode) {
+      print('--- Notification Clicked ---');
+      print('Data: $data');
+      print('----------------------------');
+    }
+
     final String? roomId = data['roomId'];
     final String? type = data['type'];
     final String? id = data['id'];
+    final String? roomName = data['roomName'];
 
-    if (roomId != null) {
-      // Get.toNamed(AppRoutes.chatRoom, arguments: {'roomId': roomId});
+    if (type == 'chat_message' && roomId != null) {
+      Get.toNamed(
+        AppRoutes.chatRoom,
+        arguments: {'roomId': roomId, 'roomName': roomName},
+      );
+    } else if (roomId != null) {
+      Get.toNamed(
+        AppRoutes.chatRoom,
+        arguments: {'roomId': roomId, 'roomName': roomName},
+      );
     } else if (type == 'news' && id != null) {
-      Get.toNamed(AppRoutes.news, arguments: id);
+      // Show loading while fetching news object
+      Get.dialog(
+        const Center(child: CircularProgressIndicator()),
+        barrierDismissible: false,
+      );
+
+      try {
+        final NewsRepository newsRepository = NewsRepository();
+        final newsItem = await newsRepository.getNewsById(id);
+
+        Get.back(); // Close loading
+
+        Get.toNamed(AppRoutes.newsDetails, arguments: newsItem);
+      } catch (e) {
+        Get.back(); // Close loading
+        if (kDebugMode) {
+          print('Error fetching news by ID: $e');
+        }
+        Get.snackbar('Error', 'Failed to load news details');
+      }
     } else if (type == 'new_game' && id != null) {
-      Get.toNamed(AppRoutes.game, arguments: id);
+      // Show loading while fetching game object
+      Get.dialog(
+        const Center(child: CircularProgressIndicator()),
+        barrierDismissible: false,
+      );
+
+      try {
+        final GamesRepository gamesRepository = GamesRepository();
+        final gameItem = await gamesRepository.getGameById(id);
+
+        Get.back(); // Close loading
+
+        if (gameItem != null) {
+          Get.toNamed(AppRoutes.gameDetails, arguments: gameItem);
+        } else {
+          Get.snackbar('Alert', 'Game facts not found');
+        }
+      } catch (e) {
+        Get.back(); // Close loading
+        if (kDebugMode) {
+          print('Error fetching game by ID: $e');
+        }
+        Get.snackbar('Error', 'Failed to load game details');
+      }
     } else if (type == 'friend_request' || type == 'friend_accept') {
-      Get.toNamed(AppRoutes.profile, arguments: id);
+      Get.toNamed(AppRoutes.profile, arguments: {'id': id});
     } else if (type == 'chat_message') {
       // For chat messages without a roomId, we might want to navigate to a general chat list or profile
       Get.toNamed(AppRoutes.chatRoom);
@@ -152,7 +230,7 @@ class NotificationService extends GetxService {
     if (kIsWeb) {
       return await _fcm.getToken(
         vapidKey:
-            'BMD_vH0Y-XXXXXXXXX_PLACEHOLDER', // Required for Web. Replace with your actual VAPID key from Firebase Console.
+            'BNlg9My1BdEL-IQFg8adErfR_0vSrChM-6LTlWinIOs2tiP-N6BKgM5t6yDIsQohJbTy2d66rGcE1VXDGtXhaK4', // Required for Web. Replace with your actual VAPID key from Firebase Console.
       );
     }
     return await _fcm.getToken();

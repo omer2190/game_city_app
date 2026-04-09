@@ -347,14 +347,18 @@ class BasesPage extends StatelessWidget {
                               ),
                               Row(
                                 children: [
-                                  Text(
-                                    game.store ?? '',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.6),
-                                      fontSize: 12,
+                                  Expanded(
+                                    child: Text(
+                                      game.store ?? '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.6),
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
-                                  const Spacer(),
+                                  const SizedBox(width: 4),
                                   Text(
                                     game.worth ?? 'Free',
                                     style: const TextStyle(

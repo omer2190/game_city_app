@@ -32,7 +32,6 @@ class SuggestedFriendsController extends GetxController {
   }
 
   void sendFriendRequest(String userId) async {
-    debugPrint(userId);
     try {
       await _socialRepository.sendFriendRequest(userId);
       Get.snackbar('نجاح', 'تم إرسال طلب الصداقة');

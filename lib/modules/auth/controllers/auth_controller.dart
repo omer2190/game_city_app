@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:game_city_app/core/services/storage_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -104,8 +104,7 @@ class AuthController extends GetxController {
     if (_isGoogleInitialized) return;
 
     if (_googleInitFuture != null) {
-      await _googleInitFuture;
-      return;
+      return _googleInitFuture;
     }
 
     try {
@@ -127,13 +126,17 @@ class AuthController extends GetxController {
       } else if (kDebugMode) {
         debugPrint('Google Sign-In initialization failed: $e');
       }
-    } finally {
-      _googleInitFuture = null;
     }
   }
 
   Future<void> updateFcmToken() async {
     try {
+      // if (!Get.isRegistered<NotificationService>()) {
+      //   if (kDebugMode) {
+      //     debugPrint('NotificationService not yet registered. Skipping FCM token update.');
+      //   }
+      //   return;
+      // }
       final token = await NotificationService.to.getToken();
       if (token != null) {
         await _authRepository.updateUser({'fcmToken': token});
@@ -202,9 +205,14 @@ class AuthController extends GetxController {
       final userData = response['user'];
 
       if (token != null) {
-        _storage.write('token', token);
+        final tokenWritten = await _storage.write('token', token);
+        debugPrint(
+          'Final Verification - storage instance: ${_storage.hashCode}',
+        );
+        debugPrint('Token write status: $tokenWritten');
+
         if (userData != null) {
-          _storage.write('user', userData);
+          await _storage.write('user', userData);
           userModel.value = UserModel.fromJson(userData);
         } else {
           await refreshProfile();
@@ -219,6 +227,8 @@ class AuthController extends GetxController {
           backgroundColor: Colors.green.withOpacity(0.1),
           colorText: Colors.white,
         );
+        debugPrint('Reading token back immediately: ${_storage.read('token')}');
+        debugPrint('Login success, navigating to: ${AppRoutes.home}');
         Get.offAllNamed(AppRoutes.home);
       } else {
         throw 'فشل تسجيل الدخول: بيانات ناقصة';
@@ -309,6 +319,7 @@ class AuthController extends GetxController {
             backgroundColor: Colors.green.withOpacity(0.1),
             colorText: Colors.white,
           );
+          debugPrint('Google Login success, navigating to: ${AppRoutes.home}');
           Get.offAllNamed(AppRoutes.home);
         } else {
           throw 'فشل تسجيل الدخول: رمز غير صالح من الخادم';

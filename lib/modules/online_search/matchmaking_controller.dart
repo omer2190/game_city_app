@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:game_city_app/core/services/storage_service.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../../../data/models/matchmaking_model.dart';
 import '../../../data/repositories/matchmaking_repository.dart';

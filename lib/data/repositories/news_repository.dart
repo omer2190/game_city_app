@@ -26,6 +26,18 @@ class NewsRepository {
     throw Exception('Invalid response format');
   }
 
+  Future<News> getNewsById(String newsId) async {
+    final response = await _apiClient.get('${ApiConstants.news}$newsId');
+    if (response is Map<String, dynamic>) {
+      // Assuming the API returns the news object directly or inside a 'news' key
+      if (response.containsKey('news')) {
+        return News.fromJson(response['news']);
+      }
+      return News.fromJson(response);
+    }
+    throw Exception('Invalid response format');
+  }
+
   Future<Map<String, dynamic>> toggleLike(String newsId) async {
     return await _apiClient.post(
       '${ApiConstants.baseUrl}/api/likes/togglelike',

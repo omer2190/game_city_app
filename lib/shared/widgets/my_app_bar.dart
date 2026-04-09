@@ -8,8 +8,15 @@ import '../../modules/notifications/controllers/notifications_controller.dart';
 
 AppBar myAppBar(BuildContext context) {
   final theme = Theme.of(context);
-  final AuthController authController = Get.find<AuthController>();
-  final notificationsController = Get.find<NotificationsController>();
+
+  final AuthController authController = Get.isRegistered<AuthController>()
+      ? Get.find<AuthController>()
+      : Get.put(AuthController());
+
+  final notificationsController = Get.isRegistered<NotificationsController>()
+      ? Get.find<NotificationsController>()
+      : Get.put(NotificationsController());
+
   return AppBar(
     elevation: 0,
     toolbarHeight: 0,

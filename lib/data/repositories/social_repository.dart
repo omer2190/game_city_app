@@ -13,6 +13,7 @@ class SocialRepository {
 
   Future<List<UserModel>> getFriendsList() async {
     final response = await _apiClient.get(ApiConstants.friendsList);
+    print('Raw friends list response: $response');
     final List<dynamic> body = response as List<dynamic>;
     return body.map((item) => UserModel.fromJson(item)).toList();
   }

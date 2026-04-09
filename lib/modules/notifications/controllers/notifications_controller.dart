@@ -21,7 +21,7 @@ class NotificationsController extends GetxController {
       final list = await _repository.getNotifications();
       notifications.assignAll(list);
     } catch (e) {
-      Get.snackbar('خطأ', 'فشل جلب الإشعارات: $e');
+      // Get.snackbar('خطأ', 'فشل جلب الإشعارات: $e');
     } finally {
       isLoading(false);
     }

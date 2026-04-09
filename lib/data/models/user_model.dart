@@ -109,10 +109,16 @@ class UserModel {
       firstName: displayData['firstName'],
       lastName: displayData['lastName'],
       userImage: displayData['userImage'] != null
-          ? List<String>.from(displayData['userImage'])
+          ? (displayData['userImage'] as List)
+                .map((e) => e?.toString())
+                .whereType<String>()
+                .toList()
           : null,
       role: displayData['role'] != null
-          ? List<String>.from(displayData['role'])
+          ? (displayData['role'] as List)
+                .map((e) => e?.toString())
+                .whereType<String>()
+                .toList()
           : null,
       points: displayData['points'],
       gender: displayData['gender'],
@@ -163,7 +169,12 @@ class GlobalGame {
       id: (json['_id'] ?? json['id'])?.toString(),
       name: json['name'],
       backgroundImage: json['backgroundImage'],
-      genres: json['genres'] != null ? List<String>.from(json['genres']) : null,
+      genres: json['genres'] != null
+          ? (json['genres'] as List)
+                .map((e) => e?.toString())
+                .whereType<String>()
+                .toList()
+          : null,
       rating: (json['rating'] as num?)?.toDouble(),
     );
   }
@@ -181,7 +192,10 @@ class UserProfile {
       bio: json['bio'],
       primaryColor: json['primaryColor'],
       bgProfile: json['bgProfile'] != null
-          ? List<String>.from(json['bgProfile'])
+          ? (json['bgProfile'] as List)
+                .map((e) => e?.toString())
+                .whereType<String>()
+                .toList()
           : null,
     );
   }
@@ -229,13 +243,8 @@ class SocialMediaService {
   final String? value;
   final String? icon;
 
-  SocialMediaService({
-    required this.id,
-    this.name,
-    this.key,
-    this.value,
-    this.icon,
-  });
+  SocialMediaService({String? id, this.name, this.key, this.value, this.icon})
+    : id = id ?? '';
 
   factory SocialMediaService.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic>? serviceInfo;

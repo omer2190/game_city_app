@@ -8,13 +8,20 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../routes/app_routes.dart';
 
-class SettingsView extends GetView<SettingsController> {
+class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // If AuthController is not put yet, we use find (it's normally put in ProfileView or Login)
-    final authController = Get.find<AuthController>();
+    // Ensure SettingsController is available
+    final controller = Get.isRegistered<SettingsController>()
+        ? Get.find<SettingsController>()
+        : Get.put(SettingsController());
+
+    // Ensure AuthController is available
+    final authController = Get.isRegistered<AuthController>()
+        ? Get.find<AuthController>()
+        : Get.put(AuthController());
 
     return LayoutMine(
       // appBar: AppBar(title: const Text('الإعدادات'), centerTitle: true),
@@ -29,6 +36,28 @@ class SettingsView extends GetView<SettingsController> {
                 CustomCard(
                   child: Column(
                     children: [
+                      _buildListTile(
+                        icon: Icons.notifications_active_outlined,
+                        title: 'تفعيل الإشعارات',
+                        subtitle: 'مطلوب للمتصفحات لاستلام التنبيهات',
+                        trailing: Obx(
+                          () => controller.isRequestingPermission.value
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 14,
+                                  color: Get.theme.colorScheme.primary,
+                                ),
+                        ),
+                        onTap: () => controller.requestNotificationPermission(),
+                      ),
+                      const Divider(height: 1, indent: 50, endIndent: 16),
                       _buildListTile(
                         icon: Icons.lock_outline_rounded,
                         title: 'تغيير كلمة المرور',
@@ -140,6 +169,7 @@ class SettingsView extends GetView<SettingsController> {
     required IconData icon,
     required String title,
     String? subtitle,
+    Widget? trailing,
     VoidCallback? onTap,
   }) {
     return ListTile(
@@ -148,10 +178,16 @@ class SettingsView extends GetView<SettingsController> {
         title,
         style: TextStyle(color: Get.theme.colorScheme.onSurfaceVariant),
       ),
-      subtitle: subtitle != null ? Text(subtitle) : null,
-      trailing: onTap != null
-          ? const Icon(Icons.arrow_forward_ios_rounded, size: 16)
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 12,
+                color: Get.theme.colorScheme.onSurface.withOpacity(0.6),
+              ),
+            )
           : null,
+      trailing: trailing,
       onTap: onTap,
     );
   }

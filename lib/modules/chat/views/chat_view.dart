@@ -32,6 +32,9 @@ class _ChatViewState extends State<ChatView> {
     if (widget.recipient.chatRoomId != null) {
       controller.listenToMessages(widget.recipient.chatRoomId!);
     }
+    print(
+      'ChatView initialized for recipient: ${widget.recipient.userName} (ID: ${widget.recipient.id})',
+    );
   }
 
   void _scrollToBottom() {

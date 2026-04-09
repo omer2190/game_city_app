@@ -52,51 +52,57 @@ class VersionService extends GetxService {
     if (_isDialogShowing) return;
     _isDialogShowing = true;
 
-    Get.dialog(
-      PopScope(
-        canPop: !_isMandatory,
-        onPopInvoked: (didPop) {
-          if (didPop) _isDialogShowing = false;
-        },
-        child: AlertDialog(
-          title: const Text(
-            'تحديث جديد متوفر',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            'هناك إصدار جديد من التطبيق متوفر، يرجى التحديث للحصول على آخر المميزات والتحسينات.',
-            textAlign: TextAlign.center,
-          ),
-          actions: [
-            if (!_isMandatory)
-              TextButton(
-                onPressed: () {
-                  _isDialogShowing = false;
-                  Get.back();
-                },
-                child: const Text('لاحقاً'),
-              ),
-            ElevatedButton(
-              onPressed: () async {
-                if (_updateUrl != null) {
-                  final uri = Uri.parse(_updateUrl!);
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Get.theme.primaryColor,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('تحديث الآن'),
+    // Use WidgetsBinding.instance.addPostFrameCallback to ensure navigation is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.dialog(
+        PopScope(
+          canPop: !_isMandatory,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) _isDialogShowing = false;
+          },
+          child: AlertDialog(
+            title: const Text(
+              'تحديث جديد متوفر',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-          ],
+            content: const Text(
+              'هناك إصدار جديد من التطبيق متوفر، يرجى التحديث للحصول على آخر المميزات والتحسينات.',
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              if (!_isMandatory)
+                TextButton(
+                  onPressed: () {
+                    _isDialogShowing = false;
+                    Get.back();
+                  },
+                  child: const Text('لاحقاً'),
+                ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_updateUrl != null) {
+                    final uri = Uri.parse(_updateUrl!);
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Get.theme.primaryColor,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('تحديث الآن'),
+              ),
+            ],
+          ),
         ),
-      ),
-      barrierDismissible: !_isMandatory,
-    ).then((_) => _isDialogShowing = false);
+        barrierDismissible: !_isMandatory,
+      ).then((_) => _isDialogShowing = false);
+    });
   }
 
   void checkAndShowIfNeeded() {

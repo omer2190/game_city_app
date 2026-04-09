@@ -3,7 +3,7 @@ import 'package:game_city_app/core/values/api_constants.dart';
 import 'package:game_city_app/routes/app_routes.dart';
 import 'package:get/get.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:game_city_app/core/services/storage_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';

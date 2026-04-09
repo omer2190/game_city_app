@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart' as dio;
-import 'package:get_storage/get_storage.dart';
+import 'package:game_city_app/core/services/storage_service.dart';
 
 import '../../routes/app_routes.dart';
 
