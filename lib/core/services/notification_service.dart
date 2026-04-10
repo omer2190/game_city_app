@@ -154,7 +154,7 @@ class NotificationService extends GetxService {
 
     final String? roomId = data['roomId'];
     final String? type = data['type'];
-    final String? id = data['id'];
+    final String? id = data['id'] ?? data['gameId'];
     final String? roomName = data['roomName'];
 
     if (type == 'chat_message' && roomId != null) {
