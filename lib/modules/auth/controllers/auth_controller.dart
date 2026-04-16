@@ -205,11 +205,11 @@ class AuthController extends GetxController {
       final userData = response['user'];
 
       if (token != null) {
-        final tokenWritten = await _storage.write('token', token);
+        await _storage.write('token', token);
         debugPrint(
           'Final Verification - storage instance: ${_storage.hashCode}',
         );
-        debugPrint('Token write status: $tokenWritten');
+        debugPrint('Token written successfully');
 
         if (userData != null) {
           await _storage.write('user', userData);

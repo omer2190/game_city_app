@@ -5,6 +5,7 @@ import 'package:game_city_app/shared/header.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/values/app_colors.dart';
+import '../../../core/values/app_constants.dart';
 import '../../../data/models/game_model.dart';
 import '../../../data/models/news_model.dart';
 import '../../../shared/layout_mine.dart';
@@ -157,12 +158,15 @@ class BasesPage extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              image: ad.imageUrl != null
+              image: (ad.imageUrl != null && ad.imageUrl!.isNotEmpty)
                   ? DecorationImage(
                       image: CachedNetworkImageProvider(ad.imageUrl!),
                       fit: BoxFit.cover,
                     )
-                  : null,
+                  : const DecorationImage(
+                      image: NetworkImage(AppConstants.defaultGameImage),
+                      fit: BoxFit.cover,
+                    ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.4),
@@ -236,17 +240,19 @@ class BasesPage extends StatelessWidget {
                         ),
                         child: CircleAvatar(
                           radius: 28,
-                          backgroundColor: Colors.white10,
+                          backgroundColor: Colors.transparent,
                           backgroundImage:
                               (player.userImage != null &&
-                                  player.userImage!.isNotEmpty)
+                                  player.userImage!.isNotEmpty &&
+                                  player.userImage!.first.isNotEmpty)
                               ? CachedNetworkImageProvider(
                                   player.userImage!.first,
                                 )
                               : null,
                           child:
                               (player.userImage == null ||
-                                  player.userImage!.isEmpty)
+                                  player.userImage!.isEmpty ||
+                                  player.userImage!.first.isEmpty)
                               ? const Icon(Icons.person, color: Colors.white30)
                               : null,
                         ),
@@ -304,15 +310,35 @@ class BasesPage extends StatelessWidget {
                 child: CustomCard(
                   padding: EdgeInsets.zero,
                   onTap: () {
-                    Get.toNamed(AppRoutes.gameDetails, arguments: game);
+                    Get.toNamed(
+                      AppRoutes.gameDetails,
+                      arguments: {'gameId': game.id},
+                    );
                   },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Stack(
                       children: [
-                        if (game.image != null)
+                        if (game.image != null && game.image!.isNotEmpty)
                           CachedNetworkImage(
                             imageUrl: game.image!,
+                            placeholder: (context, url) => Container(
+                              color: Colors.white10,
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Image.network(
+                              AppConstants.defaultGameImage,
+                              fit: BoxFit.cover,
+                            ),
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Image.network(
+                            AppConstants.defaultGameImage,
                             width: double.infinity,
                             height: double.infinity,
                             fit: BoxFit.cover,
@@ -445,15 +471,35 @@ class BasesPage extends StatelessWidget {
                 child: CustomCard(
                   padding: EdgeInsets.zero,
                   onTap: () {
-                    Get.toNamed(AppRoutes.gameDetails, arguments: game);
+                    Get.toNamed(
+                      AppRoutes.gameDetails,
+                      arguments: {'gameId': game.id},
+                    );
                   },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Stack(
                       children: [
-                        if (game.image != null)
+                        if (game.image != null && game.image!.isNotEmpty)
                           CachedNetworkImage(
                             imageUrl: game.image!,
+                            placeholder: (context, url) => Container(
+                              color: Colors.white10,
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Image.network(
+                              AppConstants.defaultGameImage,
+                              fit: BoxFit.cover,
+                            ),
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Image.network(
+                            AppConstants.defaultGameImage,
                             width: double.infinity,
                             height: double.infinity,
                             fit: BoxFit.cover,

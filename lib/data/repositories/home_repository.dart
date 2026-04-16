@@ -9,10 +9,12 @@ class HomeRepository {
     try {
       final response = await _apiClient.get(ApiConstants.homeDashboard);
       if (response['success'] == true) {
+        print('Home Dashboard Response: ${response['data']}');
         return HomeDashboardModel.fromJson(response['data']);
       }
       return null;
     } catch (e) {
+      print('Error fetching home dashboard: $e');
       rethrow;
     }
   }

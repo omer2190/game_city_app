@@ -1,79 +1,64 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get_storage/get_storage.dart' as gs;
 
-class GetStorage {
-  static SharedPreferences? _prefs;
-
-  factory GetStorage() {
-    return _instance;
-  }
-
-  static final GetStorage _instance = GetStorage._internal();
-
-  GetStorage._internal();
+class StorageService {
+  static final gs.GetStorage _box = gs.GetStorage();
 
   static Future<void> init() async {
-    _prefs = await SharedPreferences.getInstance();
-    print('StorageService: SharedPreferences initialized: ${_prefs != null}');
+    await gs.GetStorage.init();
+    print('StorageService: GetStorage initialized');
   }
 
   dynamic read<T>(String key) {
-    if (_prefs == null) {
-      print('CRITICAL: _prefs is null inside read() fetching key: $key');
-      return null;
-    }
-    var val = _prefs!.get(key);
+    var val = _box.read(key);
     if (val is String) {
       try {
-        // Attempt to decode JSON in case it was explicitly encoded (e.g., Map or List)
         return jsonDecode(val);
       } catch (e) {
-        // Not a JSON string
         return val;
       }
     }
     return val;
   }
 
-  Future<bool> write(String key, dynamic value) async {
-    if (_prefs == null) {
-      print('CRITICAL: _prefs is null inside write(), initializing...');
-      await init();
-    }
-    if (_prefs == null) return false;
-
+  Future<void> write(String key, dynamic value) async {
     if (value == null) {
-      return await _prefs!.remove(key);
+      await _box.remove(key);
+      return;
     }
 
-    bool success = false;
-    if (value is String) {
-      success = await _prefs!.setString(key, value);
-    } else if (value is int) {
-      success = await _prefs!.setInt(key, value);
-    } else if (value is double) {
-      success = await _prefs!.setDouble(key, value);
-    } else if (value is bool) {
-      success = await _prefs!.setBool(key, value);
-    } else if (value is List<String>) {
-      success = await _prefs!.setStringList(key, value);
+    if (value is String ||
+        value is int ||
+        value is double ||
+        value is bool ||
+        value is List) {
+      await _box.write(key, value);
     } else {
-      // Encode maps, objects or unhandled types to json string
-      success = await _prefs!.setString(key, jsonEncode(value));
+      await _box.write(key, jsonEncode(value));
     }
-    return success;
   }
 
   Future<void> remove(String key) async {
-    if (_prefs == null) return;
-    await _prefs!.remove(key);
+    await _box.remove(key);
   }
 
   bool hasData(String key) {
-    if (_prefs == null) {
-      print('CRITICAL: _prefs is null inside hasData()');
-      return false;
-    }
-    return _prefs!.containsKey(key);
+    return _box.hasData(key);
   }
+
+  Future<void> clear() async {
+    await _box.erase();
+  }
+}
+
+class GetStorage {
+  static final gs.GetStorage _box = gs.GetStorage();
+
+  static Future<void> init() async => gs.GetStorage.init();
+
+  dynamic read(String key) => _box.read(key);
+  Future<void> write(String key, dynamic value) => _box.write(key, value);
+  Future<void> remove(String key) => _box.remove(key);
+  bool hasData(String key) => _box.hasData(key);
+  Future<void> erase() => _box.erase();
 }

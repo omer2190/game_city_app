@@ -60,7 +60,7 @@ class DiscountedGamesView extends StatelessWidget {
                                 : null,
                             onTap: () => Get.toNamed(
                               AppRoutes.gameDetails,
-                              arguments: game,
+                              arguments: {'gameId': game.id},
                             ),
                           );
                         },

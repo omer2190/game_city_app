@@ -46,10 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1033131122028',
     projectId: 'gaming-city-94354',
     authDomain: 'gaming-city-94354.firebaseapp.com',
-    databaseURL:
-        'https://gaming-city-94354-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'gaming-city-94354.firebasestorage.app',
-    measurementId: 'G-EGXF290KDW',
   );
 
   static const FirebaseOptions android = FirebaseOptions(

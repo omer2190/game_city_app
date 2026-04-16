@@ -36,6 +36,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await StorageService.init();
 
   try {
     // Set timeago to Arabic
@@ -71,8 +72,7 @@ void main() async {
     // Set background handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    await GetStorage.init();
-    debugPrint('GetStorage (SharedPreferences) initialized successfully');
+    debugPrint('StorageService initialized successfully');
 
     // Initialize Services
     final notificationService = Get.put(NotificationService());

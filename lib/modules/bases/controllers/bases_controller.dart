@@ -20,6 +20,7 @@ class BasesController extends GetxController {
       final data = await _repository.getHomeDashboard();
       dashboard.value = data;
     } catch (e) {
+      print('Error fetching dashboard: $e');
       Get.snackbar('خطأ', 'فشل جلب بيانات الواجهة الرئيسية: $e');
     } finally {
       isLoading(false);

@@ -80,7 +80,9 @@ class News {
       newsType: json['newsType'] != null
           ? NewsType.fromJson(json['newsType'])
           : null,
-      images: json['images'] != null ? List<String>.from(json['images']) : [],
+      images: json['images'] != null
+          ? (json['images'] as List).map((e) => e?.toString() ?? '').toList()
+          : [],
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,

@@ -1,9 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:game_city_app/data/repositories/games_repository.dart';
-import 'package:game_city_app/data/repositories/news_repository.dart';
+import 'package:game_city_app/modules/community/views/community_view.dart';
+import 'package:game_city_app/modules/community/views/friend_requests_view.dart';
+import 'package:game_city_app/modules/community/controllers/friends_controller.dart';
 import 'package:get/get.dart';
 import '../../routes/app_routes.dart';
 import 'dart:convert';
@@ -152,70 +152,28 @@ class NotificationService extends GetxService {
       print('----------------------------');
     }
 
-    final String? roomId = data['roomId'];
     final String? type = data['type'];
-    final String? id = data['id'] ?? data['gameId'];
-    final String? roomName = data['roomName'];
+    final String? id = data['targetId'] ?? data['id'] ?? data['gameId'];
 
-    if (type == 'chat_message' && roomId != null) {
-      Get.toNamed(
-        AppRoutes.chatRoom,
-        arguments: {'roomId': roomId, 'roomName': roomName},
-      );
-    } else if (roomId != null) {
-      Get.toNamed(
-        AppRoutes.chatRoom,
-        arguments: {'roomId': roomId, 'roomName': roomName},
-      );
+    if (type == 'chat_message') {
+      Get.to(() => const CommunityView());
     } else if (type == 'news' && id != null) {
-      // Show loading while fetching news object
-      Get.dialog(
-        const Center(child: CircularProgressIndicator()),
-        barrierDismissible: false,
-      );
-
-      try {
-        final NewsRepository newsRepository = NewsRepository();
-        final newsItem = await newsRepository.getNewsById(id);
-
-        Get.back(); // Close loading
-
-        Get.toNamed(AppRoutes.newsDetails, arguments: newsItem);
-      } catch (e) {
-        Get.back(); // Close loading
-        if (kDebugMode) {
-          print('Error fetching news by ID: $e');
-        }
-        Get.snackbar('Error', 'Failed to load news details');
-      }
+      Get.toNamed(AppRoutes.newsDetails, arguments: {'newsId': id});
     } else if (type == 'new_game' && id != null) {
-      // Show loading while fetching game object
-      Get.dialog(
-        const Center(child: CircularProgressIndicator()),
-        barrierDismissible: false,
-      );
+      // Close loading
 
-      try {
-        final GamesRepository gamesRepository = GamesRepository();
-        final gameItem = await gamesRepository.getGameById(id);
-
-        Get.back(); // Close loading
-
-        if (gameItem != null) {
-          Get.toNamed(AppRoutes.gameDetails, arguments: gameItem);
-        } else {
-          Get.snackbar('Alert', 'Game facts not found');
-        }
-      } catch (e) {
-        Get.back(); // Close loading
-        if (kDebugMode) {
-          print('Error fetching game by ID: $e');
-        }
-        Get.snackbar('Error', 'Failed to load game details');
+      Get.toNamed(AppRoutes.gameDetails, arguments: {'gameId': id});
+    } else if (type == 'friend_request') {
+      if (!Get.isRegistered<FriendsController>()) {
+        Get.put(FriendsController());
       }
-    } else if (type == 'friend_request' || type == 'friend_accept') {
-      Get.toNamed(AppRoutes.profile, arguments: {'id': id});
-    } else if (type == 'chat_message') {
+      Get.to(() => const FriendRequestsView());
+    } else if (type == 'friend_accept') {
+      if (!Get.isRegistered<FriendsController>()) {
+        Get.put(FriendsController());
+      }
+      Get.to(() => const CommunityView());
+    } else if (type == 'chat_message' || type == 'chat') {
       // For chat messages without a roomId, we might want to navigate to a general chat list or profile
       Get.toNamed(AppRoutes.chatRoom);
     } else {
@@ -227,12 +185,12 @@ class NotificationService extends GetxService {
   }
 
   Future<String?> getToken() async {
-    if (kIsWeb) {
-      return await _fcm.getToken(
-        vapidKey:
-            'BNlg9My1BdEL-IQFg8adErfR_0vSrChM-6LTlWinIOs2tiP-N6BKgM5t6yDIsQohJbTy2d66rGcE1VXDGtXhaK4', // Required for Web. Replace with your actual VAPID key from Firebase Console.
-      );
-    }
+    // if (kIsWeb) {
+    //   return await _fcm.getToken(
+    //     vapidKey:
+    //         'BNlg9My1BdEL-IQFg8adErfR_0vSrChM-6LTlWinIOs2tiP-N6BKgM5t6yDIsQohJbTy2d66rGcE1VXDGtXhaK4', // Required for Web. Replace with your actual VAPID key from Firebase Console.
+    //   );
+    // }
     return await _fcm.getToken();
   }
 }

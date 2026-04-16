@@ -1,3 +1,4 @@
+import 'package:game_city_app/data/models/news_model.dart';
 import 'package:game_city_app/modules/community/views/community_view.dart';
 import 'package:game_city_app/modules/games/views/games_hub_view.dart';
 import 'package:game_city_app/modules/news/views/news_view.dart';
@@ -65,8 +66,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.newsDetails,
       page: () {
-        final news = Get.arguments;
-        return NewsDetailsView(news: news);
+        final args = Get.arguments;
+        if (args is News) {
+          return NewsDetailsView(news: args);
+        }
+        return const NewsDetailsView();
       },
       binding: BindingsBuilder(() {
         Get.lazyPut(() => NewsDetailsController());
@@ -77,8 +81,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.gameDetails,
       page: () {
-        final game = Get.arguments;
-        return GameDetailsView(game: game);
+        return GameDetailsView();
       },
       middlewares: [AuthMiddleware()],
     ),

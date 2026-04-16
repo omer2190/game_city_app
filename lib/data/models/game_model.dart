@@ -75,7 +75,9 @@ class Game {
       url: json['url'],
       image: json['image'],
       screenshots: json['screenshots'] != null
-          ? List<String>.from(json['screenshots'])
+          ? (json['screenshots'] as List)
+                .map((e) => e?.toString() ?? '')
+                .toList()
           : null,
       externalIds: json['externalIds'] != null
           ? ExternalIds.fromJson(json['externalIds'])
@@ -84,14 +86,18 @@ class Game {
       rating: json['rating']?.toDouble(),
       metacritic: json['metacritic'],
       platforms: json['platforms'] != null
-          ? List<String>.from(json['platforms'])
+          ? (json['platforms'] as List).map((e) => e?.toString() ?? '').toList()
           : null,
-      genres: json['genres'] != null ? List<String>.from(json['genres']) : null,
+      genres: json['genres'] != null
+          ? (json['genres'] as List).map((e) => e?.toString() ?? '').toList()
+          : null,
       developer: json['developer'],
       publisher: json['publisher'],
       store: json['store'],
       sourceTypes: json['sourceTypes'] != null
-          ? List<String>.from(json['sourceTypes'])
+          ? (json['sourceTypes'] as List)
+                .map((e) => e?.toString() ?? '')
+                .toList()
           : null,
       deal: json['deal'] != null ? GameDeal.fromJson(json['deal']) : null,
       isFree: json['isFree'],

@@ -62,7 +62,7 @@ class TotallyFreeGamesView extends StatelessWidget {
                             price: 'مجاني',
                             onTap: () => Get.toNamed(
                               AppRoutes.gameDetails,
-                              arguments: game,
+                              arguments: {'gameId': game.id},
                             ),
                           );
                         },

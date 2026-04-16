@@ -61,7 +61,7 @@ class FreeGamesView extends StatelessWidget {
                             worth: game.worth,
                             onTap: () => Get.toNamed(
                               AppRoutes.gameDetails,
-                              arguments: game,
+                              arguments: {'gameId': game.id},
                             ),
                           );
                         },

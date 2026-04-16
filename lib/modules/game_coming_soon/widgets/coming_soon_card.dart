@@ -93,13 +93,13 @@ class ComingSoonCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Get.theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        // border: Border.all(color: Colors.white24, width: 0.5),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Game Image
-          Expanded(
-            flex: 4,
+          AspectRatio(
+            aspectRatio: 1, // Make image container square for consistency
             child: Stack(
               children: [
                 Padding(
@@ -110,6 +110,7 @@ class ComingSoonCard extends StatelessWidget {
                         ? CachedNetworkImage(
                             imageUrl: game.image!,
                             width: double.infinity,
+                            height: double.infinity,
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Container(
                               color: Colors.black26,
@@ -169,7 +170,7 @@ class ComingSoonCard extends StatelessWidget {
 
           // Countdown section
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -197,55 +198,67 @@ class ComingSoonCard extends StatelessWidget {
 
           // Game Title
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              (game.title ?? '').toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                letterSpacing: 1.2,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: SizedBox(
+              height: 36,
+              child: Center(
+                child: Text(
+                  (game.title ?? '').toUpperCase(),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    letterSpacing: 0.5,
+                    height: 1.1,
+                  ),
+                ),
               ),
             ),
           ),
 
           // Release Date
-          Text(
-            game.released != null
-                ? 'تصدر بتاريخ ${DateFormat('yyyy/MM/dd', 'ar').format(DateTime.tryParse(game.released!) ?? DateTime.now())}'
-                : (game.deal?.expiry != null
-                      ? 'تصدر بتاريخ ${DateFormat('yyyy/MM/dd', 'ar').format(DateTime.tryParse(game.deal!.expiry!) ?? DateTime.now())}'
-                      : 'يحدد لاحقاً'),
-            style: const TextStyle(color: Colors.white70, fontSize: 10),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              game.released != null
+                  ? 'تصدر بتاريخ ${DateFormat('yyyy/MM/dd', 'ar').format(DateTime.tryParse(game.released!) ?? DateTime.now())}'
+                  : (game.deal?.expiry != null
+                        ? 'تصدر بتاريخ ${DateFormat('yyyy/MM/dd', 'ar').format(DateTime.tryParse(game.deal!.expiry!) ?? DateTime.now())}'
+                        : 'يحدد لاحقاً'),
+              style: const TextStyle(color: Colors.white70, fontSize: 9),
+            ),
           ),
 
           // Platform Icons
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: SingleChildScrollView(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+            padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+            child: SizedBox(
+              height: 24, // Fix height for platforms area
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 4,
+                runSpacing: 2,
                 children: (game.platforms ?? [])
+                    .take(3) // Limit to 3 for better fit in grid
                     .map(
-                      (p) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Get.theme.colorScheme.primary,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            p,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      (p) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 1,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Get.theme.colorScheme.primary,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          p,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),

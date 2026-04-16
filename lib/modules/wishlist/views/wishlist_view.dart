@@ -58,7 +58,10 @@ class WishlistView extends StatelessWidget {
                       platforms: game.platforms,
                       worth: game.worth,
                       onTap: () {
-                        Get.toNamed(AppRoutes.gameDetails, arguments: game);
+                        Get.toNamed(
+                          AppRoutes.gameDetails,
+                          arguments: {'gameId': game.id},
+                        );
                       },
                     );
                   },

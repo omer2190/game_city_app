@@ -19,36 +19,42 @@ class HomeDashboardModel {
   });
 
   factory HomeDashboardModel.fromJson(Map<String, dynamic> json) {
-    return HomeDashboardModel(
-      advertisements: json['advertisements'] != null
-          ? (json['advertisements'] as List)
-                .map((i) => Advertisement.fromJson(i))
-                .toList()
-          : null,
-      randomFriends: json['randomFriends'] != null
-          ? (json['randomFriends'] as List)
-                .map((i) => RandomUser.fromJson(i))
-                .toList()
-          : null,
-      latestFreeGames: json['latestFreeGames'] != null
-          ? (json['latestFreeGames'] as List)
-                .map((i) => Game.fromJson(i))
-                .toList()
-          : null,
-      latestNews: json['latestNews'] != null
-          ? (json['latestNews'] as List).map((i) => News.fromJson(i)).toList()
-          : null,
-      randomMatchmakers: json['randomMatchmakers'] != null
-          ? (json['randomMatchmakers'] as List)
-                .map((i) => RandomUser.fromJson(i))
-                .toList()
-          : null,
-      wishlistGames: json['wishlistGames'] != null
-          ? (json['wishlistGames'] as List)
-                .map((i) => Game.fromJson(i['game'] ?? i))
-                .toList()
-          : null,
-    );
+    try {
+      return HomeDashboardModel(
+        advertisements: json['advertisements'] != null
+            ? (json['advertisements'] as List)
+                  .map((i) => Advertisement.fromJson(i))
+                  .toList()
+            : null,
+        randomFriends: json['randomFriends'] != null
+            ? (json['randomFriends'] as List)
+                  .map((i) => RandomUser.fromJson(i))
+                  .toList()
+            : null,
+        latestFreeGames: json['latestFreeGames'] != null
+            ? (json['latestFreeGames'] as List)
+                  .map((i) => Game.fromJson(i))
+                  .toList()
+            : null,
+        latestNews: json['latestNews'] != null
+            ? (json['latestNews'] as List).map((i) => News.fromJson(i)).toList()
+            : null,
+        randomMatchmakers: json['randomMatchmakers'] != null
+            ? (json['randomMatchmakers'] as List)
+                  .map((i) => RandomUser.fromJson(i))
+                  .toList()
+            : null,
+        wishlistGames: json['wishlistGames'] != null
+            ? (json['wishlistGames'] as List)
+                  .map((i) => Game.fromJson(i['game'] ?? i))
+                  .toList()
+            : null,
+      );
+    } catch (e, stackTrace) {
+      print('Error parsing HomeDashboardModel: $e');
+      print(stackTrace);
+      rethrow;
+    }
   }
 }
 
@@ -102,7 +108,7 @@ class RandomUser {
       lastName: json['lastName'],
       userName: json['userName'],
       userImage: json['userImage'] != null
-          ? List<String>.from(json['userImage'])
+          ? (json['userImage'] as List).map((e) => e?.toString() ?? '').toList()
           : null,
     );
   }
