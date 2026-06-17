@@ -417,6 +417,9 @@ class AuthController extends GetxController {
         );
       }
     } catch (e) {
+      debugPrint("///////////////////////////////");
+      debugPrint(e.toString());
+      debugPrint("///////////////////////////////");
       Get.snackbar(
         'خطأ',
         'فشل تحديث الصورة: $e',

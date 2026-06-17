@@ -1,6 +1,6 @@
 class ApiConstants {
   // static const String baseUrl = 'http://192.168.0.189:7000';
-  static const String baseUrl = 'https://orca-app-l477g.ondigitalocean.app';
+  static const String baseUrl = 'http://167.172.187.121:7000';
   // static const String baseUrl = 'https://gaming-city-seven.vercel.app';
 
   // Auth Endpoints
