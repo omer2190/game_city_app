@@ -1,6 +1,6 @@
 class ApiConstants {
-  static const String baseUrl = 'http://192.168.0.197:7000';
-  // static const String baseUrl = 'https://gmaingcity.com';
+  // static const String baseUrl = 'http://192.168.0.197:7000';
+  static const String baseUrl = 'https://gmaingcity.com';
   // static const String baseUrl = 'https://gaming-city-seven.vercel.app';
 
   // Auth Endpoints
