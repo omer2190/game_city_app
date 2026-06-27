@@ -131,12 +131,12 @@ class AuthController extends GetxController {
 
   Future<void> updateFcmToken() async {
     try {
-      // if (!Get.isRegistered<NotificationService>()) {
-      //   if (kDebugMode) {
-      //     debugPrint('NotificationService not yet registered. Skipping FCM token update.');
-      //   }
-      //   return;
-      // }
+      if (!Get.isRegistered<NotificationService>()) {
+        if (kDebugMode) {
+          debugPrint('NotificationService not yet registered. Skipping FCM token update.');
+        }
+        return;
+      }
       final token = await NotificationService.to.getToken();
       if (token != null) {
         await _authRepository.updateUser({'fcmToken': token});

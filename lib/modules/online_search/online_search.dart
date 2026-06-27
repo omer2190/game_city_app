@@ -34,11 +34,9 @@ class OnlineSearch extends StatelessWidget {
           Expanded(
             child: Obx(() {
               // Priority 1: Match Found
-              if (controller.matchFound.value &&
-                  controller.matchResult.value != null) {
+              if (controller.matchFound.value) {
                 return MatchFoundView(
                   controller: controller,
-                  match: controller.matchResult.value!,
                   primary: primaryColor,
                 );
               }

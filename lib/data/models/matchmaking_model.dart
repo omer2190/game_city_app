@@ -3,6 +3,10 @@ enum MatchmakingStatus { searching, matched, cancelled }
 class MatchmakingRecord {
   final String? id;
   final String? userId; // Our user ID
+  final String? userName;
+  final String? userImage;
+  final String? userFirstName;
+  final String? userLastName;
   final String? gameId;
   final String? type; // 'solo' or 'team'
   final String? notes;
@@ -13,6 +17,10 @@ class MatchmakingRecord {
   MatchmakingRecord({
     this.id,
     this.userId,
+    this.userName,
+    this.userImage,
+    this.userFirstName,
+    this.userLastName,
     this.gameId,
     this.type,
     this.notes,
@@ -25,6 +33,10 @@ class MatchmakingRecord {
     return MatchmakingRecord(
       id: json['_id'],
       userId: json['userId'],
+      userName: json['userName'],
+      userImage: _parseUserImage(json['userImage']),
+      userFirstName: json['firstName'],
+      userLastName: json['lastName'],
       gameId: json['gameId'],
       type: json['type'],
       notes: json['notes'],
@@ -34,6 +46,15 @@ class MatchmakingRecord {
           : null,
       match: json['match'] != null ? MatchResult.fromJson(json['match']) : null,
     );
+  }
+
+  static String? _parseUserImage(dynamic imageJson) {
+    if (imageJson is List && imageJson.isNotEmpty) {
+      return imageJson.first?.toString();
+    } else if (imageJson is String) {
+      return imageJson;
+    }
+    return null;
   }
 
   static MatchmakingStatus? _parseStatus(String? status) {

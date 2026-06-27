@@ -6,13 +6,13 @@ import '../controllers/notifications_controller.dart';
 import '../../../data/models/notification_model.dart';
 import '../../../shared/layout_mine.dart';
 import '../../../shared/widgets/widgets.dart';
+import '../../../routes/app_routes.dart';
 
 class NotificationsView extends GetView<NotificationsController> {
   const NotificationsView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Ensure controller is initialized
     if (!Get.isRegistered<NotificationsController>()) {
       Get.put(NotificationsController());
     }
@@ -23,101 +23,32 @@ class NotificationsView extends GetView<NotificationsController> {
     return LayoutMine(
       body: Column(
         children: [
-          // Header
           Header(
             leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
               onPressed: () => Get.back(),
             ),
             title: 'الإشعارات',
             trailing: Obx(
               () => controller.unreadCount > 0
                   ? Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: colorScheme.secondary,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         '${controller.unreadCount} غير مقروء',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     )
                   : const SizedBox.shrink(),
             ),
           ),
-
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(16, 60, 16, 20),
-          //   child: Row(
-          //     children: [
-          //       Container(
-          //         decoration: BoxDecoration(
-          //           color: Colors.white.withOpacity(0.1),
-          //           borderRadius: BorderRadius.circular(12),
-          //         ),
-          //         child: IconButton(
-          //           icon: const Icon(
-          //             Icons.arrow_back_ios_new_rounded,
-          //             color: Colors.white,
-          //             size: 20,
-          //           ),
-          //           onPressed: () => Get.back(),
-          //         ),
-          //       ),
-          //       const SizedBox(width: 16),
-          //       const Text(
-          //         'الإشعارات',
-          //         style: TextStyle(
-          //           color: Colors.white,
-          //           fontSize: 24,
-          //           fontWeight: FontWeight.bold,
-          //         ),
-          //       ),
-          //       const Spacer(),
-          //       Obx(
-          //         () => controller.unreadCount > 0
-          //             ? Container(
-          //                 padding: const EdgeInsets.symmetric(
-          //                   horizontal: 10,
-          //                   vertical: 4,
-          //                 ),
-          //                 decoration: BoxDecoration(
-          //                   color: colorScheme.secondary,
-          //                   borderRadius: BorderRadius.circular(20),
-          //                 ),
-          //                 child: Text(
-          //                   '${controller.unreadCount} غير مقروء',
-          //                   style: const TextStyle(
-          //                     color: Colors.white,
-          //                     fontSize: 12,
-          //                     fontWeight: FontWeight.bold,
-          //                   ),
-          //                 ),
-          //               )
-          //             : const SizedBox.shrink(),
-          //       ),
-          //     ],
-          //   ),
-          // ),
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value &&
-                  controller.notifications.isEmpty) {
-                return const Center(
-                  child: LoadingWidget(message: 'جاري جلب الإشعارات...'),
-                );
+              if (controller.isLoading.value && controller.notifications.isEmpty) {
+                return const Center(child: LoadingWidget(message: 'جاري جلب الإشعارات...'));
               }
 
               if (controller.notifications.isEmpty) {
@@ -125,19 +56,9 @@ class NotificationsView extends GetView<NotificationsController> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.notifications_none_rounded,
-                        size: 80,
-                        color: Colors.white.withOpacity(0.2),
-                      ),
+                      Icon(Icons.notifications_none_rounded, size: 80, color: Colors.white.withOpacity(0.2)),
                       const SizedBox(height: 16),
-                      Text(
-                        'لا توجد إشعارات حالياً',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
-                          fontSize: 16,
-                        ),
-                      ),
+                      Text('لا توجد إشعارات حالياً', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16)),
                     ],
                   ),
                 );
@@ -147,10 +68,6 @@ class NotificationsView extends GetView<NotificationsController> {
                 onRefresh: () => controller.fetchNotifications(),
                 color: colorScheme.primary,
                 child: ListView.builder(
-                  // padding: const EdgeInsets.symmetric(
-                  //   horizontal: 16,
-                  //   vertical: 10,
-                  // ),
                   itemCount: controller.notifications.length,
                   itemBuilder: (context, index) {
                     final notification = controller.notifications[index];
@@ -171,17 +88,89 @@ class _NotificationItem extends StatelessWidget {
 
   const _NotificationItem({required this.notification});
 
+  void _navigateToTarget(BuildContext context) {
+    final type = notification.type;
+    final targetId = notification.data?['targetId'] as String?;
+
+    switch (type) {
+      case 'news':
+      case 'comment':
+      case 'new_like':
+        if (targetId != null) {
+          Get.toNamed(AppRoutes.newsDetails, arguments: {'newsId': targetId});
+        } else {
+          Get.toNamed(AppRoutes.news);
+        }
+        break;
+
+      case 'new_game':
+      case 'wishlist_free':
+      case 'wishlist_discount':
+      case 'wishlist_released':
+      case 'looking_for_players':
+        if (targetId != null) {
+          Get.toNamed(AppRoutes.gameDetails, arguments: {'gameId': targetId});
+        } else {
+          Get.toNamed(AppRoutes.game);
+        }
+        break;
+
+      case 'friend_request':
+        Get.toNamed(AppRoutes.profile);
+        break;
+
+      case 'friend_accept':
+      case 'chat_message':
+      case 'chat':
+        Get.toNamed(AppRoutes.chatRoom);
+        break;
+
+      case 're_engagement':
+      case 'broadcast':
+      default:
+        Get.toNamed(AppRoutes.home);
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<NotificationsController>();
     final colorScheme = Theme.of(context).colorScheme;
 
-    // Icon and color based on type
-    IconData iconData = Icons.notifications_rounded;
-    Color iconColor = colorScheme.primary;
+    IconData iconData;
+    Color iconColor;
 
     switch (notification.type) {
-      case 'match_found':
+      case 'news':
+        iconData = Icons.article_rounded;
+        iconColor = Colors.amber;
+        break;
+      case 'comment':
+        iconData = Icons.comment_rounded;
+        iconColor = Colors.green;
+        break;
+      case 'new_like':
+        iconData = Icons.favorite_rounded;
+        iconColor = Colors.red;
+        break;
+      case 'new_game':
+        iconData = Icons.new_releases_rounded;
+        iconColor = Colors.purple;
+        break;
+      case 'wishlist_free':
+        iconData = Icons.card_giftcard_rounded;
+        iconColor = Colors.pink;
+        break;
+      case 'wishlist_discount':
+        iconData = Icons.local_offer_rounded;
+        iconColor = Colors.orange;
+        break;
+      case 'wishlist_released':
+        iconData = Icons.rocket_launch_rounded;
+        iconColor = Colors.cyan;
+        break;
+      case 'looking_for_players':
         iconData = Icons.sports_esports_rounded;
         iconColor = Colors.orange;
         break;
@@ -189,10 +178,26 @@ class _NotificationItem extends StatelessWidget {
         iconData = Icons.person_add_rounded;
         iconColor = Colors.blue;
         break;
-      case 'comment':
-        iconData = Icons.comment_rounded;
-        iconColor = Colors.green;
+      case 'friend_accept':
+        iconData = Icons.group_add_rounded;
+        iconColor = Colors.teal;
         break;
+      case 'chat_message':
+      case 'chat':
+        iconData = Icons.chat_rounded;
+        iconColor = Colors.lightBlue;
+        break;
+      case 're_engagement':
+        iconData = Icons.waving_hand_rounded;
+        iconColor = Colors.yellow;
+        break;
+      case 'broadcast':
+        iconData = Icons.campaign_rounded;
+        iconColor = Colors.deepPurple;
+        break;
+      default:
+        iconData = Icons.notifications_rounded;
+        iconColor = colorScheme.primary;
     }
 
     return GestureDetector(
@@ -200,7 +205,7 @@ class _NotificationItem extends StatelessWidget {
         if (!notification.isRead && notification.id != null) {
           controller.markAsRead(notification.id!);
         }
-        // Handle navigation based on type here if needed
+        _navigateToTarget(context);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),

@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter/foundation.dart'
-//     show kIsWeb, defaultTargetPlatform, kDebugMode;
 import 'package:get/get.dart';
 import 'package:game_city_app/core/services/storage_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -17,20 +15,13 @@ import 'core/services/notification_service.dart';
 import 'core/services/version_service.dart';
 import 'core/bindings/initial_binding.dart';
 
-// Must be top-level or static
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (kDebugMode) {
-    print('--- Background Message Received ---');
-    print('Title: ${message.notification?.title}');
-    print('Body: ${message.notification?.body}');
-    print('Data: ${message.data}');
-    print('----------------------------------');
+    print('Background message: ${message.notification?.title} | ${message.data}');
   }
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   }
 }
 
@@ -39,51 +30,22 @@ void main() async {
   await StorageService.init();
 
   try {
-    // Set timeago to Arabic
     timeago.setLocaleMessages('ar', timeago.ArMessages());
 
-    // Initialize Firebase
-    try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-
-      // Set the background messaging handler early on, as a function not a method.
-      FirebaseMessaging.onBackgroundMessage(
-        _firebaseMessagingBackgroundHandler,
-      );
-
-      await Get.putAsync(() => NotificationService().init());
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-      } else {
-        debugPrint('Firebase already initialized');
-      }
-    } catch (e) {
-      if (e is FirebaseException && e.code == 'duplicate-app') {
-        debugPrint('Firebase duplicate app handled');
-      } else {
-        debugPrint('Firebase init error: $e');
-      }
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     }
 
-    // Set background handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    debugPrint('StorageService initialized successfully');
-
-    // Initialize Services
-    final notificationService = Get.put(NotificationService());
-    await notificationService.init();
-    debugPrint('NotificationService initialized successfully');
-
-    // Version Check
-    final versionService = Get.put(VersionService());
-    versionService.checkVersion();
   } catch (e) {
-    debugPrint('Error during initialization: $e');
+    debugPrint('Firebase Init error: $e');
+  }
+
+  try {
+    await Get.putAsync(() => NotificationService().init());
+    Get.put(VersionService())..checkVersion();
+  } catch (e) {
+    debugPrint('Service Init error: $e');
   }
 
   runApp(const MyApp());

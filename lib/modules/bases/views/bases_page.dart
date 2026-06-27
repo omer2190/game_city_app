@@ -238,23 +238,40 @@ class BasesPage extends StatelessWidget {
                             width: 2,
                           ),
                         ),
-                        child: CircleAvatar(
-                          radius: 28,
-                          backgroundColor: Colors.transparent,
-                          backgroundImage:
-                              (player.userImage != null &&
-                                  player.userImage!.isNotEmpty &&
-                                  player.userImage!.first.isNotEmpty)
-                              ? CachedNetworkImageProvider(
-                                  player.userImage!.first,
-                                )
-                              : null,
-                          child:
-                              (player.userImage == null ||
-                                  player.userImage!.isEmpty ||
-                                  player.userImage!.first.isEmpty)
-                              ? const Icon(Icons.person, color: Colors.white30)
-                              : null,
+                        child: SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: ClipOval(
+                            child: (player.userImage != null &&
+                                    player.userImage!.isNotEmpty &&
+                                    player.userImage!.first.isNotEmpty)
+                                ? CachedNetworkImage(
+                                    imageUrl: player.userImage!.first,
+                                    width: 56,
+                                    height: 56,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Container(
+                                      color: Colors.transparent,
+                                      child: const Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        ),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) => const Icon(
+                                      Icons.person,
+                                      color: Colors.white30,
+                                      size: 28,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.person,
+                                    color: Colors.white30,
+                                    size: 28,
+                                  ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -643,21 +660,40 @@ class BasesPage extends StatelessWidget {
                             width: 2,
                           ),
                         ),
-                        child: CircleAvatar(
-                          radius: 28,
-                          backgroundColor: Colors.white10,
-                          backgroundImage:
-                              (user.userImage != null &&
-                                  user.userImage!.isNotEmpty)
-                              ? CachedNetworkImageProvider(
-                                  user.userImage!.first,
-                                )
-                              : null,
-                          child:
-                              (user.userImage == null ||
-                                  user.userImage!.isEmpty)
-                              ? const Icon(Icons.person, color: Colors.white30)
-                              : null,
+                        child: SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: ClipOval(
+                            child: (user.userImage != null &&
+                                    user.userImage!.isNotEmpty &&
+                                    user.userImage!.first.isNotEmpty)
+                                ? CachedNetworkImage(
+                                    imageUrl: user.userImage!.first,
+                                    width: 56,
+                                    height: 56,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Container(
+                                      color: Colors.transparent,
+                                      child: const Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        ),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) => const Icon(
+                                      Icons.person,
+                                      color: Colors.white30,
+                                      size: 28,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.person,
+                                    color: Colors.white30,
+                                    size: 28,
+                                  ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 6),

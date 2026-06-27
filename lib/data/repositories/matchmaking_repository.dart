@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../models/matchmaking_model.dart';
 import '../../core/network/api_client.dart';
 import '../../core/values/api_constants.dart';
@@ -7,7 +9,7 @@ class MatchmakingRepository {
 
   // ApiClient post/get methods handle token automatically if present in GetStorage
 
-  Future<MatchmakingRecord> startSearch({
+  Future<List<MatchmakingRecord>> startSearch({
     required String gameId,
     required String type,
     String? notes,
@@ -17,19 +19,19 @@ class MatchmakingRepository {
       body: {'gameId': gameId, 'type': type, 'notes': notes},
     );
 
-    // According to spec:
-    // One response: { success: true, message: "Match found immediately!", match: {...} }
-    // Another: { success: true, message: "Started searching...", data: {...} }
+    debugPrint("matchmaking response: ${response['data']}");
 
-    if (response['match'] != null) {
-      return MatchmakingRecord(
-        status: MatchmakingStatus.matched,
-        match: MatchResult.fromJson(response['match']),
-      );
-    }
+    // if (response['match'] != null) {
+    //   return MatchmakingRecord(
+    //     status: MatchmakingStatus.matched,
+    //     match: MatchResult.fromJson(response['match']),
+    //   );
+    // }
 
     if (response['data'] != null) {
-      return MatchmakingRecord.fromJson(response['data']);
+      return List.from(
+        response['data'].map((x) => MatchmakingRecord.fromJson(x)),
+      );
     }
 
     throw Exception('Unexpected response format from matchmaking/start');

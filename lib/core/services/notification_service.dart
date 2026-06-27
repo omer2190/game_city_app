@@ -1,5 +1,4 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:game_city_app/modules/community/views/community_view.dart';
 import 'package:game_city_app/modules/community/views/friend_requests_view.dart';
@@ -7,6 +6,7 @@ import 'package:game_city_app/modules/community/controllers/friends_controller.d
 import 'package:get/get.dart';
 import '../../routes/app_routes.dart';
 import 'dart:convert';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NotificationService extends GetxService {
   static NotificationService get to => Get.find();
@@ -14,25 +14,15 @@ class NotificationService extends GetxService {
   final _fcm = FirebaseMessaging.instance;
   final _local = FlutterLocalNotificationsPlugin();
 
-  // Track the current active chat room ID
   static String? activeRoomId;
 
   Future<NotificationService> init() async {
     try {
-      // 1. Request permissions (especially for iOS and Android 13+)
-      // On iOS Safari Web, this can throw if not triggered by a user gesture.
-
-      // 2. Initialize local notifications for foreground display
-      // if (!kIsWeb) {
       await _fcm.requestPermission(alert: true, badge: true, sound: true);
-      const androidSettings = AndroidInitializationSettings(
-        '@mipmap/ic_launcher',
-      );
+
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
       const iosSettings = DarwinInitializationSettings();
-      const settings = InitializationSettings(
-        android: androidSettings,
-        iOS: iosSettings,
-      );
+      const settings = InitializationSettings(android: androidSettings, iOS: iosSettings);
 
       await _local.initialize(
         settings,
@@ -44,7 +34,6 @@ class NotificationService extends GetxService {
         },
       );
 
-      // 3. Create Android notification channel
       const channel = AndroidNotificationChannel(
         'chat_messages',
         'رسائل الدردشة',
@@ -54,39 +43,21 @@ class NotificationService extends GetxService {
       );
 
       await _local
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >()
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
           ?.createNotificationChannel(channel);
-      // }
 
-      // 4. Handle foreground messages
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        if (kDebugMode) {
-          print('!!! Raw Foreground Message Received !!!');
-          print('From: ${message.from}');
-          print('Notification Title: ${message.notification?.title}');
-          print('Notification Body: ${message.notification?.body}');
-          print('Data Content: ${message.data}');
-        }
-        _foregroundHandler(message);
-      });
+      FirebaseMessaging.onMessage.listen(_foregroundHandler);
 
-      // 5. Handle app opening from notification
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      FirebaseMessaging.onMessageOpenedApp.listen((message) {
         _handleNotificationClick(message.data);
       });
 
-      // 6. Handle notification that launched the app from terminated state
-      RemoteMessage? initialMessage = await _fcm.getInitialMessage();
+      final initialMessage = await _fcm.getInitialMessage();
       if (initialMessage != null) {
         _handleNotificationClick(initialMessage.data);
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Notification Service Init Error: $e');
-      }
-      // Do not rethrow, so runApp() can still execute (fixes iOS Safari white screen)
+      if (kDebugMode) print('NotificationService init error: $e');
     }
 
     return this;
@@ -94,31 +65,18 @@ class NotificationService extends GetxService {
 
   void _foregroundHandler(RemoteMessage message) {
     if (kDebugMode) {
-      print('--- New Foreground Message ---');
-      print('Title: ${message.notification?.title}');
-      print('Body: ${message.notification?.body}');
-      print('Data: ${message.data}');
-      print('------------------------------');
+      print('Foreground message: ${message.notification?.title} | ${message.data}');
     }
 
-    // Extract data
-    final String? roomId = message.data['roomId'];
+    final roomId = message.data['targetId'];
+    if (activeRoomId != null && activeRoomId == roomId) return;
 
-    // RULE: If we are in the same room as the message, IGNORE it
-    if (activeRoomId != null && activeRoomId == roomId) {
-      return;
-    }
-
-    // Show a local notification (or snackbar) in the foreground
     _showLocalNotification(message);
   }
 
   Future<void> _showLocalNotification(RemoteMessage message) async {
-    if (kIsWeb) return; // Skip local notifications on web for now
-
     final notification = message.notification;
     final data = message.data;
-
     if (notification == null) return;
 
     try {
@@ -126,7 +84,7 @@ class NotificationService extends GetxService {
         notification.hashCode,
         notification.title,
         notification.body,
-        NotificationDetails(
+        const NotificationDetails(
           android: AndroidNotificationDetails(
             'chat_messages',
             'رسائل الدردشة',
@@ -139,58 +97,75 @@ class NotificationService extends GetxService {
         payload: jsonEncode(data),
       );
     } catch (e) {
-      if (kDebugMode) {
-        print('Error showing local notification: $e');
-      }
+      if (kDebugMode) print('Local notification error: $e');
     }
   }
 
-  void _handleNotificationClick(Map<String, dynamic> data) async {
+  void _handleNotificationClick(Map<String, dynamic> data) {
     if (kDebugMode) {
-      print('--- Notification Clicked ---');
-      print('Data: $data');
-      print('----------------------------');
+      print('Notification clicked: $data');
     }
 
-    final String? type = data['type'];
-    final String? id = data['targetId'] ?? data['id'] ?? data['gameId'];
+    final type = data['type'] as String?;
+    final targetId = data['targetId'] as String?;
 
-    if (type == 'chat_message') {
-      Get.to(() => const CommunityView());
-    } else if (type == 'news' && id != null) {
-      Get.toNamed(AppRoutes.newsDetails, arguments: {'newsId': id});
-    } else if (type == 'new_game' && id != null) {
-      // Close loading
+    switch (type) {
+      case 'news':
+      case 'comment':
+      case 'new_like':
+        if (targetId != null) {
+          Get.toNamed(AppRoutes.newsDetails, arguments: {'newsId': targetId});
+        } else {
+          Get.toNamed(AppRoutes.news);
+        }
+        break;
 
-      Get.toNamed(AppRoutes.gameDetails, arguments: {'gameId': id});
-    } else if (type == 'friend_request') {
-      if (!Get.isRegistered<FriendsController>()) {
-        Get.put(FriendsController());
-      }
-      Get.to(() => const FriendRequestsView());
-    } else if (type == 'friend_accept') {
-      if (!Get.isRegistered<FriendsController>()) {
-        Get.put(FriendsController());
-      }
-      Get.to(() => const CommunityView());
-    } else if (type == 'chat_message' || type == 'chat') {
-      // For chat messages without a roomId, we might want to navigate to a general chat list or profile
-      Get.toNamed(AppRoutes.chatRoom);
-    } else {
-      // Default fallback
-      if (Get.currentRoute != AppRoutes.home) {
-        Get.offAllNamed(AppRoutes.home);
-      }
+      case 'new_game':
+      case 'wishlist_free':
+      case 'wishlist_discount':
+      case 'wishlist_released':
+        if (targetId != null) {
+          Get.toNamed(AppRoutes.gameDetails, arguments: {'gameId': targetId});
+        } else {
+          Get.toNamed(AppRoutes.game);
+        }
+        break;
+
+      case 'looking_for_players':
+        if (targetId != null) {
+          Get.toNamed(AppRoutes.gameDetails, arguments: {'gameId': targetId});
+        } else {
+          Get.toNamed(AppRoutes.onlineSearch);
+        }
+        break;
+
+      case 'friend_request':
+        if (!Get.isRegistered<FriendsController>()) {
+          Get.put(FriendsController());
+        }
+        Get.to(() => const FriendRequestsView());
+        break;
+
+      case 'friend_accept':
+        Get.toNamed(AppRoutes.chatRoom);
+        break;
+
+      case 'chat_message':
+      case 'chat':
+        Get.toNamed(AppRoutes.chatRoom);
+        break;
+
+      case 're_engagement':
+      case 'broadcast':
+      default:
+        if (Get.currentRoute != AppRoutes.home) {
+          Get.offAllNamed(AppRoutes.home);
+        }
+        break;
     }
   }
 
   Future<String?> getToken() async {
-    // if (kIsWeb) {
-    //   return await _fcm.getToken(
-    //     vapidKey:
-    //         'BNlg9My1BdEL-IQFg8adErfR_0vSrChM-6LTlWinIOs2tiP-N6BKgM5t6yDIsQohJbTy2d66rGcE1VXDGtXhaK4', // Required for Web. Replace with your actual VAPID key from Firebase Console.
-    //   );
-    // }
     return await _fcm.getToken();
   }
 }
