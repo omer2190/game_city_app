@@ -18,12 +18,15 @@ class Game {
   final String? store;
   final List<String>? sourceTypes;
   final GameDeal? deal;
+  final GamePriceInfo? priceInfo;
   final bool? isFree;
   final String? freeType;
   final String? instructions;
   final String? worth;
   final bool? notified;
   final Map<String, dynamic>? meta;
+  final Map<String, dynamic>? rawg;
+  final String? trailerUrl; // rawg trailer
   final String? createdAt;
   final String? updatedAt;
 
@@ -47,12 +50,15 @@ class Game {
     this.store,
     this.sourceTypes,
     this.deal,
+    this.priceInfo,
     this.isFree,
     this.freeType,
     this.instructions,
     this.worth,
     this.notified,
     this.meta,
+    this.rawg,
+    this.trailerUrl,
     this.createdAt,
     this.updatedAt,
   });
@@ -63,7 +69,67 @@ class Game {
     return null;
   }
 
+  // --- Pricing helpers -----------------------------------------------------
+  /// Whether this game has a discount (from deal.cut or priceInfo.cut)
+  bool get hasDiscount {
+    if (deal?.cut != null && deal!.cut! > 0) return true;
+    if (priceInfo?.cut != null && priceInfo!.cut! > 0) return true;
+    return false;
+  }
+
+  /// Whether this game is free (permanently or temporarily)
+  bool get isFreeGame => isFree == true;
+
+  /// Whether this game is a limited-time free game
+  bool get isFreeLimited => freeType == 'temporary';
+
+  /// Discount percentage (0-100)
+  int? get discountPercent {
+    if (deal?.cut != null && deal!.cut! > 0) return deal!.cut;
+    return priceInfo?.cut;
+  }
+
+  /// Current display price string
+  String? get displayPrice {
+    if (isFreeGame) return 'مجاني';
+    if (deal?.price != null) return '\$${deal!.price!.toStringAsFixed(2)}';
+    if (priceInfo?.current != null) {
+      return '\$${priceInfo!.current!.toStringAsFixed(2)}';
+    }
+    return worth;
+  }
+
+  /// Original price string (before discount)
+  String? get displayOriginalPrice {
+    if (deal?.regularPrice != null) {
+      return '\$${deal!.regularPrice!.toStringAsFixed(2)}';
+    }
+    if (priceInfo?.regular != null) {
+      return '\$${priceInfo!.regular!.toStringAsFixed(2)}';
+    }
+    return worth;
+  }
+
+  /// The expiry date for time-sensitive deals
   String? get endDate => deal?.expiry;
+
+  /// Whether this game has any pricing information at all
+  bool get hasPriceInfo =>
+      isFreeGame ||
+      deal != null ||
+      priceInfo != null ||
+      (worth != null && worth!.isNotEmpty);
+
+  // --- RAWG helpers --------------------------------------------------------
+  List<dynamic>? get rawgRequirements => rawg?['requirements'];
+  Map<String, dynamic>? get rawgEsrb => rawg?['esrbRating'];
+  List<dynamic>? get rawgStores => rawg?['stores'];
+  List<dynamic>? get rawgTags => rawg?['tags'];
+  List<dynamic>? get rawgRatings => rawg?['ratings'];
+  int? get rawgPlaytime => rawg?['playtime'];
+  String? get rawgWebsite => rawg?['website'];
+  String? get rawgDescription =>
+      rawg?['descriptionRaw'] ?? rawg?['description'];
 
   factory Game.fromJson(Map<String, dynamic> json) {
     return Game(
@@ -71,7 +137,7 @@ class Game {
       title: json['title'],
       slug: json['slug'],
       status: json['status'],
-      description: json['description'],
+      description: json["descriptionAr"] ?? json['description'],
       url: json['url'],
       image: json['image'],
       screenshots: json['screenshots'] != null
@@ -100,12 +166,19 @@ class Game {
                 .toList()
           : null,
       deal: json['deal'] != null ? GameDeal.fromJson(json['deal']) : null,
+      priceInfo: json['priceInfo'] != null
+          ? GamePriceInfo.fromJson(json['priceInfo'])
+          : null,
       isFree: json['isFree'],
       freeType: json['freeType'],
       instructions: json['instructions'],
       worth: json['worth'],
       notified: json['notified'],
       meta: json['meta'],
+      rawg: json['rawg'] != null
+          ? Map<String, dynamic>.from(json['rawg'] as Map)
+          : null,
+      trailerUrl: json['trailerUrl'],
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
     );
@@ -133,12 +206,15 @@ class Game {
       'store': store,
       'sourceTypes': sourceTypes,
       'deal': deal?.toJson(),
+      'priceInfo': priceInfo?.toJson(),
       'isFree': isFree,
       'freeType': freeType,
       'instructions': instructions,
       'worth': worth,
       'notified': notified,
       'meta': meta,
+      'rawg': rawg,
+      'trailerUrl': trailerUrl,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
@@ -239,6 +315,50 @@ class ExternalIds {
       'itad': itad,
       'steam': steam,
       'gamerpower': gamerpower,
+    };
+  }
+}
+
+class GamePriceInfo {
+  final double? current;
+  final double? regular;
+  final int? cut;
+  final String? storeName;
+  final String? storeUrl;
+  final String? currency;
+  final String? updatedAt;
+
+  GamePriceInfo({
+    this.current,
+    this.regular,
+    this.cut,
+    this.storeName,
+    this.storeUrl,
+    this.currency,
+    this.updatedAt,
+  });
+
+  factory GamePriceInfo.fromJson(Map<String, dynamic> json) {
+    return GamePriceInfo(
+      current: json['current']?.toDouble(),
+      regular: json['regular']?.toDouble(),
+      cut: json['cut'],
+      storeName: json['storeName'],
+      storeUrl: json['storeUrl'],
+      currency: json['currency'],
+      updatedAt: json['updatedAt'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'current': current,
+      'regular': regular,
+      'cut': cut,
+      'storeName': storeName,
+      'storeUrl': storeUrl,
+      'currency': currency,
+      'updatedAt': updatedAt,
     };
   }
 }

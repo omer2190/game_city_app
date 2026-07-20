@@ -16,6 +16,8 @@ class ApiConstants {
 
   // Games Endpoints
   static const String games = '$baseUrl/api/games';
+  static const String personalizedGames = '$baseUrl/api/games/personalized';
+  static const String gamesFilters = '$baseUrl/api/games/filters';
   static const String gameSearchOrRequest =
       '$baseUrl/api/games/search-or-request';
   static const String friendsSuggestions = '$baseUrl/api/friends/suggestions';

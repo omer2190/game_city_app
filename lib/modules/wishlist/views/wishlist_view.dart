@@ -52,11 +52,7 @@ class WishlistView extends StatelessWidget {
                     final entry = controller.wishlist[index];
                     final game = entry.game;
                     return GameCard(
-                      id: game.id,
-                      title: game.title,
-                      image: game.image,
-                      platforms: game.platforms,
-                      worth: game.worth,
+                      game: game,
                       onTap: () {
                         Get.toNamed(
                           AppRoutes.gameDetails,

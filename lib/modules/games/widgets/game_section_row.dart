@@ -1,0 +1,82 @@
+import 'package:flutter/material.dart';
+import '../../../data/models/game_model.dart';
+import 'game_card.dart';
+
+/// A horizontal scrollable section with title and game cards.
+class GameSectionRow extends StatelessWidget {
+  const GameSectionRow({
+    super.key,
+    required this.title,
+    required this.games,
+    this.onGameTap,
+    this.onSeeAll,
+  });
+
+  final String title;
+  final List<Game> games;
+  final void Function(Game game)? onGameTap;
+  final VoidCallback? onSeeAll;
+
+  @override
+  Widget build(BuildContext context) {
+    if (games.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section header
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                ),
+              ),
+              if (onSeeAll != null)
+                GestureDetector(
+                  onTap: onSeeAll,
+                  child: Text(
+                    'عرض الكل',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        // Horizontal list
+        SizedBox(
+          height: 200,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: games.length,
+            itemBuilder: (context, index) {
+              final game = games[index];
+              return Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: SizedBox(
+                  width: 140,
+                  child: GameCard(
+                    game: game,
+                    onTap: () => onGameTap?.call(game),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}

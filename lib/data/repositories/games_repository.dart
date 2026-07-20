@@ -37,6 +37,43 @@ class GamesRepository {
     return null;
   }
 
+  /// Fetch personalized home page sections.
+  /// Returns the full response with 10 game arrays.
+  Future<Map<String, dynamic>> getPersonalizedGames() async {
+    final response = await _apiClient.get(ApiConstants.personalizedGames);
+    return response as Map<String, dynamic>;
+  }
+
+  /// Fetch personalized games with search/filter/pagination params.
+  /// When any param is provided, the API switches to flat search mode.
+  Future<Map<String, dynamic>> searchPersonalizedGames({
+    String? search,
+    String? type,
+    String? genre,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final queryParams = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+    };
+    if (search != null && search.isNotEmpty) queryParams['search'] = search;
+    if (type != null && type.isNotEmpty) queryParams['type'] = type;
+    if (genre != null && genre.isNotEmpty) queryParams['genre'] = genre;
+
+    final uri = Uri.parse(
+      ApiConstants.personalizedGames,
+    ).replace(queryParameters: queryParams);
+    final response = await _apiClient.get(uri.toString());
+    return response as Map<String, dynamic>;
+  }
+
+  /// Fetch available filters (genres, source types, platforms).
+  Future<Map<String, dynamic>> getGameFilters() async {
+    final response = await _apiClient.get(ApiConstants.gamesFilters);
+    return response as Map<String, dynamic>;
+  }
+
   Future<Map<String, dynamic>> searchOrRequestGame(String name) async {
     final response = await _apiClient.post(
       ApiConstants.gameSearchOrRequest,
@@ -79,7 +116,11 @@ class GamesRepository {
     String search = '',
   }) async {
     final response = await getGames(type: 'global', page: page, search: search);
-    return response['items'] ?? [];
+    final items = response['items'];
+    if (items is List) {
+      return items.where((item) => item is Map<String, dynamic>).toList();
+    }
+    return [];
   }
 
   Future<Map<String, dynamic>> searchGlobalGame(String name) async {

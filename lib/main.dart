@@ -18,10 +18,14 @@ import 'core/bindings/initial_binding.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (kDebugMode) {
-    print('Background message: ${message.notification?.title} | ${message.data}');
+    print(
+      'Background message: ${message.notification?.title} | ${message.data}',
+    );
   }
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 }
 
@@ -33,7 +37,9 @@ void main() async {
     timeago.setLocaleMessages('ar', timeago.ArMessages());
 
     if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
     }
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -43,7 +49,7 @@ void main() async {
 
   try {
     await Get.putAsync(() => NotificationService().init());
-    Get.put(VersionService())..checkVersion();
+    Get.put(VersionService()).checkVersion();
   } catch (e) {
     debugPrint('Service Init error: $e');
   }

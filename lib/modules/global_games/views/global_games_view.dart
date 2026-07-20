@@ -93,7 +93,11 @@ class GlobalGamesView extends StatelessWidget {
                       );
                     }
 
-                    final Game game = Game.fromJson(controller.games[index]);
+                    final item = controller.games[index];
+                    if (item is! Map<String, dynamic>) {
+                      return const SizedBox.shrink();
+                    }
+                    final Game game = Game.fromJson(item);
                     final gameId = game.id ?? '';
 
                     return Obx(() {
