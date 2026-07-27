@@ -10,9 +10,8 @@ import '../widgets/profile_play_now_section.dart';
 import '../widgets/personal_info_card.dart';
 import '../widgets/social_media_list_card.dart';
 import '../widgets/general_info_grid.dart';
-import '../widgets/invite_code_card.dart';
+import '../widgets/support_friend_invite_card.dart';
 import '../widgets/team_list_card.dart';
-import '../widgets/who_invited_me_card.dart';
 import '../../../data/models/user_model.dart';
 
 class ProfileView extends StatelessWidget {
@@ -39,6 +38,107 @@ class ProfileView extends StatelessWidget {
 class _ProfileBody extends StatelessWidget {
   const _ProfileBody();
 
+  void _showTeamSheet(BuildContext context) {
+    final authController = Get.find<AuthController>();
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    Get.bottomSheet(
+      Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.6,
+        ),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle
+            Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 4),
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.onSurfaceVariant.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            // Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
+                children: [
+                  Icon(Icons.group_rounded, color: cs.primary, size: 24),
+                  const SizedBox(width: 10),
+                  Text(
+                    'فريقي',
+                    style: TextStyle(
+                      color: cs.primary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.close, color: cs.onSurfaceVariant),
+                    onPressed: () => Get.back(),
+                  ),
+                ],
+              ),
+            ),
+            // Team list
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Obx(() {
+                  final team = authController.myTeam;
+                  final isLoading = authController.isTeamLoading.value;
+
+                  if (isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (team.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(40),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.group_off_rounded,
+                              size: 56,
+                              color: cs.onSurfaceVariant.withOpacity(0.4),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'لا يوجد أعضاء في فريقك بعد',
+                              style: TextStyle(
+                                color: cs.onSurfaceVariant,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  return TeamListCard(team: team, isLoading: false);
+                }),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -54,11 +154,14 @@ class _ProfileBody extends StatelessWidget {
       final playNowRaw = authController.userModel.value?.playNow ?? [];
 
       // Invitation data
-      final inviteCode = authController.myInviteCode.value;
-      final isInviteCodeLoading = authController.isInviteCodeLoading.value;
-      final team = authController.myTeam;
-      final isTeamLoading = authController.isTeamLoading.value;
       final whoInvitedMe = authController.whoInvitedMe.value;
+      final hasJoined = whoInvitedMe != null;
+      final joinedCode = whoInvitedMe?.code;
+      final friendName = whoInvitedMe?.inviter != null
+          ? '${whoInvitedMe!.inviter!.firstName ?? ''} ${whoInvitedMe.inviter!.lastName ?? ''}'
+                .trim()
+          : '';
+      final teamCount = authController.myTeam.length;
 
       // Pre-compute general info items
       final userInfoList = user['generalInfo'] as List? ?? [];
@@ -114,29 +217,20 @@ class _ProfileBody extends StatelessWidget {
                     const SizedBox(height: 15),
                     PersonalInfoCard(user: user),
 
-                    // ── Invitation Section ──
+                    // ── Invite Code Section ──
                     const SizedBox(height: 25),
                     _sectionTitle('الدعوات', context),
                     const SizedBox(height: 15),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: InviteCodeCard(
-                        inviteCode: inviteCode,
-                        isLoading: isInviteCodeLoading,
-                      ),
+                    SupportFriendInviteCard(
+                      hasJoined: hasJoined,
+                      joinedCode: joinedCode,
+                      friendName: friendName,
+                      teamCount: teamCount,
+                      isJoining: authController.isJoiningTeam.value,
+                      isTeamLoading: authController.isTeamLoading.value,
+                      onJoin: (code) => authController.joinWithInviteCode(code),
+                      onViewTeam: () => _showTeamSheet(context),
                     ),
-                    const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: TeamListCard(team: team, isLoading: isTeamLoading),
-                    ),
-                    if (whoInvitedMe != null) ...[
-                      const SizedBox(height: 12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: WhoInvitedMeCard(invitedBy: whoInvitedMe),
-                      ),
-                    ],
 
                     const SizedBox(height: 25),
                     _sectionTitle('حسابات التواصل الاجتماعي', context),

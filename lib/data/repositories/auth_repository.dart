@@ -170,4 +170,11 @@ class AuthRepository {
   Future<Map<String, dynamic>> getWhoInvitedMe() async {
     return await _apiClient.get(ApiConstants.whoInvitedMe);
   }
+
+  Future<Map<String, dynamic>> joinWithInviteCode(String code) async {
+    return await _apiClient.post(
+      ApiConstants.joinWithInviteCode,
+      body: {'code': code},
+    );
+  }
 }

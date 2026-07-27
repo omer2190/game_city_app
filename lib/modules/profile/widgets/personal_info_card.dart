@@ -24,6 +24,11 @@ class PersonalInfoCard extends StatelessWidget {
             value: user['userName'] ?? '',
           ),
           ProfileDetailItem(
+            icon: Icons.card_giftcard_outlined,
+            label: 'كود الدعوة',
+            value: user['codeInvite'] ?? '',
+          ),
+          ProfileDetailItem(
             icon: Icons.phone_android_outlined,
             label: 'رقم الهاتف',
             value: user['phone'] ?? 'غير متوفر',

@@ -1,5 +1,5 @@
 class ApiConstants {
-  // static const String baseUrl = 'http://192.168.0.197:7000';
+  // static const String baseUrl = 'http://localhost:7000';
   static const String baseUrl = 'https://gmaingcity.com';
   // static const String baseUrl = 'https://gaming-city-seven.vercel.app';
 
@@ -73,4 +73,5 @@ class ApiConstants {
   static const String myInviteCode = '$baseUrl/api/invitations/my-code';
   static const String myTeam = '$baseUrl/api/invitations/my-team';
   static const String whoInvitedMe = '$baseUrl/api/invitations/who-invited-me';
+  static const String joinWithInviteCode = '$baseUrl/api/invitations/join';
 }

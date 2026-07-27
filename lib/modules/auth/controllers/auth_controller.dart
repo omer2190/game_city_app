@@ -29,6 +29,7 @@ class AuthController extends GetxController {
   var whoInvitedMe = Rxn<InvitationModel>();
   var isInviteCodeLoading = false.obs;
   var isTeamLoading = false.obs;
+  var isJoiningTeam = false.obs;
 
   // Keeping this for backward compatibility with views that use .user['key']
   Map<String, dynamic> get user => userModel.value != null
@@ -784,6 +785,33 @@ class AuthController extends GetxController {
       if (kDebugMode) {
         debugPrint('Error fetching who invited me: $e');
       }
+    }
+  }
+
+  /// Join a friend's team using their invite code
+  Future<bool> joinWithInviteCode(String code) async {
+    try {
+      isJoiningTeam.value = true;
+      await _authRepository.joinWithInviteCode(code);
+      await refreshProfile();
+      await loadInvitationData();
+      Get.snackbar(
+        'تم بنجاح',
+        'تم الانضمام إلى الفريق بنجاح',
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+      return true;
+    } catch (e) {
+      Get.snackbar(
+        'خطأ',
+        'فشل الانضمام: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+      return false;
+    } finally {
+      isJoiningTeam.value = false;
     }
   }
 

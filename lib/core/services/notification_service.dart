@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:game_city_app/modules/community/views/community_view.dart';
 import 'package:game_city_app/modules/community/views/friend_requests_view.dart';
 import 'package:game_city_app/modules/community/controllers/friends_controller.dart';
 import 'package:get/get.dart';
@@ -20,9 +19,14 @@ class NotificationService extends GetxService {
     try {
       await _fcm.requestPermission(alert: true, badge: true, sound: true);
 
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings = AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      );
       const iosSettings = DarwinInitializationSettings();
-      const settings = InitializationSettings(android: androidSettings, iOS: iosSettings);
+      const settings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
 
       await _local.initialize(
         settings,
@@ -43,7 +47,9 @@ class NotificationService extends GetxService {
       );
 
       await _local
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(channel);
 
       FirebaseMessaging.onMessage.listen(_foregroundHandler);
@@ -65,7 +71,9 @@ class NotificationService extends GetxService {
 
   void _foregroundHandler(RemoteMessage message) {
     if (kDebugMode) {
-      print('Foreground message: ${message.notification?.title} | ${message.data}');
+      print(
+        'Foreground message: ${message.notification?.title} | ${message.data}',
+      );
     }
 
     final roomId = message.data['targetId'];
