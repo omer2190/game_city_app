@@ -8,109 +8,105 @@ import 'profile_detail_item.dart';
 
 class SocialMediaListCard extends StatelessWidget {
   final List<SocialMediaService> socialMedia;
+  final List<SocialMediaService> availableServices;
 
-  const SocialMediaListCard({super.key, required this.socialMedia});
+  const SocialMediaListCard({
+    super.key,
+    required this.socialMedia,
+    required this.availableServices,
+  });
 
   @override
   Widget build(BuildContext context) {
     final AuthController authController = Get.find<AuthController>();
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Obx(() {
-      final List<SocialMediaService> allAvailable =
-          authController.socialMediaServices;
+    final List<SocialMediaService> notAdded = availableServices;
 
-      // Filter out services already added by the user
-      final userIds = socialMedia.map((e) => e.key ?? e.name).toSet();
-      final List<SocialMediaService> notAdded = allAvailable
-          .where((s) => !userIds.contains(s.key ?? s.name))
-          .toList();
-
-      return CustomCard(
-        padding: EdgeInsets.zero,
-        child: Column(
-          children: [
-            // List of added social media
-            ...socialMedia.map((e) {
-              return ProfileDetailItem(
-                label: e.name ?? '',
-                value: e.value ?? '',
-                onTap: (e.value != null && e.value!.isNotEmpty)
-                    ? () async {
-                        // نسخ الرابط إلى الحافظة
-                        try {
-                          await Clipboard.setData(
-                            ClipboardData(text: e.value ?? ''),
-                          );
-                          Get.snackbar(
-                            'تم النسخ',
-                            'تم نسخ رابط ${e.name} إلى الحافظة',
-                            backgroundColor: Colors.green.withOpacity(0.1),
-                            colorText: Colors.white,
-                          );
-                        } catch (_) {
-                          Get.snackbar(
-                            'خطأ',
-                            'فشل نسخ الرابط، حاول مرة أخرى',
-                            backgroundColor: Colors.red.withOpacity(0.1),
-                            colorText: Colors.white,
-                          );
-                        }
+    return CustomCard(
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
+          // List of added social media
+          ...socialMedia.map((e) {
+            return ProfileDetailItem(
+              label: e.name ?? '',
+              value: e.value ?? '',
+              onTap: (e.value != null && e.value!.isNotEmpty)
+                  ? () async {
+                      // نسخ الرابط إلى الحافظة
+                      try {
+                        await Clipboard.setData(
+                          ClipboardData(text: e.value ?? ''),
+                        );
+                        Get.snackbar(
+                          'تم النسخ',
+                          'تم نسخ رابط ${e.name} إلى الحافظة',
+                          backgroundColor: Colors.green.withOpacity(0.1),
+                          colorText: Colors.white,
+                        );
+                      } catch (_) {
+                        Get.snackbar(
+                          'خطأ',
+                          'فشل نسخ الرابط، حاول مرة أخرى',
+                          backgroundColor: Colors.red.withOpacity(0.1),
+                          colorText: Colors.white,
+                        );
                       }
-                    : null,
-                onDelete: () {
-                  Get.dialog(
-                    AlertDialog(
-                      title: const Text('حذف رابط'),
-                      content: const Text(
-                        'هل أنت متأكد من رغبتك في حذف هذا الرابط؟',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Get.back(),
-                          child: const Text('إلغاء'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Get.back();
-                            authController.deleteSocialMediaLink(e.id);
-                          },
-                          child: Text(
-                            'حذف',
-                            style: TextStyle(color: colorScheme.error),
-                          ),
-                        ),
-                      ],
+                    }
+                  : null,
+              onDelete: () {
+                Get.dialog(
+                  AlertDialog(
+                    title: const Text('حذف رابط'),
+                    content: const Text(
+                      'هل أنت متأكد من رغبتك في حذف هذا الرابط؟',
                     ),
-                  );
-                },
-              );
-            }),
-
-            // List of available but not added social media
-            ...notAdded.map((s) {
-              return ProfileDetailItem(
-                label: s.name ?? '',
-                value: 'أضف الـ ${s.name}',
-                onTap: () => _showAddDialog(context, authController, s),
-              );
-            }),
-
-            if (socialMedia.isEmpty && notAdded.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'لا توجد حسابات تواصل اجتماعي مضافة بعد.',
-                  style: TextStyle(
-                    color: colorScheme.onSurface.withOpacity(0.6),
-                    fontSize: 14,
+                    actions: [
+                      TextButton(
+                        onPressed: () => Get.back(),
+                        child: const Text('إلغاء'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Get.back();
+                          authController.deleteSocialMediaLink(e.id);
+                        },
+                        child: Text(
+                          'حذف',
+                          style: TextStyle(color: colorScheme.error),
+                        ),
+                      ),
+                    ],
                   ),
+                );
+              },
+            );
+          }),
+
+          // List of available but not added social media
+          ...notAdded.map((s) {
+            return ProfileDetailItem(
+              label: s.name ?? '',
+              value: 'أضف الـ ${s.name}',
+              onTap: () => _showAddDialog(context, authController, s),
+            );
+          }),
+
+          if (socialMedia.isEmpty && notAdded.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'لا توجد حسابات تواصل اجتماعي مضافة بعد.',
+                style: TextStyle(
+                  color: colorScheme.onSurface.withOpacity(0.6),
+                  fontSize: 14,
                 ),
               ),
-          ],
-        ),
-      );
-    });
+            ),
+        ],
+      ),
+    );
   }
 
   void _showAddDialog(

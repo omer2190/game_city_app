@@ -77,7 +77,7 @@ class GameCard extends StatelessWidget {
                         top: Radius.circular(12),
                       ),
                       child: CachedNetworkImage(
-                        imageUrl: displayImage!,
+                        imageUrl: displayImage,
                         placeholder: (context, url) => Container(
                           color: Colors.grey[900],
                           child: const Center(
@@ -106,14 +106,14 @@ class GameCard extends StatelessWidget {
                   if (displayId != null)
                     Obx(() {
                       final isInWishlist = wishlistController.isInWishlist(
-                        displayId!,
+                        displayId,
                       );
                       return Positioned(
                         top: 5,
                         right: 5,
                         child: GestureDetector(
                           onTap: () {
-                            wishlistController.toggleWishlist(displayId!);
+                            wishlistController.toggleWishlist(displayId);
                           },
                           child: Container(
                             padding: const EdgeInsets.all(4),
@@ -163,7 +163,7 @@ class GameCard extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: displayPlatforms!.map((platform) {
+                          children: displayPlatforms.map((platform) {
                             return Container(
                               margin: const EdgeInsets.symmetric(horizontal: 4),
                               padding: const EdgeInsets.symmetric(

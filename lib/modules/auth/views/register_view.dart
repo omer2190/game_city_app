@@ -1,11 +1,20 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../controllers/auth_controller.dart';
 import '../../../shared/widgets/widgets.dart';
 
-class RegisterView extends StatelessWidget {
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
+
+  @override
+  State<RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<RegisterView> {
   final AuthController controller = Get.put(AuthController());
+
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -13,8 +22,69 @@ class RegisterView extends StatelessWidget {
       TextEditingController();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController inviteCodeController = TextEditingController();
 
-  RegisterView({super.key});
+  // Invitation validation state
+  bool _isValidating = false;
+  bool _isCodeValid = false;
+  String _inviterName = '';
+  Timer? _debounceTimer;
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    usernameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
+    inviteCodeController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _validateInviteCode(String code) async {
+    if (code.trim().isEmpty) {
+      setState(() {
+        _isValidating = false;
+        _isCodeValid = false;
+        _inviterName = '';
+      });
+      return;
+    }
+
+    setState(() => _isValidating = true);
+
+    if (code.trim().length < 3) {
+      setState(() {
+        _isValidating = false;
+        _isCodeValid = false;
+      });
+      return;
+    }
+
+    final result = await controller.validateInviteCode(code.trim());
+    if (!mounted) return;
+
+    setState(() {
+      _isValidating = false;
+      _isCodeValid = result.valid;
+      if (result.valid && result.user != null) {
+        _inviterName =
+            '${result.user!.firstName ?? ''} ${result.user!.lastName ?? ''}'
+                .trim();
+      } else {
+        _inviterName = '';
+      }
+    });
+  }
+
+  void _onInviteCodeChanged(String value) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 600), () {
+      _validateInviteCode(value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +170,97 @@ class RegisterView extends StatelessWidget {
                 prefixIcon: Icons.lock_outline,
                 obscureText: true,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 16),
+
+              // ── Invite Code Field (Optional) ──
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomTextField(
+                    controller: inviteCodeController,
+                    label: 'كود الدعوة (اختياري)',
+                    hint: 'أدخل كود الدعوة',
+                    prefixIcon: Icons.card_giftcard_outlined,
+                    onChanged: _onInviteCodeChanged,
+                  ),
+                  // Validation feedback
+                  if (_isValidating)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, right: 12),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'جاري التحقق من الكود...',
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (!_isValidating && _isCodeValid && _inviterName.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, right: 12),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              '✓ تم التحقق — ستنضم إلى فريق $_inviterName',
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (!_isValidating &&
+                      !_isCodeValid &&
+                      inviteCodeController.text.trim().isNotEmpty &&
+                      inviteCodeController.text.trim().length >= 3)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, right: 12),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            color: colorScheme.error,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'كود الدعوة غير صالح',
+                            style: TextStyle(
+                              color: colorScheme.error,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 24),
 
               // Register Button
               Obx(
@@ -117,12 +277,14 @@ class RegisterView extends StatelessWidget {
                       );
                       return;
                     }
+                    final inviteCode = inviteCodeController.text.trim();
                     controller.register(
                       usernameController.text,
                       emailController.text,
                       passwordController.text,
                       firstNameController.text,
                       lastNameController.text,
+                      inviteCode: inviteCode.isNotEmpty ? inviteCode : null,
                     );
                   },
                   isLoading: controller.isLoading.value,

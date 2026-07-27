@@ -28,6 +28,7 @@ import '../modules/online_search/matchmaking_controller.dart';
 import '../modules/notifications/views/notifications_view.dart';
 import '../modules/notifications/controllers/notifications_controller.dart';
 import '../modules/wishlist/views/wishlist_view.dart';
+import '../modules/profile/views/blocked_users_view.dart';
 
 class AppPages {
   static final pages = [
@@ -126,6 +127,12 @@ class AppPages {
     GetPage(
       name: AppRoutes.wishlist,
       page: () => WishlistView(),
+      middlewares: [AuthMiddleware()],
+    ),
+
+    GetPage(
+      name: AppRoutes.blockedUsers,
+      page: () => const BlockedUsersView(),
       middlewares: [AuthMiddleware()],
     ),
   ];

@@ -440,6 +440,7 @@ class _ChatViewState extends State<ChatView> {
                           controller.sendChatMessage(
                             widget.recipient.id!,
                             message,
+                            chatRoomId: widget.recipient.chatRoomId,
                           );
                         }
                       },
@@ -599,7 +600,11 @@ class _ChatViewState extends State<ChatView> {
                         editingMessageId.value = null;
                         messageController.clear();
                       } else if (widget.recipient.id != null) {
-                        controller.sendChatMessage(widget.recipient.id!, text);
+                        controller.sendChatMessage(
+                          widget.recipient.id!,
+                          text,
+                          chatRoomId: widget.recipient.chatRoomId,
+                        );
                         messageController.clear();
                       }
                     },

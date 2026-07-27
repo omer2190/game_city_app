@@ -18,6 +18,9 @@ class UserModel {
   final List<GeneralInfoItem>? generalInfo;
   final bool? isFriend;
   final bool? isVerified;
+  final bool? isBlocked;
+  final String? codeInvite;
+  final String? invitedBy;
 
   UserModel({
     this.id,
@@ -39,6 +42,9 @@ class UserModel {
     this.generalInfo,
     this.isFriend,
     this.isVerified,
+    this.isBlocked,
+    this.codeInvite,
+    this.invitedBy,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -95,6 +101,7 @@ class UserModel {
     }
 
     final bool? isFriendVal = json['isFriend'] ?? displayData['isFriend'];
+    final bool? isBlockedVal = json['isBlocked'] ?? displayData['isBlocked'];
 
     return UserModel(
       createdAt: displayData['createdAt'],
@@ -102,6 +109,7 @@ class UserModel {
       phone: displayData['phone'],
       generalInfo: generalInfoList,
       isFriend: isFriendVal,
+      isBlocked: isBlockedVal,
       isVerified: displayData['isVerified'],
       id: requestId,
       userName: displayData['userName'],
@@ -132,6 +140,8 @@ class UserModel {
           json['chatRoomId'] ??
           displayData['roomId'] ??
           json['roomId'],
+      codeInvite: displayData['codeInvite'],
+      invitedBy: displayData['invitedBy']?.toString(),
     );
   }
 

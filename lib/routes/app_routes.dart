@@ -19,4 +19,5 @@ class AppRoutes {
   static const String onlineSearch = '/online-search';
   static const String notifications = '/notifications';
   static const String wishlist = '/wishlist';
+  static const String blockedUsers = '/blocked-users';
 }

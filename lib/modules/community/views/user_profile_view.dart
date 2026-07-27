@@ -8,6 +8,7 @@ import '../controllers/user_profile_controller.dart';
 import '../../../data/models/user_model.dart';
 import '../../../shared/widgets/widgets.dart';
 import '../../../modules/profile/widgets/profile_detail_item.dart';
+import '../../chat/views/chat_view.dart';
 
 class UserProfileView extends StatelessWidget {
   final String userId;
@@ -119,188 +120,415 @@ class UserProfileView extends StatelessWidget {
       user.firstName,
       user.lastName,
     ].where((e) => e != null).join(' ');
+    final bgImages = user.userProfile?.bgProfile;
 
     return SliverAppBar(
-      expandedHeight: 260,
+      expandedHeight: 320,
+      collapsedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
       pinned: true,
-      automaticallyImplyLeading: true,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-        onPressed: () => Get.back(),
-      ),
-      backgroundColor:
-          Colors.transparent, // Background comes from LayoutMine container
+      stretch: true,
+      automaticallyImplyLeading: false,
+      backgroundColor: colorScheme.secondary,
       elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
-        collapseMode: CollapseMode.parallax,
-        background: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        stretchModes: const [StretchMode.zoomBackground],
+        background: Stack(
+          fit: StackFit.expand,
           children: [
-            const SizedBox(height: 30),
-            // Avatar
-            Hero(
-              tag: heroTag ?? 'avatar_$userId',
-              child: Container(
-                padding: const EdgeInsets.all(4),
+            // --- Cover Image ---
+            if (bgImages != null && bgImages.isNotEmpty)
+              _buildCoverImage(bgImages.first, colorScheme)
+            else
+              _buildCoverPlaceholder(colorScheme),
+
+            // --- Top Gradient for AppBar readability ---
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 120,
+              child: DecoratedBox(
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.12),
-                ),
-                child: CircleAvatar(
-                  radius: 42,
-                  backgroundColor: colorScheme.primary.withOpacity(0.2),
-                  backgroundImage:
-                      (user.userImage != null && user.userImage!.isNotEmpty)
-                      ? CachedNetworkImageProvider(user.userImage!.first)
-                      : null,
-                  child: (user.userImage == null || user.userImage!.isEmpty)
-                      ? const Icon(
-                          Icons.person,
-                          size: 42,
-                          color: Colors.white70,
-                        )
-                      : null,
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.55),
+                      Colors.transparent,
+                    ],
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            // Full name
-            if (fullName.isNotEmpty)
-              Text(
-                fullName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+
+            // --- Bottom Gradient for smooth transition ---
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 180,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      colorScheme.secondary,
+                      colorScheme.secondary.withOpacity(0.8),
+                      colorScheme.secondary.withOpacity(0.3),
+                      Colors.transparent,
+                    ],
+                  ),
                 ),
               ),
-            // Username
-            Text(
-              '@${user.userName ?? ''}',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 14,
+            ),
+
+            // --- Back Button (top-left) ---
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 4,
+              left: 8,
+              child: GestureDetector(
+                onTap: () => Get.back(),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.35),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 18,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 12),
-            // Friend Request Button
-            if (user.isFriend == false &&
-                authController.userModel.value?.id?.toString() != userId)
-              Obx(
-                () => controller.isSendingRequest.value
-                    ? const SizedBox(
-                        height: 32,
-                        width: 32,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : (controller.requestSent.value
-                          ? Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Text(
-                                'تم إرسال الطلب',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            )
-                          : ElevatedButton.icon(
-                              onPressed: () => controller.sendFriendRequest(),
-                              icon: const Icon(Icons.person_add, size: 16),
-                              label: const Text('إضافة صديق'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colorScheme.primary,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 0,
-                                ),
-                                minimumSize: const Size(0, 36),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                            )),
-              )
-            else if (user.isFriend == true)
-              Row(
+
+            // --- Avatar & Name (bottom-center) ---
+            Positioned(
+              bottom: 16,
+              left: 0,
+              right: 0,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Avatar with glow ring
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.green.withOpacity(0.5)),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.check, color: Colors.green, size: 14),
-                        SizedBox(width: 4),
-                        Text(
-                          'صديق',
-                          style: TextStyle(color: Colors.white, fontSize: 12),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.primary.withOpacity(0.35),
+                          blurRadius: 12,
+                          spreadRadius: 2,
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () {
-                      Get.dialog(
-                        AlertDialog(
-                          backgroundColor: Colors.grey[900],
-                          title: const Text(
-                            'حذف الصديق',
-                            style: TextStyle(color: Colors.white),
+                    child: Hero(
+                      tag: heroTag ?? 'avatar_$userId',
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colorScheme.primary.withOpacity(0.6),
+                            width: 2.5,
                           ),
-                          content: const Text(
-                            'هل أنت متأكد من حذف هذا الصديق؟',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Get.back(),
-                              child: const Text('إلغاء'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Get.back();
-                                controller.removeFriend();
-                              },
-                              child: const Text(
-                                'حذف',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
                         ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.person_remove_rounded,
-                      color: Colors.redAccent,
-                      size: 20,
+                        child: CircleAvatar(
+                          radius: 42,
+                          backgroundColor: colorScheme.primary.withOpacity(
+                            0.25,
+                          ),
+                          backgroundImage:
+                              (user.userImage != null &&
+                                  user.userImage!.isNotEmpty)
+                              ? CachedNetworkImageProvider(
+                                  user.userImage!.first,
+                                )
+                              : null,
+                          child:
+                              (user.userImage == null ||
+                                  user.userImage!.isEmpty)
+                              ? Icon(
+                                  Icons.person,
+                                  size: 42,
+                                  color: Colors.white.withOpacity(0.7),
+                                )
+                              : null,
+                        ),
+                      ),
                     ),
-                    tooltip: 'حذف الصديق',
                   ),
+                  const SizedBox(height: 10),
+                  // Full name
+                  if (fullName.isNotEmpty)
+                    Text(
+                      fullName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black54,
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  // Username
+                  Text(
+                    '@${user.userName ?? ''}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.75),
+                      fontSize: 14,
+                      shadows: const [
+                        Shadow(color: Colors.black38, blurRadius: 4),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // --- Action Buttons Row ---
+                  if (authController.userModel.value?.id?.toString() != userId)
+                    _buildActionButtons(
+                      context,
+                      user,
+                      authController,
+                      colorScheme,
+                    ),
                 ],
               ),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(
+    BuildContext context,
+    UserModel user,
+    AuthController authController,
+    ColorScheme colorScheme,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Obx(() {
+        if (controller.isSendingRequest.value || controller.isBlocking.value) {
+          return const SizedBox(
+            height: 36,
+            width: 36,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
+          );
+        }
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Friend button
+            _buildActionChip(
+              context: context,
+              label: user.isFriend == true
+                  ? 'صديق'
+                  : controller.requestSent.value
+                  ? 'تم الإرسال'
+                  : 'إضافة صديق',
+              icon: user.isFriend == true
+                  ? Icons.check
+                  : controller.requestSent.value
+                  ? Icons.access_time_rounded
+                  : Icons.person_add,
+              color: user.isFriend == true
+                  ? Colors.green
+                  : controller.requestSent.value
+                  ? Colors.grey
+                  : colorScheme.primary,
+              onTap: user.isFriend == true
+                  ? () {
+                      Get.dialog(
+                        _confirmDialog(
+                          title: 'حذف الصديق',
+                          message: 'هل أنت متأكد من حذف هذا الصديق؟',
+                          confirmLabel: 'حذف',
+                          confirmColor: Colors.red,
+                          onConfirm: () {
+                            Get.back();
+                            controller.removeFriend();
+                          },
+                        ),
+                      );
+                    }
+                  : controller.requestSent.value
+                  ? null
+                  : () => controller.sendFriendRequest(),
+            ),
+            const SizedBox(width: 10),
+            // Message button
+            _buildActionChip(
+              context: context,
+              label: 'رسالة',
+              icon: Icons.send_rounded,
+              color: Colors.blue,
+              onTap: () => Get.to(() => ChatView(recipient: user)),
+            ),
+            const SizedBox(width: 10),
+            // Block button
+            _buildActionChip(
+              context: context,
+              label: controller.isBlocked.value ? 'محظور' : 'حظر',
+              icon: controller.isBlocked.value
+                  ? Icons.lock_open_rounded
+                  : Icons.block_flipped,
+              color: controller.isBlocked.value
+                  ? Colors.orange
+                  : Colors.redAccent,
+              onTap: () {
+                if (controller.isBlocked.value) {
+                  Get.dialog(
+                    _confirmDialog(
+                      title: 'فك الحظر',
+                      message: 'هل أنت متأكد من فك حظر هذا المستخدم؟',
+                      confirmLabel: 'فك الحظر',
+                      confirmColor: Colors.orange,
+                      onConfirm: () {
+                        Get.back();
+                        controller.toggleBlockUser();
+                      },
+                    ),
+                  );
+                } else {
+                  Get.dialog(
+                    _confirmDialog(
+                      title: 'حظر المستخدم',
+                      message:
+                          'هل أنت متأكد من حظر هذا المستخدم؟ لن يتمكن من مراسلتك.',
+                      confirmLabel: 'حظر',
+                      confirmColor: Colors.red,
+                      onConfirm: () {
+                        Get.back();
+                        controller.toggleBlockUser();
+                      },
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildActionChip({
+    required BuildContext context,
+    required String label,
+    required IconData icon,
+    required Color color,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.5)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _confirmDialog({
+    required String title,
+    required String message,
+    required String confirmLabel,
+    required Color confirmColor,
+    required VoidCallback onConfirm,
+  }) {
+    return AlertDialog(
+      backgroundColor: Colors.grey[900],
+      title: Text(title, style: const TextStyle(color: Colors.white)),
+      content: Text(message, style: const TextStyle(color: Colors.white70)),
+      actions: [
+        TextButton(onPressed: () => Get.back(), child: const Text('إلغاء')),
+        TextButton(
+          onPressed: onConfirm,
+          child: Text(confirmLabel, style: TextStyle(color: confirmColor)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCoverImage(String imageUrl, ColorScheme colorScheme) {
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      fadeInDuration: const Duration(milliseconds: 500),
+      errorWidget: (context, url, error) => _buildCoverPlaceholder(colorScheme),
+      placeholder: (context, url) => _buildCoverPlaceholder(colorScheme),
+      imageBuilder: (context, imageProvider) {
+        return Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: imageProvider,
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.3),
+                BlendMode.darken,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCoverPlaceholder(ColorScheme colorScheme) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colorScheme.secondary,
+            Color.lerp(
+                  colorScheme.secondary,
+                  colorScheme.primary.withOpacity(0.7),
+                  0.6,
+                ) ??
+                colorScheme.secondary,
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.image_rounded,
+          size: 64,
+          color: Colors.white.withOpacity(0.08),
         ),
       ),
     );

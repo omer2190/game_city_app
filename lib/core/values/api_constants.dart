@@ -51,4 +51,26 @@ class ApiConstants {
 
   // Version Check
   static const String checkVersion = '$baseUrl/api/version/check';
+
+  // Block
+  static const String blockUser = '$baseUrl/api/blocks/block';
+  static const String unblockUser = '$baseUrl/api/blocks/unblock';
+  static const String getBlockedUsers = '$baseUrl/api/blocks/blocked';
+  static String checkBlockStatus(String targetId) =>
+      '$baseUrl/api/blocks/check/$targetId';
+
+  // Review Comments (Game Ratings)
+  static const String reviewComments = '$baseUrl/api/reviewComments';
+  static String gameReviews(String gameId) =>
+      '$baseUrl/api/reviewComments/game/$gameId';
+  static String userReview(String gameId) =>
+      '$baseUrl/api/reviewComments/user?gameId=$gameId';
+  static String reviewById(String id) => '$baseUrl/api/reviewComments/$id';
+
+  // Invitations
+  static String validateInviteCode(String code) =>
+      '$baseUrl/api/invitations/validate/$code';
+  static const String myInviteCode = '$baseUrl/api/invitations/my-code';
+  static const String myTeam = '$baseUrl/api/invitations/my-team';
+  static const String whoInvitedMe = '$baseUrl/api/invitations/who-invited-me';
 }

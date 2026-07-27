@@ -11,11 +11,15 @@ class AuthRepository {
     );
   }
 
-  Future<Map<String, dynamic>> loginWithGoogle(String idToken) async {
-    return await _apiClient.post(
-      ApiConstants.googleLogin,
-      body: {'idToken': idToken},
-    );
+  Future<Map<String, dynamic>> loginWithGoogle(
+    String idToken, {
+    String? inviteCode,
+  }) async {
+    final body = <String, dynamic>{'idToken': idToken};
+    if (inviteCode != null && inviteCode.isNotEmpty) {
+      body['inviteCode'] = inviteCode;
+    }
+    return await _apiClient.post(ApiConstants.googleLogin, body: body);
   }
 
   Future<Map<String, dynamic>> verifyAccount(String email, String code) async {
@@ -59,17 +63,19 @@ class AuthRepository {
     required String password,
     required String firstName,
     required String lastName,
+    String? inviteCode,
   }) async {
-    return await _apiClient.post(
-      ApiConstants.register,
-      body: {
-        'userName': userName,
-        'email': email,
-        'password': password,
-        'firstName': firstName,
-        'lastName': lastName,
-      },
-    );
+    final body = <String, dynamic>{
+      'userName': userName,
+      'email': email,
+      'password': password,
+      'firstName': firstName,
+      'lastName': lastName,
+    };
+    if (inviteCode != null && inviteCode.isNotEmpty) {
+      body['inviteCode'] = inviteCode;
+    }
+    return await _apiClient.post(ApiConstants.register, body: body);
   }
 
   Future<Map<String, dynamic>> getProfile() async {
@@ -85,6 +91,17 @@ class AuthRepository {
       ApiConstants.updateUser,
       method: 'PUT',
       fileKey: 'userImage',
+      filePath: filePath,
+    );
+  }
+
+  Future<Map<String, dynamic>> updateUserBackgroundImage(
+    String filePath,
+  ) async {
+    return await _apiClient.dioMultipartRequest(
+      ApiConstants.updateUser,
+      method: 'PUT',
+      fileKey: 'bgProfile',
       filePath: filePath,
     );
   }
@@ -134,5 +151,23 @@ class AuthRepository {
 
   Future<Map<String, dynamic>> deleteSocialMediaLink(String linkId) async {
     return await _apiClient.delete('${ApiConstants.socialMediaLink}/$linkId');
+  }
+
+  // ─── Invitation Methods ───────────────────────────────────────────
+
+  Future<Map<String, dynamic>> validateInviteCode(String code) async {
+    return await _apiClient.get(ApiConstants.validateInviteCode(code));
+  }
+
+  Future<Map<String, dynamic>> getMyInviteCode() async {
+    return await _apiClient.get(ApiConstants.myInviteCode);
+  }
+
+  Future<Map<String, dynamic>> getMyTeam() async {
+    return await _apiClient.get(ApiConstants.myTeam);
+  }
+
+  Future<Map<String, dynamic>> getWhoInvitedMe() async {
+    return await _apiClient.get(ApiConstants.whoInvitedMe);
   }
 }

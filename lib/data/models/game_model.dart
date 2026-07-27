@@ -27,6 +27,8 @@ class Game {
   final Map<String, dynamic>? meta;
   final Map<String, dynamic>? rawg;
   final String? trailerUrl; // rawg trailer
+  final double? internalRating; // average user rating (1.0-5.0)
+  final int? internalRatingCount; // total number of user ratings
   final String? createdAt;
   final String? updatedAt;
 
@@ -59,6 +61,8 @@ class Game {
     this.meta,
     this.rawg,
     this.trailerUrl,
+    this.internalRating,
+    this.internalRatingCount,
     this.createdAt,
     this.updatedAt,
   });
@@ -179,6 +183,8 @@ class Game {
           ? Map<String, dynamic>.from(json['rawg'] as Map)
           : null,
       trailerUrl: json['trailerUrl'],
+      internalRating: json['internalRating']?.toDouble(),
+      internalRatingCount: json['internalRatingCount'],
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
     );
@@ -215,6 +221,8 @@ class Game {
       'meta': meta,
       'rawg': rawg,
       'trailerUrl': trailerUrl,
+      'internalRating': internalRating,
+      'internalRatingCount': internalRatingCount,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };

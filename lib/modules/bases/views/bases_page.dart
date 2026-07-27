@@ -91,7 +91,7 @@ class BasesPage extends StatelessWidget {
                   child: _buildWishlistGames(context, data.wishlistGames!),
                 ),
 
-              // --- Online Matchmakers ---
+              // --- Online Matchmakers (with Games) ---
               if (data.randomMatchmakers != null &&
                   data.randomMatchmakers!.isNotEmpty)
                 SliverToBoxAdapter(
@@ -242,7 +242,8 @@ class BasesPage extends StatelessWidget {
                           width: 56,
                           height: 56,
                           child: ClipOval(
-                            child: (player.userImage != null &&
+                            child:
+                                (player.userImage != null &&
                                     player.userImage!.isNotEmpty &&
                                     player.userImage!.first.isNotEmpty)
                                 ? CachedNetworkImage(
@@ -256,15 +257,18 @@ class BasesPage extends StatelessWidget {
                                         child: SizedBox(
                                           width: 20,
                                           height: 20,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                    errorWidget: (context, url, error) => const Icon(
-                                      Icons.person,
-                                      color: Colors.white30,
-                                      size: 28,
-                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(
+                                          Icons.person,
+                                          color: Colors.white30,
+                                          size: 28,
+                                        ),
                                   )
                                 : const Icon(
                                     Icons.person,
@@ -616,19 +620,21 @@ class BasesPage extends StatelessWidget {
     );
   }
 
-  // ─── Random Matchmakers ──────────────────────────────────────────────────
+  // ─── Random Matchmakers (with Games) ──────────────────────────────────────
 
   Widget _buildRandomMatchmakers(
     BuildContext context,
-    List<RandomUser> matchmakers,
+    List<MatchmakerUser> matchmakers,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
           padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
           child: Text(
-            'يبحث الان عن لاعبين',
+            'يلعبون نفس ألعابك',
             style: TextStyle(
               color: AppColors.primaryDark,
               fontSize: 18,
@@ -637,75 +643,198 @@ class BasesPage extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 100,
+          height: 200,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: matchmakers.length,
             itemBuilder: (context, index) {
-              final user = matchmakers[index];
+              final matchmaker = matchmakers[index];
+              final user = matchmaker.user;
+              final game = matchmaker.game;
+              if (user == null) return const SizedBox.shrink();
+
               return GestureDetector(
                 onTap: () => Get.to(() => UserProfileView(userId: user.id!)),
                 child: Container(
-                  width: 80,
+                  width: 160,
                   margin: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.white.withOpacity(0.06),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.08),
+                      width: 1,
+                    ),
+                  ),
                   child: Column(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.orangeAccent,
-                            width: 2,
-                          ),
-                        ),
-                        child: SizedBox(
-                          width: 56,
-                          height: 56,
-                          child: ClipOval(
-                            child: (user.userImage != null &&
-                                    user.userImage!.isNotEmpty &&
-                                    user.userImage!.first.isNotEmpty)
-                                ? CachedNetworkImage(
-                                    imageUrl: user.userImage!.first,
-                                    width: 56,
-                                    height: 56,
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) => Container(
-                                      color: Colors.transparent,
-                                      child: const Center(
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
+                      // --- Game Image or Placeholder ---
+                      Expanded(
+                        flex: 3,
+                        child: Stack(
+                          children: [
+                            // Background: game image or gradient
+                            ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(15),
+                              ),
+                              child:
+                                  game != null &&
+                                      game.image != null &&
+                                      game.image!.isNotEmpty
+                                  ? CachedNetworkImage(
+                                      imageUrl: game.image!,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          _matchmakerGamePlaceholder(),
+                                      errorWidget: (context, url, error) =>
+                                          _matchmakerGamePlaceholder(),
+                                    )
+                                  : _matchmakerGamePlaceholder(),
+                            ),
+                            // Gradient overlay
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(15),
+                                ),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.7),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            // Game title at bottom of image
+                            if (game != null)
+                              Positioned(
+                                bottom: 8,
+                                left: 8,
+                                right: 8,
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.sports_esports,
+                                      color: Colors.white70,
+                                      size: 12,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        game.title ?? '',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                     ),
-                                    errorWidget: (context, url, error) => const Icon(
-                                      Icons.person,
-                                      color: Colors.white30,
-                                      size: 28,
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.person,
-                                    color: Colors.white30,
-                                    size: 28,
+                                  ],
+                                ),
+                              ),
+                            if (game == null)
+                              const Positioned(
+                                bottom: 8,
+                                left: 8,
+                                right: 8,
+                                child: Text(
+                                  '🎮 يبحث عن شريك',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 10,
                                   ),
-                          ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        user.userName ?? user.fullName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
+                      // --- User Info ---
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            children: [
+                              // Avatar
+                              Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: game != null
+                                        ? colorScheme.primary
+                                        : Colors.grey,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: Colors.white10,
+                                  backgroundImage:
+                                      (user.userImage != null &&
+                                          user.userImage!.isNotEmpty &&
+                                          user.userImage!.first.isNotEmpty)
+                                      ? CachedNetworkImageProvider(
+                                          user.userImage!.first,
+                                        )
+                                      : null,
+                                  child:
+                                      (user.userImage == null ||
+                                          user.userImage!.isEmpty ||
+                                          user.userImage!.first.isEmpty)
+                                      ? const Icon(
+                                          Icons.person,
+                                          color: Colors.white30,
+                                          size: 18,
+                                        )
+                                      : null,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // Name
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      user.fullName,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '@${user.userName ?? ''}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.4),
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
@@ -715,6 +844,24 @@ class BasesPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _matchmakerGamePlaceholder() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.secondaryDark.withOpacity(0.6),
+            AppColors.primaryDark.withOpacity(0.3),
+          ],
+        ),
+      ),
+      child: const Center(
+        child: Icon(Icons.sports_esports, color: Colors.white10, size: 48),
+      ),
     );
   }
 

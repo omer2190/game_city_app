@@ -21,6 +21,7 @@ import '../widgets/trailer_player.dart';
 import '../widgets/section_title.dart';
 import '../widgets/stores_list.dart';
 import '../widgets/tags_wrap.dart';
+import '../widgets/game_review_section.dart';
 
 class GameDetailsView extends StatefulWidget {
   const GameDetailsView({super.key});
@@ -193,6 +194,10 @@ class _GameDetailsViewState extends State<GameDetailsView> {
                         StoresList(stores: game.rawgStores!, onTap: _openUrl),
                         const SizedBox(height: 16),
                       ],
+                      // ── Ratings & Reviews Section ──
+                      const SizedBox(height: 8),
+                      GameReviewSection(game: game, gameId: gameId),
+                      const SizedBox(height: 16),
                       CtaButton(
                         game: game,
                         onPressed: () => _openUrl(game.deal?.url ?? game.url),

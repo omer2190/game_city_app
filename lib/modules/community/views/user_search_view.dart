@@ -169,7 +169,7 @@ class UserSearchView extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: isFriend ? () => Get.to(() => ChatView(recipient: user)) : null,
+        onTap: () => Get.to(() => ChatView(recipient: user)),
         borderRadius: BorderRadius.circular(15),
         child: Container(
           padding: const EdgeInsets.all(12),
@@ -243,9 +243,29 @@ class UserSearchView extends StatelessWidget {
       return Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant);
     }
 
-    return IconButton(
-      onPressed: () => suggestedController.sendFriendRequest(user.id ?? ''),
-      icon: Icon(Icons.person_add_alt_1, color: colorScheme.primary),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          onPressed: () => Get.to(() => ChatView(recipient: user)),
+          icon: Icon(Icons.send_rounded, color: Colors.blue),
+          style: IconButton.styleFrom(
+            backgroundColor: Colors.blue.withOpacity(0.1),
+            padding: const EdgeInsets.all(6),
+            minimumSize: const Size(32, 32),
+          ),
+        ),
+        const SizedBox(width: 4),
+        IconButton(
+          onPressed: () => suggestedController.sendFriendRequest(user.id ?? ''),
+          icon: Icon(Icons.person_add_alt_1, color: colorScheme.primary),
+          style: IconButton.styleFrom(
+            backgroundColor: colorScheme.primary.withOpacity(0.1),
+            padding: const EdgeInsets.all(6),
+            minimumSize: const Size(32, 32),
+          ),
+        ),
+      ],
     );
   }
 }

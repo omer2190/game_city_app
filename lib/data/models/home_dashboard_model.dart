@@ -6,7 +6,7 @@ class HomeDashboardModel {
   final List<RandomUser>? randomFriends;
   final List<Game>? latestFreeGames;
   final List<News>? latestNews;
-  final List<RandomUser>? randomMatchmakers;
+  final List<MatchmakerUser>? randomMatchmakers;
   final List<Game>? wishlistGames;
 
   HomeDashboardModel({
@@ -40,9 +40,18 @@ class HomeDashboardModel {
             ? (json['latestNews'] as List).map((i) => News.fromJson(i)).toList()
             : null,
         randomMatchmakers: json['randomMatchmakers'] != null
-            ? (json['randomMatchmakers'] as List)
-                  .map((i) => RandomUser.fromJson(i))
-                  .toList()
+            ? (json['randomMatchmakers'] as List).map((i) {
+                // Handle both old format (flat user) and new format ({user, game})
+                if (i is Map<String, dynamic> && i.containsKey('user')) {
+                  return MatchmakerUser.fromJson(i);
+                } else {
+                  // Old format: item is the user itself, no game
+                  return MatchmakerUser(
+                    user: RandomUser.fromJson(i),
+                    game: null,
+                  );
+                }
+              }).toList()
             : null,
         wishlistGames: json['wishlistGames'] != null
             ? (json['wishlistGames'] as List)
@@ -115,4 +124,18 @@ class RandomUser {
 
   String get fullName =>
       [firstName, lastName].where((e) => e != null).join(' ');
+}
+
+class MatchmakerUser {
+  final RandomUser? user;
+  final Game? game;
+
+  MatchmakerUser({this.user, this.game});
+
+  factory MatchmakerUser.fromJson(Map<String, dynamic> json) {
+    return MatchmakerUser(
+      user: json['user'] != null ? RandomUser.fromJson(json['user']) : null,
+      game: json['game'] != null ? Game.fromJson(json['game']) : null,
+    );
+  }
 }

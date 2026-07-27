@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart' as dio;
@@ -108,15 +109,28 @@ class ApiClient {
       }
 
       if (fileKey != null && filePath != null) {
-        final file = File(filePath);
-        if (await file.exists()) {
-          final bytes = await file.readAsBytes();
+        if (kIsWeb) {
+          final httpClient = http.Client();
+          final fileResponse = await httpClient.get(Uri.parse(filePath));
+          final bytes = fileResponse.bodyBytes;
           final multipartFile = http.MultipartFile.fromBytes(
             fileKey,
             bytes,
-            filename: filePath.split(Platform.isWindows ? '\\' : '/').last,
+            filename: filePath.split('/').last.split('\\').last,
           );
           request.files.add(multipartFile);
+          httpClient.close();
+        } else {
+          final file = File(filePath);
+          if (await file.exists()) {
+            final bytes = await file.readAsBytes();
+            final multipartFile = http.MultipartFile.fromBytes(
+              fileKey,
+              bytes,
+              filename: filePath.split('/').last.split('\\').last,
+            );
+            request.files.add(multipartFile);
+          }
         }
       }
 
@@ -151,10 +165,21 @@ class ApiClient {
       }
 
       if (fileKey != null && filePath != null) {
-        formDataMap[fileKey] = await dio.MultipartFile.fromFile(
-          filePath,
-          filename: filePath.split(Platform.isWindows ? '\\' : '/').last,
-        );
+        if (kIsWeb) {
+          final httpClient = http.Client();
+          final fileResponse = await httpClient.get(Uri.parse(filePath));
+          final bytes = fileResponse.bodyBytes;
+          httpClient.close();
+          formDataMap[fileKey] = dio.MultipartFile.fromBytes(
+            bytes,
+            filename: filePath.split('/').last.split('\\').last,
+          );
+        } else {
+          formDataMap[fileKey] = await dio.MultipartFile.fromFile(
+            filePath,
+            filename: filePath.split('/').last.split('\\').last,
+          );
+        }
       }
 
       final formData = dio.FormData.fromMap(formDataMap);

@@ -221,7 +221,7 @@ class _CommunityViewState extends State<CommunityView>
       margin: const EdgeInsets.only(bottom: 12),
       child: CustomCard(
         padding: EdgeInsets.zero,
-        onTap: isFriend ? () => Get.to(() => ChatView(recipient: user)) : null,
+        onTap: () => Get.to(() => ChatView(recipient: user)),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -275,22 +275,10 @@ class _CommunityViewState extends State<CommunityView>
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (isFriend)
-                      Obx(() {
-                        final lastMsg =
-                            friendsController.lastMessages[user.chatRoomId];
-                        if (lastMsg == null) {
-                          return Text(
-                            user.userProfile?.bio ?? 'لا توجد رسائل',
-                            style: TextStyle(
-                              color: colorScheme.onSurfaceVariant,
-                              fontSize: 11,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          );
-                        }
-
+                    Obx(() {
+                      final lastMsg =
+                          friendsController.lastMessages[user.chatRoomId];
+                      if (lastMsg != null) {
                         final isMe =
                             lastMsg['senderId'] ==
                             authController.userModel.value?.id;
@@ -341,32 +329,37 @@ class _CommunityViewState extends State<CommunityView>
                             ),
                           ],
                         );
-                      })
-                    else if (user.userProfile?.bio != null)
-                      Text(
-                        user.userProfile!.bio!,
+                      }
+                      if (user.userProfile?.bio != null) {
+                        return Text(
+                          user.userProfile!.bio!,
+                          style: TextStyle(
+                            color: colorScheme.onSurface.withOpacity(0.5),
+                            fontSize: 11,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      }
+                      return Text(
+                        isFriend ? 'لا توجد رسائل' : 'انقر لبدء المحادثة',
                         style: TextStyle(
-                          color: colorScheme.onSurface.withOpacity(0.5),
+                          color: colorScheme.onSurfaceVariant,
                           fontSize: 11,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                      ),
+                      );
+                    }),
                   ],
                 ),
               ),
-              if (isFriend)
-                Obx(() {
-                  final lastMsg =
-                      friendsController.lastMessages[user.chatRoomId];
-                  if (lastMsg == null) return const SizedBox.shrink();
-
+              Obx(() {
+                final lastMsg = friendsController.lastMessages[user.chatRoomId];
+                if (lastMsg != null) {
                   final timestamp = lastMsg['timestamp'] as int;
                   final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-
-                  // Set locale to Arabic for timeago if needed, or default
                   final timeStr = timeago.format(date, locale: 'en_short');
-
                   final isMe =
                       lastMsg['senderId'] == authController.userModel.value?.id;
                   final isUnread = lastMsg['read'] == false && !isMe;
@@ -399,7 +392,10 @@ class _CommunityViewState extends State<CommunityView>
                         ),
                     ],
                   );
-                }),
+                }
+                return const SizedBox.shrink();
+              }),
+              const SizedBox(width: 4),
               if (!isFriend)
                 IconButton(
                   onPressed: () =>
@@ -407,9 +403,12 @@ class _CommunityViewState extends State<CommunityView>
                   icon: Icon(
                     Icons.person_add_alt_1_rounded,
                     color: colorScheme.primary,
+                    size: 20,
                   ),
                   style: IconButton.styleFrom(
                     backgroundColor: colorScheme.primary.withOpacity(0.1),
+                    padding: const EdgeInsets.all(6),
+                    minimumSize: const Size(32, 32),
                   ),
                 ),
             ],

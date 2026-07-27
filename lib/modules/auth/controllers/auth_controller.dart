@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/models/user_model.dart';
+import '../../../data/models/invitation_model.dart';
 import '../../../core/services/notification_service.dart';
 import '../../../routes/app_routes.dart';
 
@@ -21,6 +22,13 @@ class AuthController extends GetxController {
   var userModel = Rxn<UserModel>();
   var socialMediaServices = <SocialMediaService>[].obs;
   var generalInfoTypes = <Map<String, dynamic>>[].obs;
+
+  // Invitation reactive properties
+  var myInviteCode = ''.obs;
+  var myTeam = <InvitationModel>[].obs;
+  var whoInvitedMe = Rxn<InvitationModel>();
+  var isInviteCodeLoading = false.obs;
+  var isTeamLoading = false.obs;
 
   // Keeping this for backward compatibility with views that use .user['key']
   Map<String, dynamic> get user => userModel.value != null
@@ -37,6 +45,15 @@ class AuthController extends GetxController {
           'createdAt': userModel.value!.createdAt,
           'birthDate': userModel.value!.birthDate,
           'phone': userModel.value!.phone,
+          'codeInvite': userModel.value!.codeInvite,
+          'invitedBy': userModel.value!.invitedBy,
+          'userProfile': userModel.value!.userProfile != null
+              ? {
+                  'bio': userModel.value!.userProfile!.bio,
+                  'primaryColor': userModel.value!.userProfile!.primaryColor,
+                  'bgProfile': userModel.value!.userProfile!.bgProfile,
+                }
+              : null,
           'socialMedia': userModel.value!.socialMedia,
           'generalInfo': userModel.value!.generalInfo
               ?.map(
@@ -70,6 +87,7 @@ class AuthController extends GetxController {
       fetchSocialMediaServices();
       fetchGeneralInfoTypes();
       updateFcmToken();
+      loadInvitationData();
     }
   }
 
@@ -133,7 +151,9 @@ class AuthController extends GetxController {
     try {
       if (!Get.isRegistered<NotificationService>()) {
         if (kDebugMode) {
-          debugPrint('NotificationService not yet registered. Skipping FCM token update.');
+          debugPrint(
+            'NotificationService not yet registered. Skipping FCM token update.',
+          );
         }
         return;
       }
@@ -248,7 +268,7 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> loginWithGoogle() async {
+  Future<void> loginWithGoogle({String? inviteCode}) async {
     try {
       isLoading.value = true;
       String? googleIdToken;
@@ -296,7 +316,10 @@ class AuthController extends GetxController {
 
       // 5. Send the GOOGLE ID Token to your backend server
       if (googleIdToken != "") {
-        final response = await _authRepository.loginWithGoogle(googleIdToken);
+        final response = await _authRepository.loginWithGoogle(
+          googleIdToken,
+          inviteCode: inviteCode,
+        );
 
         final token = response['token'];
         final userData = response['user'];
@@ -344,8 +367,9 @@ class AuthController extends GetxController {
     String email,
     String password,
     String firstName,
-    String lastName,
-  ) async {
+    String lastName, {
+    String? inviteCode,
+  }) async {
     try {
       isLoading.value = true;
       final response = await _authRepository.register(
@@ -354,6 +378,7 @@ class AuthController extends GetxController {
         password: password,
         firstName: firstName,
         lastName: lastName,
+        inviteCode: inviteCode,
       );
 
       final token = response['token'];
@@ -423,6 +448,49 @@ class AuthController extends GetxController {
       Get.snackbar(
         'خطأ',
         'فشل تحديث الصورة: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> uploadProfileBackgroundImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 1080,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        isLoading.value = true;
+        final response = await _authRepository.updateUserBackgroundImage(
+          image.path,
+        );
+        final userData = response['user'] ?? response;
+
+        if (userData is Map<String, dynamic> && userData.isNotEmpty) {
+          userModel.value = UserModel.fromJson(userData);
+          _storage.write('user', userData);
+        }
+
+        Get.snackbar(
+          'نجاح',
+          'تم تحديث صورة الغلاف بنجاح',
+          backgroundColor: Colors.green.withOpacity(0.1),
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      debugPrint("///////////////////////////////");
+      debugPrint(e.toString());
+      debugPrint("///////////////////////////////");
+      Get.snackbar(
+        'خطأ',
+        'فشل تحديث صورة الغلاف: $e',
         backgroundColor: Colors.red.withOpacity(0.1),
         colorText: Colors.white,
       );
@@ -654,5 +722,77 @@ class AuthController extends GetxController {
       backgroundColor: Colors.green.withOpacity(0.1),
       colorText: Colors.white,
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // Invitation Methods
+  // ═══════════════════════════════════════════════════════════════════
+
+  /// Validate an invite code (public, no auth needed)
+  Future<InvitationValidationResult> validateInviteCode(String code) async {
+    try {
+      final response = await _authRepository.validateInviteCode(code);
+      return InvitationValidationResult.fromJson(response);
+    } catch (e) {
+      return InvitationValidationResult(
+        valid: false,
+        message: 'كود الدعوة غير صالح',
+      );
+    }
+  }
+
+  /// Get my invite code
+  Future<void> fetchMyInviteCode() async {
+    try {
+      isInviteCodeLoading.value = true;
+      final response = await _authRepository.getMyInviteCode();
+      myInviteCode.value = response['codeInvite'] ?? '';
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error fetching invite code: $e');
+      }
+    } finally {
+      isInviteCodeLoading.value = false;
+    }
+  }
+
+  /// Get my team (people I invited)
+  Future<void> fetchMyTeam() async {
+    try {
+      isTeamLoading.value = true;
+      final response = await _authRepository.getMyTeam();
+      final teamList = (response['team'] as List? ?? [])
+          .map((e) => InvitationModel.fromJson(e))
+          .toList();
+      myTeam.value = teamList;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error fetching team: $e');
+      }
+    } finally {
+      isTeamLoading.value = false;
+    }
+  }
+
+  /// Get who invited me
+  Future<void> fetchWhoInvitedMe() async {
+    try {
+      final response = await _authRepository.getWhoInvitedMe();
+      final data = WhoInvitedMeResponse.fromJson(response);
+      whoInvitedMe.value = data.invitedBy;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Error fetching who invited me: $e');
+      }
+    }
+  }
+
+  /// Load all invitation data (called once on profile load)
+  Future<void> loadInvitationData() async {
+    await Future.wait([
+      fetchMyInviteCode(),
+      fetchMyTeam(),
+      fetchWhoInvitedMe(),
+    ]);
   }
 }

@@ -79,15 +79,33 @@ class ChatController extends GetxController {
     }
   }
 
-  Future<void> sendChatMessage(
+  Future<String?> sendChatMessage(
     String recipientId,
     String content, {
     String type = 'text',
+    String? chatRoomId,
   }) async {
     try {
-      await _chatRepository.sendMessage(recipientId, content, type: type);
+      final response = await _chatRepository.sendMessage(
+        recipientId,
+        content,
+        type: type,
+      );
+      // إذا كانت الغرفة جديدة، استخرج roomId من الاستجابة وابدأ الاستماع
+      if (chatRoomId == null || chatRoomId.isEmpty) {
+        final newRoomId =
+            response['roomId']?.toString() ??
+            response['chatRoomId']?.toString() ??
+            response['room']?['_id']?.toString();
+        if (newRoomId != null && newRoomId.isNotEmpty) {
+          listenToMessages(newRoomId);
+        }
+      }
+      return response['roomId']?.toString() ??
+          response['chatRoomId']?.toString();
     } catch (e) {
       Get.snackbar('خطأ', 'فشل إرسال الرسالة: $e');
+      return null;
     }
   }
 
