@@ -330,98 +330,101 @@ class UserProfileView extends StatelessWidget {
           );
         }
 
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Friend button
-            _buildActionChip(
-              context: context,
-              label: user.isFriend == true
-                  ? 'صديق'
-                  : controller.requestSent.value
-                  ? 'تم الإرسال'
-                  : 'إضافة صديق',
-              icon: user.isFriend == true
-                  ? Icons.check
-                  : controller.requestSent.value
-                  ? Icons.access_time_rounded
-                  : Icons.person_add,
-              color: user.isFriend == true
-                  ? Colors.green
-                  : controller.requestSent.value
-                  ? Colors.grey
-                  : colorScheme.primary,
-              onTap: user.isFriend == true
-                  ? () {
-                      Get.dialog(
-                        _confirmDialog(
-                          title: 'حذف الصديق',
-                          message: 'هل أنت متأكد من حذف هذا الصديق؟',
-                          confirmLabel: 'حذف',
-                          confirmColor: Colors.red,
-                          onConfirm: () {
-                            Get.back();
-                            controller.removeFriend();
-                          },
-                        ),
-                      );
-                    }
-                  : controller.requestSent.value
-                  ? null
-                  : () => controller.sendFriendRequest(),
-            ),
-            const SizedBox(width: 10),
-            // Message button
-            _buildActionChip(
-              context: context,
-              label: 'رسالة',
-              icon: Icons.send_rounded,
-              color: Colors.blue,
-              onTap: () => Get.to(() => ChatView(recipient: user)),
-            ),
-            const SizedBox(width: 10),
-            // Block button
-            _buildActionChip(
-              context: context,
-              label: controller.isBlocked.value ? 'محظور' : 'حظر',
-              icon: controller.isBlocked.value
-                  ? Icons.lock_open_rounded
-                  : Icons.block_flipped,
-              color: controller.isBlocked.value
-                  ? Colors.orange
-                  : Colors.redAccent,
-              onTap: () {
-                if (controller.isBlocked.value) {
-                  Get.dialog(
-                    _confirmDialog(
-                      title: 'فك الحظر',
-                      message: 'هل أنت متأكد من فك حظر هذا المستخدم؟',
-                      confirmLabel: 'فك الحظر',
-                      confirmColor: Colors.orange,
-                      onConfirm: () {
-                        Get.back();
-                        controller.toggleBlockUser();
-                      },
-                    ),
-                  );
-                } else {
-                  Get.dialog(
-                    _confirmDialog(
-                      title: 'حظر المستخدم',
-                      message:
-                          'هل أنت متأكد من حظر هذا المستخدم؟ لن يتمكن من مراسلتك.',
-                      confirmLabel: 'حظر',
-                      confirmColor: Colors.red,
-                      onConfirm: () {
-                        Get.back();
-                        controller.toggleBlockUser();
-                      },
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Friend button
+              _buildActionChip(
+                context: context,
+                label: user.isFriend == true
+                    ? 'صديق'
+                    : controller.requestSent.value
+                    ? 'تم الإرسال'
+                    : 'إضافة صديق',
+                icon: user.isFriend == true
+                    ? Icons.check
+                    : controller.requestSent.value
+                    ? Icons.access_time_rounded
+                    : Icons.person_add,
+                color: user.isFriend == true
+                    ? Colors.green
+                    : controller.requestSent.value
+                    ? Colors.grey
+                    : colorScheme.primary,
+                onTap: user.isFriend == true
+                    ? () {
+                        Get.dialog(
+                          _confirmDialog(
+                            title: 'حذف الصديق',
+                            message: 'هل أنت متأكد من حذف هذا الصديق؟',
+                            confirmLabel: 'حذف',
+                            confirmColor: Colors.red,
+                            onConfirm: () {
+                              Get.back();
+                              controller.removeFriend();
+                            },
+                          ),
+                        );
+                      }
+                    : controller.requestSent.value
+                    ? null
+                    : () => controller.sendFriendRequest(),
+              ),
+              const SizedBox(width: 10),
+              // Message button
+              _buildActionChip(
+                context: context,
+                label: 'رسالة',
+                icon: Icons.send_rounded,
+                color: Colors.blue,
+                onTap: () => Get.to(() => ChatView(recipient: user)),
+              ),
+              const SizedBox(width: 10),
+              // Block button
+              _buildActionChip(
+                context: context,
+                label: controller.isBlocked.value ? 'محظور' : 'حظر',
+                icon: controller.isBlocked.value
+                    ? Icons.lock_open_rounded
+                    : Icons.block_flipped,
+                color: controller.isBlocked.value
+                    ? Colors.orange
+                    : Colors.redAccent,
+                onTap: () {
+                  if (controller.isBlocked.value) {
+                    Get.dialog(
+                      _confirmDialog(
+                        title: 'فك الحظر',
+                        message: 'هل أنت متأكد من فك حظر هذا المستخدم؟',
+                        confirmLabel: 'فك الحظر',
+                        confirmColor: Colors.orange,
+                        onConfirm: () {
+                          Get.back();
+                          controller.toggleBlockUser();
+                        },
+                      ),
+                    );
+                  } else {
+                    Get.dialog(
+                      _confirmDialog(
+                        title: 'حظر المستخدم',
+                        message:
+                            'هل أنت متأكد من حظر هذا المستخدم؟ لن يتمكن من مراسلتك.',
+                        confirmLabel: 'حظر',
+                        confirmColor: Colors.red,
+                        onConfirm: () {
+                          Get.back();
+                          controller.toggleBlockUser();
+                        },
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
         );
       }),
     );

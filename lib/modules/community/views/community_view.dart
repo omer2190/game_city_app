@@ -277,7 +277,7 @@ class _CommunityViewState extends State<CommunityView>
                     ),
                     Obx(() {
                       final lastMsg =
-                          friendsController.lastMessages[user.chatRoomId];
+                          friendsController.lastMessages[user.chatRoomId ?? ''];
                       if (lastMsg != null) {
                         final isMe =
                             lastMsg['senderId'] ==
@@ -355,11 +355,16 @@ class _CommunityViewState extends State<CommunityView>
                 ),
               ),
               Obx(() {
-                final lastMsg = friendsController.lastMessages[user.chatRoomId];
+                final lastMsg =
+                    friendsController.lastMessages[user.chatRoomId ?? ''];
                 if (lastMsg != null) {
-                  final timestamp = lastMsg['timestamp'] as int;
-                  final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-                  final timeStr = timeago.format(date, locale: 'en_short');
+                  final timestamp = lastMsg['timestamp'];
+                  final date = timestamp is int
+                      ? DateTime.fromMillisecondsSinceEpoch(timestamp)
+                      : null;
+                  final timeStr = date != null
+                      ? timeago.format(date, locale: 'en_short')
+                      : '';
                   final isMe =
                       lastMsg['senderId'] == authController.userModel.value?.id;
                   final isUnread = lastMsg['read'] == false && !isMe;
