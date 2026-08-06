@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/modules/community/views/user_profile_view.dart';
+import 'package:game_city_app/modules/community/widgets/community_split_shell.dart';
 import 'package:game_city_app/shared/header.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
 import 'package:get/get.dart';
@@ -113,20 +115,50 @@ class _CommunityViewState extends State<CommunityView>
               Tab(text: 'المجموعات'),
             ],
           ),
-          Expanded(
-            child: Obx(() {
-              if (!authController.isLoggedIn.value) {
-                return const GuestView(
-                  message:
-                      'سجل دخولك الآن لتتمكن من إضافة أصدقاء والانضمام لمجموعات الدردشة',
+          // ── Desktop: split-panel layout ─────────────────────────────
+          if (context.isDesktop)
+            Expanded(
+              child: Obx(() {
+                if (!authController.isLoggedIn.value) {
+                  return const GuestView(
+                    message:
+                        'سجل دخولك الآن لتتمكن من إضافة أصدقاء والانضمام لمجموعات الدردشة',
+                  );
+                }
+                // Show split: friends left, chat right
+                return _buildDesktopSplit(context);
+              }),
+            )
+          else ...[
+            // ── Mobile: tabs ─────────────────────────────────────────
+            TabBar(
+              controller: _tabController,
+              indicatorColor: colorScheme.primary,
+              labelColor: colorScheme.primary,
+              unselectedLabelColor: colorScheme.onBackground.withAlpha(127),
+              indicatorSize: TabBarIndicatorSize.label,
+              dividerColor: Colors.transparent,
+              isScrollable: true,
+              tabs: const [
+                Tab(text: 'أصدقائي'),
+                Tab(text: 'المجموعات'),
+              ],
+            ),
+            Expanded(
+              child: Obx(() {
+                if (!authController.isLoggedIn.value) {
+                  return const GuestView(
+                    message:
+                        'سجل دخولك الآن لتتمكن من إضافة أصدقاء والانضمام لمجموعات الدردشة',
+                  );
+                }
+                return TabBarView(
+                  controller: _tabController,
+                  children: [_buildFriendsTab(context), ChatRoomsView()],
                 );
-              }
-              return TabBarView(
-                controller: _tabController,
-                children: [_buildFriendsTab(context), ChatRoomsView()],
-              );
-            }),
-          ),
+              }),
+            ),
+          ],
         ],
       ),
     );
@@ -420,6 +452,30 @@ class _CommunityViewState extends State<CommunityView>
           ),
         ),
       ),
+    );
+  }
+
+  // ── Desktop split: friends list (left) + embedded chat (right) ──────
+
+  Widget _buildDesktopSplit(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        await Future.wait([
+          friendsController.fetchFriends(),
+          friendsController.fetchPendingRequests(),
+          suggestedController.fetchSuggestions(),
+        ]);
+      },
+      child: Obx(() {
+        if (friendsController.isFriendsLoading.value) {
+          return const LoadingWidget(message: 'جاري تحميل قائمة الأصدقاء...');
+        }
+        return CommunitySplitShell(
+          friends: friendsController.friendsList,
+          suggestions: suggestedController.suggestions,
+          onUserTapMobile: (user) => Get.to(() => ChatView(recipient: user)),
+        );
+      }),
     );
   }
 }

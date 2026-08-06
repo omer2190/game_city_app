@@ -193,27 +193,39 @@ class _GamesHubViewState extends State<GamesHubView> {
       );
     }
 
-    // 2-column grid with GameCard
+    // Responsive grid with GameCard
     return RefreshIndicator(
       onRefresh: () => controller.refresh(),
-      child: GridView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.7,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        itemCount:
-            controller.searchResults.length +
-            (controller.hasMore.value ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == controller.searchResults.length) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final game = controller.searchResults[index];
-          return GameCard(game: game, onTap: () => _navigateToDetails(game));
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final cols = constraints.maxWidth > 1024
+              ? 4
+              : constraints.maxWidth > 600
+              ? 3
+              : 2;
+          return GridView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: cols,
+              childAspectRatio: 0.7,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+            ),
+            itemCount:
+                controller.searchResults.length +
+                (controller.hasMore.value ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == controller.searchResults.length) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final game = controller.searchResults[index];
+              return GameCard(
+                game: game,
+                onTap: () => _navigateToDetails(game),
+              );
+            },
+          );
         },
       ),
     );

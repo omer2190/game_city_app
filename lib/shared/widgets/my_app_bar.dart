@@ -4,10 +4,14 @@ import 'package:game_city_app/modules/auth/controllers/auth_controller.dart';
 import 'package:game_city_app/routes/app_routes.dart';
 import 'package:get/get.dart';
 
+import '../../core/values/app_breakpoints.dart';
+import '../../core/values/app_dimensions.dart';
 import '../../modules/notifications/controllers/notifications_controller.dart';
 
 AppBar myAppBar(BuildContext context) {
   final theme = Theme.of(context);
+  final isDesktop = context.isDesktop;
+  final fontSize = AppDimensions.scaledFontSize(context, 14);
 
   final AuthController authController = Get.isRegistered<AuthController>()
       ? Get.find<AuthController>()
@@ -21,17 +25,20 @@ AppBar myAppBar(BuildContext context) {
     elevation: 0,
     toolbarHeight: 0,
     bottom: PreferredSize(
-      preferredSize: const Size.fromHeight(70),
+      preferredSize: Size.fromHeight(isDesktop ? 80 : 70),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: isDesktop ? 32 : 24,
+              vertical: isDesktop ? 12 : 8,
+            ),
             child: Row(
               children: [
                 GestureDetector(
                   onTap: () => Get.toNamed('/profile'),
                   child: CircleAvatar(
-                    radius: 20,
+                    radius: isDesktop ? 24 : 20,
                     backgroundColor: theme.colorScheme.primary,
                     backgroundImage:
                         authController.userModel.value?.userImage != null &&
@@ -56,7 +63,9 @@ AppBar myAppBar(BuildContext context) {
                       authController.userModel.value?.firstName ?? 'ضيف';
                   return Text(
                     '$greeting يا $name',
-                    style: theme.textTheme.titleMedium,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontSize: fontSize,
+                    ),
                   );
                 }),
                 const Spacer(),
@@ -64,11 +73,7 @@ AppBar myAppBar(BuildContext context) {
                   onPressed: () => Get.toNamed(AppRoutes.notifications),
                   icon: Stack(
                     children: [
-                      Icon(
-                        Icons.notifications_outlined,
-                        color: Colors.white,
-                        // size: 26,
-                      ),
+                      Icon(Icons.notifications_outlined, color: Colors.white),
                       Obx(
                         () => notificationsController.unreadCount > 0
                             ? Positioned(

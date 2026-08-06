@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/values/app_breakpoints.dart';
 import '../controllers/auth_controller.dart';
 import '../../../shared/widgets/widgets.dart';
 
@@ -17,6 +18,7 @@ class ChangePasswordView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isDesktop = context.isDesktop;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -29,75 +31,81 @@ class ChangePasswordView extends StatelessWidget {
         elevation: 0,
         iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              Text(
-                'يرجى إدخال كلمة المرور الحالية ثم الجديدة للتحديث',
-                style: theme.textTheme.bodyMedium,
-                textAlign: TextAlign.center,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: SizedBox(
+            width: isDesktop ? 420 : null,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  Text(
+                    'يرجى إدخال كلمة المرور الحالية ثم الجديدة للتحديث',
+                    style: theme.textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 30),
+                  CustomTextField(
+                    controller: oldPasswordController,
+                    label: 'كلمة المرور الحالية',
+                    hint: '********',
+                    prefixIcon: Icons.lock_outline,
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'يرجى إدخال كلمة المرور الحالية';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: newPasswordController,
+                    label: 'كلمة المرور الجديدة',
+                    hint: '********',
+                    prefixIcon: Icons.lock_reset,
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'يرجى إدخال كلمة المرور الجديدة';
+                      if (value.length < 6)
+                        return 'يجب أن تكون 6 أحرف على الأقل';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: confirmPasswordController,
+                    label: 'تأكيد كلمة المرور الجديدة',
+                    hint: '********',
+                    prefixIcon: Icons.lock_clock_outlined,
+                    obscureText: true,
+                    validator: (value) {
+                      if (value != newPasswordController.text)
+                        return 'كلمات المرور غير متطابقة';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  Obx(
+                    () => CustomButton(
+                      text: 'تحديث كلمة المرور',
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          controller.changePassword(
+                            oldPassword: oldPasswordController.text,
+                            newPassword: newPasswordController.text,
+                          );
+                        }
+                      },
+                      isLoading: controller.isLoading.value,
+                      width: double.infinity,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 30),
-              CustomTextField(
-                controller: oldPasswordController,
-                label: 'كلمة المرور الحالية',
-                hint: '********',
-                prefixIcon: Icons.lock_outline,
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty)
-                    return 'يرجى إدخال كلمة المرور الحالية';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: newPasswordController,
-                label: 'كلمة المرور الجديدة',
-                hint: '********',
-                prefixIcon: Icons.lock_reset,
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty)
-                    return 'يرجى إدخال كلمة المرور الجديدة';
-                  if (value.length < 6) return 'يجب أن تكون 6 أحرف على الأقل';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: confirmPasswordController,
-                label: 'تأكيد كلمة المرور الجديدة',
-                hint: '********',
-                prefixIcon: Icons.lock_clock_outlined,
-                obscureText: true,
-                validator: (value) {
-                  if (value != newPasswordController.text)
-                    return 'كلمات المرور غير متطابقة';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 40),
-              Obx(
-                () => CustomButton(
-                  text: 'تحديث كلمة المرور',
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      controller.changePassword(
-                        oldPassword: oldPasswordController.text,
-                        newPassword: newPasswordController.text,
-                      );
-                    }
-                  },
-                  isLoading: controller.isLoading.value,
-                  width: double.infinity,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

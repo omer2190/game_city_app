@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:game_city_app/shared/header.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
+import 'package:game_city_app/shared/widgets/adaptive_grid_view.dart';
 import 'package:get/get.dart';
 import '../controllers/wishlist_controller.dart';
 import '../../games/widgets/game_card.dart';
@@ -35,19 +36,15 @@ class WishlistView extends StatelessWidget {
                   );
                 }
 
-                return GridView.builder(
+                return AdaptiveGridView(
                   padding: const EdgeInsets.only(
                     bottom: 20,
                     left: 16,
                     right: 16,
                   ),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.65,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                  ),
+                  aspectRatio: 0.65,
                   itemCount: controller.wishlist.length,
+                  gridColumns: 2,
                   itemBuilder: (context, index) {
                     final entry = controller.wishlist[index];
                     final game = entry.game;

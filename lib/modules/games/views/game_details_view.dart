@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/shared/header.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
 import 'package:game_city_app/shared/widgets/error_widget.dart' as app_error;
@@ -104,6 +105,7 @@ class _GameDetailsViewState extends State<GameDetailsView> {
         }
 
         final game = snapshot.data!;
+        final isDesktop = context.isDesktop;
 
         return LayoutMine(
           body: Column(
@@ -133,84 +135,145 @@ class _GameDetailsViewState extends State<GameDetailsView> {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GameHero(game: game),
-                      const SizedBox(height: 16),
-                      QuickStats(game: game),
-                      const SizedBox(height: 16),
-                      if (game.deal != null || game.isFree == true) ...[
-                        DealCard(game: game),
-                        const SizedBox(height: 16),
-                      ],
-                      SectionTitle('التصنيفات'),
-                      const SizedBox(height: 8),
-                      ChipsWrap(items: game.genres),
-                      const SizedBox(height: 16),
-                      SectionTitle('المنصات المتوفرة'),
-                      const SizedBox(height: 8),
-                      ChipsWrap(items: game.platforms),
-                      const SizedBox(height: 16),
-                      DescriptionSection(game: game),
-                      const SizedBox(height: 16),
-                      if (game.trailerUrl != null &&
-                          game.trailerUrl!.isNotEmpty) ...[
-                        SectionTitle('فيديو ترويجي'),
-                        const SizedBox(height: 8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: TrailerPlayer(trailerUrl: game.trailerUrl!),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                      if (game.screenshots != null &&
-                          game.screenshots!.isNotEmpty) ...[
-                        SectionTitle('لقطات من اللعبة'),
-                        const SizedBox(height: 8),
-                        ScreenshotsGallery(screenshots: game.screenshots!),
-                        const SizedBox(height: 16),
-                      ],
-                      if (game.rawgRequirements != null &&
-                          game.rawgRequirements!.isNotEmpty) ...[
-                        SectionTitle('متطلبات التشغيل'),
-                        const SizedBox(height: 8),
-                        RequirementsSection(
-                          requirements: game.rawgRequirements!,
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                      if (game.rawgTags != null &&
-                          game.rawgTags!.isNotEmpty) ...[
-                        SectionTitle('الوسوم'),
-                        const SizedBox(height: 8),
-                        TagsWrap(tags: game.rawgTags!),
-                        const SizedBox(height: 16),
-                      ],
-                      if (game.rawgStores != null &&
-                          game.rawgStores!.isNotEmpty) ...[
-                        SectionTitle('المتاجر'),
-                        const SizedBox(height: 8),
-                        StoresList(stores: game.rawgStores!, onTap: _openUrl),
-                        const SizedBox(height: 16),
-                      ],
-                      // ── Ratings & Reviews Section ──
-                      const SizedBox(height: 8),
-                      GameReviewSection(game: game, gameId: gameId),
-                      const SizedBox(height: 16),
-                      CtaButton(
-                        game: game,
-                        onPressed: () => _openUrl(game.deal?.url ?? game.url),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                  ),
+                  child: isDesktop
+                      ? _buildDesktopLayout(game)
+                      : _buildMobileLayout(game),
                 ),
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  // ── Mobile: single column stacked ─────────────────────────────────────
+
+  Widget _buildMobileLayout(Game game) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GameHero(game: game),
+        const SizedBox(height: 16),
+        QuickStats(game: game),
+        const SizedBox(height: 16),
+        if (game.deal != null || game.isFree == true) ...[
+          DealCard(game: game),
+          const SizedBox(height: 16),
+        ],
+        SectionTitle('التصنيفات'),
+        const SizedBox(height: 8),
+        ChipsWrap(items: game.genres),
+        const SizedBox(height: 16),
+        SectionTitle('المنصات المتوفرة'),
+        const SizedBox(height: 8),
+        ChipsWrap(items: game.platforms),
+        const SizedBox(height: 16),
+        DescriptionSection(game: game),
+        _buildCommonSections(game),
+      ],
+    );
+  }
+
+  // ── Desktop: two-column layout ────────────────────────────────────────
+
+  Widget _buildDesktopLayout(Game game) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left column: Hero + Quick Stats
+          Expanded(
+            flex: 2,
+            child: Column(
+              children: [
+                GameHero(game: game),
+                const SizedBox(height: 16),
+                QuickStats(game: game),
+                const SizedBox(height: 16),
+                if (game.deal != null || game.isFree == true) ...[
+                  DealCard(game: game),
+                  const SizedBox(height: 16),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 24),
+          // Right column: everything else
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionTitle('التصنيفات'),
+                const SizedBox(height: 8),
+                ChipsWrap(items: game.genres),
+                const SizedBox(height: 16),
+                SectionTitle('المنصات المتوفرة'),
+                const SizedBox(height: 8),
+                ChipsWrap(items: game.platforms),
+                const SizedBox(height: 16),
+                DescriptionSection(game: game),
+                _buildCommonSections(game),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Common content for both layouts ───────────────────────────────────
+
+  Widget _buildCommonSections(Game game) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        if (game.trailerUrl != null && game.trailerUrl!.isNotEmpty) ...[
+          SectionTitle('فيديو ترويجي'),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TrailerPlayer(trailerUrl: game.trailerUrl!),
+          ),
+          const SizedBox(height: 16),
+        ],
+        if (game.screenshots != null && game.screenshots!.isNotEmpty) ...[
+          SectionTitle('لقطات من اللعبة'),
+          const SizedBox(height: 8),
+          ScreenshotsGallery(screenshots: game.screenshots!),
+          const SizedBox(height: 16),
+        ],
+        if (game.rawgRequirements != null &&
+            game.rawgRequirements!.isNotEmpty) ...[
+          SectionTitle('متطلبات التشغيل'),
+          const SizedBox(height: 8),
+          RequirementsSection(requirements: game.rawgRequirements!),
+          const SizedBox(height: 16),
+        ],
+        if (game.rawgTags != null && game.rawgTags!.isNotEmpty) ...[
+          SectionTitle('الوسوم'),
+          const SizedBox(height: 8),
+          TagsWrap(tags: game.rawgTags!),
+          const SizedBox(height: 16),
+        ],
+        if (game.rawgStores != null && game.rawgStores!.isNotEmpty) ...[
+          SectionTitle('المتاجر'),
+          const SizedBox(height: 8),
+          StoresList(stores: game.rawgStores!, onTap: _openUrl),
+          const SizedBox(height: 16),
+        ],
+        const SizedBox(height: 8),
+        GameReviewSection(game: game, gameId: gameId),
+        const SizedBox(height: 16),
+        CtaButton(
+          game: game,
+          onPressed: () => _openUrl(game.deal?.url ?? game.url),
+        ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 }

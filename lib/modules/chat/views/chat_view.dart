@@ -13,7 +13,18 @@ import '../../../shared/widgets/widgets.dart';
 class ChatView extends StatefulWidget {
   final UserModel recipient;
 
-  const ChatView({super.key, required this.recipient});
+  /// When true, chat renders without its own Scaffold — usable in split panels.
+  final bool embedded;
+
+  /// Callback to close/dismiss the embedded chat (back to list).
+  final VoidCallback? embeddedOnClose;
+
+  const ChatView({
+    super.key,
+    required this.recipient,
+    this.embedded = false,
+    this.embeddedOnClose,
+  });
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -52,6 +63,66 @@ class _ChatViewState extends State<ChatView> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Embedded mode: compact header + body, no Scaffold
+    if (widget.embedded) {
+      return Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: theme.cardColor.withAlpha(127),
+              border: Border(
+                bottom: BorderSide(
+                  color: colorScheme.onBackground.withAlpha(25),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded, size: 20),
+                  onPressed: widget.embeddedOnClose,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  color: colorScheme.onBackground,
+                ),
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: colorScheme.primary.withAlpha(25),
+                  backgroundImage:
+                      (widget.recipient.userImage != null &&
+                          widget.recipient.userImage!.isNotEmpty)
+                      ? CachedNetworkImageProvider(
+                          widget.recipient.userImage![0],
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    widget.recipient.userName ?? 'مجهول',
+                    style: TextStyle(
+                      color: colorScheme.onBackground,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(child: _buildBodyContent(context, theme, colorScheme)),
+        ],
+      );
+    }
+
+    // Full-screen mode
     return Theme(
       data: theme.copyWith(
         textSelectionTheme: TextSelectionThemeData(
@@ -114,186 +185,185 @@ class _ChatViewState extends State<ChatView> {
           elevation: 0,
           iconTheme: IconThemeData(color: colorScheme.onBackground),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value && controller.messages.isEmpty) {
-                  return const LoadingWidget(message: 'جاري التحميل...');
-                }
+        body: _buildBodyContent(context, theme, colorScheme),
+      ),
+    );
+  }
 
-                if (controller.messages.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          size: 64,
-                          color: colorScheme.onBackground.withOpacity(0.1),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'لا توجد رسائل بعد.\nابدأ المحادثة الآن!',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: colorScheme.onBackground.withOpacity(0.3),
-                          ),
-                        ),
-                      ],
+  /// Extracted body: messages list + input area — shared by both modes.
+  Widget _buildBodyContent(
+    BuildContext context,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    return Column(
+      children: [
+        Expanded(
+          child: Obx(() {
+            if (controller.isLoading.value && controller.messages.isEmpty) {
+              return const LoadingWidget(message: 'جاري التحميل...');
+            }
+
+            if (controller.messages.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.chat_bubble_outline,
+                      size: 64,
+                      color: colorScheme.onBackground.withOpacity(0.1),
                     ),
-                  );
-                }
+                    const SizedBox(height: 16),
+                    Text(
+                      'لا توجد رسائل بعد.\nابدأ المحادثة الآن!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colorScheme.onBackground.withOpacity(0.3),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
 
-                WidgetsBinding.instance.addPostFrameCallback(
-                  (_) => _scrollToBottom(),
-                );
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _scrollToBottom(),
+            );
 
-                return ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 20,
-                  ),
-                  itemCount: controller.messages.length,
-                  itemBuilder: (context, index) {
-                    final message = controller.messages[index];
-                    final isMe =
-                        message.senderId == authController.userModel.value?.id;
+            return ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              itemCount: controller.messages.length,
+              itemBuilder: (context, index) {
+                final message = controller.messages[index];
+                final isMe =
+                    message.senderId == authController.userModel.value?.id;
 
-                    return Align(
-                      alignment: isMe
-                          ? Alignment.centerLeft
-                          : Alignment.centerRight,
-                      child: GestureDetector(
-                        onLongPress: () =>
-                            _showMessageOptions(context, message),
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
+                return Align(
+                  alignment: isMe
+                      ? Alignment.centerLeft
+                      : Alignment.centerRight,
+                  child: GestureDetector(
+                    onLongPress: () => _showMessageOptions(context, message),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.75,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isMe ? colorScheme.primary : theme.cardColor,
+                        borderRadius: BorderRadius.only(
+                          topLeft: const Radius.circular(16),
+                          topRight: const Radius.circular(16),
+                          bottomLeft: Radius.circular(isMe ? 4 : 16),
+                          bottomRight: Radius.circular(isMe ? 16 : 4),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.75,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isMe ? colorScheme.primary : theme.cardColor,
-                            borderRadius: BorderRadius.only(
-                              topLeft: const Radius.circular(16),
-                              topRight: const Radius.circular(16),
-                              bottomLeft: Radius.circular(isMe ? 4 : 16),
-                              bottomRight: Radius.circular(isMe ? 16 : 4),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SelectableText(
+                            message.content,
+                            style: TextStyle(
+                              color: isMe
+                                  ? colorScheme.onPrimary
+                                  : colorScheme.onSurface,
+                              fontSize: 15,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SelectableText(
-                                message.content,
-                                style: TextStyle(
-                                  color: isMe
-                                      ? colorScheme.onPrimary
-                                      : colorScheme.onSurface,
-                                  fontSize: 15,
-                                ),
-                                contextMenuBuilder: (context, editableTextState) {
-                                  return AdaptiveTextSelectionToolbar.buttonItems(
-                                    anchors:
-                                        editableTextState.contextMenuAnchors,
-                                    buttonItems: [
-                                      ...editableTextState
-                                          .contextMenuButtonItems,
-                                      if (isMe) ...[
-                                        ContextMenuButtonItem(
-                                          label: 'تعديل',
-                                          onPressed: () {
-                                            editingMessageId.value = message.id;
-                                            messageController.text =
-                                                message.content;
-                                            editableTextState.hideToolbar();
-                                          },
-                                        ),
-                                        ContextMenuButtonItem(
-                                          label: 'حذف',
-                                          onPressed: () {
-                                            _showDeleteConfirmation(message.id);
-                                            editableTextState.hideToolbar();
-                                          },
-                                        ),
-                                      ],
-                                    ],
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (message.isEdited) ...[
-                                    Text(
-                                      '(تم تعديله)',
-                                      style: TextStyle(
-                                        color:
-                                            (isMe
-                                                    ? colorScheme.onPrimary
-                                                    : colorScheme.onSurface)
-                                                .withOpacity(0.4),
-                                        fontSize: 9,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                  ],
-                                  Text(
-                                    intl.DateFormat(
-                                      'HH:mm',
-                                    ).format(message.dateTime),
-                                    style: TextStyle(
-                                      color:
-                                          (isMe
-                                                  ? colorScheme.onPrimary
-                                                  : colorScheme.onSurface)
-                                              .withOpacity(0.5),
-                                      fontSize: 10,
-                                    ),
-                                  ),
+                            contextMenuBuilder: (context, editableTextState) {
+                              return AdaptiveTextSelectionToolbar.buttonItems(
+                                anchors: editableTextState.contextMenuAnchors,
+                                buttonItems: [
+                                  ...editableTextState.contextMenuButtonItems,
                                   if (isMe) ...[
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      message.read
-                                          ? Icons.done_all
-                                          : Icons.done,
-                                      size: 14,
-                                      color: message.read
-                                          ? Colors.greenAccent
-                                          : colorScheme.onPrimary.withOpacity(
-                                              0.5,
-                                            ),
+                                    ContextMenuButtonItem(
+                                      label: 'تعديل',
+                                      onPressed: () {
+                                        editingMessageId.value = message.id;
+                                        messageController.text =
+                                            message.content;
+                                        editableTextState.hideToolbar();
+                                      },
+                                    ),
+                                    ContextMenuButtonItem(
+                                      label: 'حذف',
+                                      onPressed: () {
+                                        _showDeleteConfirmation(message.id);
+                                        editableTextState.hideToolbar();
+                                      },
                                     ),
                                   ],
                                 ],
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (message.isEdited) ...[
+                                Text(
+                                  '(تم تعديله)',
+                                  style: TextStyle(
+                                    color:
+                                        (isMe
+                                                ? colorScheme.onPrimary
+                                                : colorScheme.onSurface)
+                                            .withOpacity(0.4),
+                                    fontSize: 9,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                              ],
+                              Text(
+                                intl.DateFormat(
+                                  'HH:mm',
+                                ).format(message.dateTime),
+                                style: TextStyle(
+                                  color:
+                                      (isMe
+                                              ? colorScheme.onPrimary
+                                              : colorScheme.onSurface)
+                                          .withOpacity(0.5),
+                                  fontSize: 10,
+                                ),
                               ),
+                              if (isMe) ...[
+                                const SizedBox(width: 4),
+                                Icon(
+                                  message.read ? Icons.done_all : Icons.done,
+                                  size: 14,
+                                  color: message.read
+                                      ? Colors.greenAccent
+                                      : colorScheme.onPrimary.withOpacity(0.5),
+                                ),
+                              ],
                             ],
                           ),
-                        ),
+                        ],
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 );
-              }),
-            ),
-            _buildInputArea(context),
-          ],
+              },
+            );
+          }),
         ),
-      ),
+        _buildInputArea(context),
+      ],
     );
   }
 

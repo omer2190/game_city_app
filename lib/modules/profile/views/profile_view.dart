@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
 import 'package:get/get.dart';
 import 'package:game_city_app/routes/app_routes.dart';
@@ -295,7 +296,7 @@ class _ProfileBody extends StatelessWidget {
         title,
         style: TextStyle(
           color: Theme.of(context).colorScheme.primary,
-          fontSize: 18,
+          fontSize: context.isDesktopOrTablet ? 20 : 18,
           fontWeight: FontWeight.bold,
         ),
       ),

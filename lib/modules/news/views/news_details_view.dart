@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/modules/news/widgets/news_details_body.dart';
 import 'package:game_city_app/modules/news/widgets/news_details_comments.dart';
 import 'package:game_city_app/modules/news/widgets/news_details_header.dart';
@@ -116,28 +117,9 @@ class _NewsDetailsViewState extends State<NewsDetailsView> {
                   });
                 },
                 color: Theme.of(context).colorScheme.primary,
-                child: CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const NewsDetailsHeader(),
-                          NewsDetailsInfo(
-                            news: displayNews,
-                            controller: controller,
-                          ),
-                          NewsDetailsBody(news: displayNews),
-                          NewsDetailsComments(
-                            newsId: displayNews.id!,
-                            controller: controller,
-                            commentController: commentController,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                child: context.isDesktop
+                    ? _buildDesktopContent(displayNews)
+                    : _buildMobileContent(displayNews),
               ),
               if (snapshot.connectionState == ConnectionState.waiting)
                 Positioned.fill(
@@ -150,6 +132,62 @@ class _NewsDetailsViewState extends State<NewsDetailsView> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildMobileContent(News displayNews) {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const NewsDetailsHeader(),
+              NewsDetailsInfo(news: displayNews, controller: controller),
+              NewsDetailsBody(news: displayNews),
+              NewsDetailsComments(
+                newsId: displayNews.id!,
+                controller: controller,
+                commentController: commentController,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDesktopContent(News displayNews) {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const NewsDetailsHeader(),
+                    NewsDetailsInfo(news: displayNews, controller: controller),
+                    NewsDetailsBody(news: displayNews),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 24),
+              Expanded(
+                flex: 2,
+                child: NewsDetailsComments(
+                  newsId: displayNews.id!,
+                  controller: controller,
+                  commentController: commentController,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

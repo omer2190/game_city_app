@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../core/values/app_breakpoints.dart';
 import '../../../data/models/game_model.dart';
 import 'game_card.dart';
 
-/// A horizontal scrollable section with title and game cards.
+/// A responsive section with title and game cards.
+/// On mobile/tablet: horizontal scroll.
+/// On desktop: multi-column grid.
 class GameSectionRow extends StatelessWidget {
   const GameSectionRow({
     super.key,
@@ -20,6 +23,7 @@ class GameSectionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (games.isEmpty) return const SizedBox.shrink();
+    final isDesktop = context.isDesktop;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +37,7 @@ class GameSectionRow extends StatelessWidget {
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: isDesktop ? 18 : 16,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
@@ -54,29 +58,50 @@ class GameSectionRow extends StatelessWidget {
             ],
           ),
         ),
-        // Horizontal list
-        SizedBox(
-          height: 200,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: games.length,
-            itemBuilder: (context, index) {
-              final game = games[index];
-              return Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: SizedBox(
-                  width: 140,
-                  child: GameCard(
-                    game: game,
-                    onTap: () => onGameTap?.call(game),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+        // Content: grid on desktop, horizontal list on mobile/tablet
+        if (isDesktop) _buildGrid(context) else _buildHorizontalList(context),
       ],
+    );
+  }
+
+  Widget _buildHorizontalList(BuildContext context) {
+    return SizedBox(
+      height: 200,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: games.length,
+        itemBuilder: (context, index) {
+          final game = games[index];
+          return Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: SizedBox(
+              width: 140,
+              child: GameCard(game: game, onTap: () => onGameTap?.call(game)),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildGrid(BuildContext context) {
+    final cols = context.isWide ? 5 : 4;
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: cols,
+        childAspectRatio: 0.7,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: games.length.clamp(0, cols * 2),
+      itemBuilder: (context, index) {
+        final game = games[index];
+        return GameCard(game: game, onTap: () => onGameTap?.call(game));
+      },
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/modules/auth/controllers/auth_controller.dart';
 import 'package:game_city_app/modules/settings/controllers/settings_controller.dart';
 import 'package:game_city_app/shared/header.dart';
@@ -13,137 +14,136 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ensure SettingsController is available
     final controller = Get.isRegistered<SettingsController>()
         ? Get.find<SettingsController>()
         : Get.put(SettingsController());
 
-    // Ensure AuthController is available
     final authController = Get.isRegistered<AuthController>()
         ? Get.find<AuthController>()
         : Get.put(AuthController());
 
+    final isDesktop = context.isDesktop;
+
     return LayoutMine(
-      // appBar: AppBar(title: const Text('الإعدادات'), centerTitle: true),
       body: Column(
         children: [
           Header(title: 'الإعدادات', leading: BackButton()),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              children: [
-                _buildSectionHeader('الحساب والأمان'),
-                CustomCard(
-                  child: Column(
-                    children: [
-                      _buildListTile(
-                        icon: Icons.notifications_active_outlined,
-                        title: 'تفعيل الإشعارات',
-                        subtitle: 'مطلوب للمتصفحات لاستلام التنبيهات',
-                        trailing: Obx(
-                          () => controller.isRequestingPermission.value
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 14,
-                                  color: Get.theme.colorScheme.primary,
-                                ),
-                        ),
-                        onTap: () => controller.requestNotificationPermission(),
+            child: Center(
+              child: SizedBox(
+                width: isDesktop ? 640 : null,
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  children: [
+                    _buildSectionHeader('الحساب والأمان'),
+                    CustomCard(
+                      child: Column(
+                        children: [
+                          _buildListTile(
+                            icon: Icons.notifications_active_outlined,
+                            title: 'تفعيل الإشعارات',
+                            subtitle: 'مطلوب للمتصفحات لاستلام التنبيهات',
+                            trailing: Obx(
+                              () => controller.isRequestingPermission.value
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 14,
+                                      color: Get.theme.colorScheme.primary,
+                                    ),
+                            ),
+                            onTap: () =>
+                                controller.requestNotificationPermission(),
+                          ),
+                          const Divider(height: 1, indent: 50, endIndent: 16),
+                          _buildListTile(
+                            icon: Icons.lock_outline_rounded,
+                            title: 'تغيير كلمة المرور',
+                            onTap: () => Get.toNamed(AppRoutes.changePassword),
+                          ),
+                        ],
                       ),
-                      const Divider(height: 1, indent: 50, endIndent: 16),
-                      _buildListTile(
-                        icon: Icons.lock_outline_rounded,
-                        title: 'تغيير كلمة المرور',
-                        onTap: () => Get.toNamed(AppRoutes.changePassword),
+                    ),
+                    _buildSectionHeader('التواصل والدعم'),
+                    CustomCard(
+                      child: Column(
+                        children: [
+                          _buildListTile(
+                            icon: Icons.bug_report_outlined,
+                            title: 'إبلاغ عن خطأ أو اقتراح',
+                            onTap: () async {
+                              final email = 'city.gamig@gmail.com';
+                              final subject = Uri.encodeComponent(
+                                'إبلاغ عن خطأ أو اقتراح',
+                              );
+                              final mailtoLink =
+                                  'mailto:$email?subject=$subject';
+                              if (await canLaunch(mailtoLink)) {
+                                await launch(mailtoLink);
+                              } else {
+                                Get.snackbar(
+                                  'خطأ',
+                                  'تعذر فتح تطبيق البريد الإلكتروني',
+                                );
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    _buildSectionHeader('عن التطبيق'),
+                    CustomCard(
+                      child: Column(
+                        children: [
+                          _buildListTile(
+                            icon: Icons.info_outline_rounded,
+                            title: 'حول التطبيق',
+                            onTap: () {
+                              _showAboutDialog(context);
+                            },
+                          ),
+                          _buildListTile(
+                            icon: Icons.privacy_tip_outlined,
+                            title: 'سياسة الخصوصية وشروط الاستخدام',
+                            onTap: () async {
+                              await controller.openPrivacyPolicy();
+                            },
+                          ),
+                          Obx(
+                            () => _buildListTile(
+                              icon: Icons.numbers_rounded,
+                              title: 'إصدار التطبيق',
+                              subtitle: controller.appVersion.value.isEmpty
+                                  ? 'جاري التحميل...'
+                                  : controller.appVersion.value,
+                              onTap: null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: CustomButton(
+                        text: 'تسجيل الخروج',
+                        type: ButtonType.outline,
+                        icon: const Icon(Icons.logout_rounded),
+                        onPressed: () => authController.logout(),
+                        width: double.infinity,
+                        height: 45,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                  ],
                 ),
-                _buildSectionHeader('التواصل والدعم'),
-                CustomCard(
-                  child: Column(
-                    children: [
-                      _buildListTile(
-                        icon: Icons.bug_report_outlined,
-                        title: 'إبلاغ عن خطأ أو اقتراح',
-                        onTap: () async {
-                          final email = 'city.gamig@gmail.com';
-                          final subject = Uri.encodeComponent(
-                            'إبلاغ عن خطأ أو اقتراح',
-                          );
-                          final mailtoLink = 'mailto:$email?subject=$subject';
-                          if (await canLaunch(mailtoLink)) {
-                            await launch(mailtoLink);
-                          } else {
-                            Get.snackbar(
-                              'خطأ',
-                              'تعذر فتح تطبيق البريد الإلكتروني',
-                            );
-                          }
-                        },
-                      ),
-                      // _buildListTile(
-                      //   icon: Icons.volunteer_activism_outlined,
-                      //   title: 'الدعم والتبرع',
-                      //   onTap: () {
-                      //     // Action for support/donation
-                      //   },
-                      // ),
-                    ],
-                  ),
-                ),
-                _buildSectionHeader('عن التطبيق'),
-                CustomCard(
-                  child: Column(
-                    children: [
-                      _buildListTile(
-                        icon: Icons.info_outline_rounded,
-                        title: 'حول التطبيق',
-                        onTap: () {
-                          _showAboutDialog(context);
-                        },
-                      ),
-                      _buildListTile(
-                        icon: Icons.privacy_tip_outlined,
-                        title: 'سياسة الخصوصية وشروط الاستخدام',
-                        onTap: () async {
-                          await controller.openPrivacyPolicy();
-                        },
-                      ),
-                      Obx(
-                        () => _buildListTile(
-                          icon: Icons.numbers_rounded,
-                          title: 'إصدار التطبيق',
-                          subtitle: controller.appVersion.value.isEmpty
-                              ? 'جاري التحميل...'
-                              : controller.appVersion.value,
-                          onTap: null,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: CustomButton(
-                    text: 'تسجيل الخروج',
-                    type: ButtonType.outline,
-                    icon: const Icon(Icons.logout_rounded),
-                    onPressed: () => authController.logout(),
-                    width: double.infinity,
-                    height: 45,
-                  ),
-                ),
-                const SizedBox(height: 40),
-              ],
+              ),
             ),
           ),
         ],

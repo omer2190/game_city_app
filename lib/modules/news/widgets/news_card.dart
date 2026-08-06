@@ -18,71 +18,67 @@ class NewsCard extends StatelessWidget {
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (news.images != null && news.images!.isNotEmpty)
-                    _buildImageStack(context),
-                  if (news.images != null && news.images!.isNotEmpty)
-                    const SizedBox(height: 10),
-                  _buildNewsTypeTag(context),
-                  const SizedBox(height: 8),
-                  Text(
-                    news.title ?? 'بدون عنوان',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      height: 1.3,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    news.contentNew ?? '',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (news.images != null && news.images!.isNotEmpty)
+                Expanded(flex: 3, child: _buildImageStack(context)),
+              if (news.images != null && news.images!.isNotEmpty)
+                const SizedBox(height: 8),
+              _buildNewsTypeTag(context),
+              const SizedBox(height: 6),
+              Text(
+                news.title ?? 'بدون عنوان',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  height: 1.3,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                news.contentNew ?? '',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildImageStack(BuildContext context) {
-    return Stack(
-      children: [
-        ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
-          child: CachedNetworkImage(
+    return ClipRRect(
+      borderRadius: const BorderRadius.all(Radius.circular(12)),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          CachedNetworkImage(
             imageUrl: news.images!.first,
             placeholder: (context, url) => Container(
-              height: 150,
               color: Colors.grey[900],
               child: const Center(child: CircularProgressIndicator()),
             ),
             errorWidget: (context, url, error) => Container(
-              height: 150,
               color: Colors.grey[900],
               child: const Icon(Icons.error, color: Colors.red),
             ),
-            height: 150,
             width: double.infinity,
             fit: BoxFit.cover,
           ),
-        ),
-        if (news.newsType?.title != null)
-          Positioned(top: 8, right: 8, child: _buildBadge(context)),
-      ],
+          if (news.newsType?.title != null)
+            Positioned(top: 8, right: 8, child: _buildBadge(context)),
+        ],
+      ),
     );
   }
 

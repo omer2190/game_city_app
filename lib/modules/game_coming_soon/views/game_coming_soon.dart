@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:game_city_app/shared/header.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
+import 'package:game_city_app/shared/widgets/adaptive_grid_view.dart';
 import 'package:get/get.dart';
 import '../../../routes/app_routes.dart';
 import '../controllers/game_coming_soon_controller.dart';
@@ -39,15 +40,11 @@ class GameComingSoon extends StatelessWidget {
                   );
                 }
 
-                return GridView.builder(
+                return AdaptiveGridView(
                   padding: const EdgeInsets.only(bottom: 20),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.52,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                  ),
+                  aspectRatio: 0.52,
                   itemCount: controller.games.length,
+                  gridColumns: 2,
                   itemBuilder: (context, index) {
                     return ComingSoonCard(game: controller.games[index]);
                   },

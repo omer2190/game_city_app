@@ -1,5 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/routes/app_routes.dart';
 import 'package:game_city_app/shared/header.dart';
 import 'package:get/get.dart';
@@ -22,6 +22,7 @@ class BasesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(BasesController());
     final colorScheme = Theme.of(context).colorScheme;
+    final isDesktopOrTablet = context.isDesktopOrTablet;
 
     return LayoutMine(
       body: Obx(() {
@@ -65,7 +66,7 @@ class BasesPage extends StatelessWidget {
               // --- Header ---
               SliverToBoxAdapter(child: Header(title: 'الواجهة الرئيسية')),
 
-              // --- Advertisements Carousel ---
+              // --- Advertisements Carousel (responsive height) ---
               if (data.advertisements != null &&
                   data.advertisements!.isNotEmpty)
                 SliverToBoxAdapter(
@@ -78,14 +79,14 @@ class BasesPage extends StatelessWidget {
                   child: _buildSuggestedPlayers(context, data.randomFriends!),
                 ),
 
-              // --- Latest Free Games ---
+              // --- Latest Free Games (responsive grid) ---
               if (data.latestFreeGames != null &&
                   data.latestFreeGames!.isNotEmpty)
                 SliverToBoxAdapter(
                   child: _buildLatestFreeGames(context, data.latestFreeGames!),
                 ),
 
-              // --- Wishlist Games ---
+              // --- Wishlist Games (responsive grid) ---
               if (data.wishlistGames != null && data.wishlistGames!.isNotEmpty)
                 SliverToBoxAdapter(
                   child: _buildWishlistGames(context, data.wishlistGames!),
@@ -109,12 +110,12 @@ class BasesPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 24),
-                        const Text(
+                        SizedBox(height: isDesktopOrTablet ? 32 : 24),
+                        Text(
                           'آخر الأخبار',
                           style: TextStyle(
                             color: AppColors.primaryDark,
-                            fontSize: 18,
+                            fontSize: isDesktopOrTablet ? 20 : 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -144,13 +145,15 @@ class BasesPage extends StatelessWidget {
     );
   }
 
-  // ─── Ads Carousel ──────────────────────────────────────────────────────────
+  // ─── Ads Carousel (responsive height) ──────────────────────────────────────
 
   Widget _buildAdsCarousel(BuildContext context, List<Advertisement> ads) {
+    final isDesktop = context.isDesktop;
+    final height = isDesktop ? 320.0 : 180.0;
     return SizedBox(
-      height: 180,
+      height: height,
       child: PageView.builder(
-        controller: PageController(viewportFraction: 0.9),
+        controller: PageController(viewportFraction: isDesktop ? 0.85 : 0.9),
         itemCount: ads.length,
         itemBuilder: (context, index) {
           final ad = ads[index];
@@ -203,13 +206,13 @@ class BasesPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
           child: Text(
             'الاصدقاء',
             style: TextStyle(
               color: AppColors.primaryDark,
-              fontSize: 18,
+              fontSize: context.isDesktopOrTablet ? 20 : 18,
               fontWeight: FontWeight.bold,
             ),
           ),

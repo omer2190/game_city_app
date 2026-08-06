@@ -25,21 +25,32 @@ class NotificationsView extends GetView<NotificationsController> {
         children: [
           Header(
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
               onPressed: () => Get.back(),
             ),
             title: 'الإشعارات',
             trailing: Obx(
               () => controller.unreadCount > 0
                   ? Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: colorScheme.secondary,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         '${controller.unreadCount} غير مقروء',
-                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     )
                   : const SizedBox.shrink(),
@@ -47,8 +58,11 @@ class NotificationsView extends GetView<NotificationsController> {
           ),
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value && controller.notifications.isEmpty) {
-                return const Center(child: LoadingWidget(message: 'جاري جلب الإشعارات...'));
+              if (controller.isLoading.value &&
+                  controller.notifications.isEmpty) {
+                return const Center(
+                  child: LoadingWidget(message: 'جاري جلب الإشعارات...'),
+                );
               }
 
               if (controller.notifications.isEmpty) {
@@ -56,9 +70,19 @@ class NotificationsView extends GetView<NotificationsController> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.notifications_none_rounded, size: 80, color: Colors.white.withOpacity(0.2)),
+                      Icon(
+                        Icons.notifications_none_rounded,
+                        size: 80,
+                        color: Colors.white.withOpacity(0.2),
+                      ),
                       const SizedBox(height: 16),
-                      Text('لا توجد إشعارات حالياً', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16)),
+                      Text(
+                        'لا توجد إشعارات حالياً',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.5),
+                          fontSize: 16,
+                        ),
+                      ),
                     ],
                   ),
                 );

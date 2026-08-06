@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/values/app_dimensions.dart';
 
 class Header extends StatelessWidget {
   const Header({
@@ -15,6 +16,8 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final titleFontSize = AppDimensions.scaledFontSize(context, 16);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -31,9 +34,10 @@ class Header extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: titleFontSize,
+                ),
               ),
             ),
           const Spacer(),

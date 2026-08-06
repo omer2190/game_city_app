@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
 import 'package:get/get.dart';
 import '../controllers/news_controller.dart';
@@ -39,20 +40,18 @@ class _NewsViewState extends State<NewsView> {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = context.isDesktop;
+
     return LayoutMine(
       body: RefreshIndicator(
         onRefresh: () async => controller.fetchNews(),
         child: Column(
           children: [
-            // Extracted Header Logic
             NewsHeader(
               controller: controller,
               searchController: searchController,
             ),
-
-            // Extracted Categories Logic
             NewsCategories(controller: controller),
-
             Expanded(
               child: Obx(() {
                 if (controller.isLoading.value && controller.newsList.isEmpty) {
@@ -61,30 +60,64 @@ class _NewsViewState extends State<NewsView> {
                 if (controller.filteredNews.isEmpty) {
                   return const Center(child: Text('لا توجد أخبار.'));
                 }
-                return ListView.builder(
-                  controller: scrollController,
-                  itemCount:
-                      controller.filteredNews.length +
-                      (controller.isMoreLoading.value ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index < controller.filteredNews.length) {
-                      final news = controller.filteredNews[index];
-                      return NewsCard(news: news);
-                    } else {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      );
-                    }
-                  },
-                );
+                // Grid on desktop, list on mobile/tablet
+                if (isDesktop) {
+                  return _buildNewsGrid(context);
+                }
+                return _buildNewsList(context);
               }),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildNewsList(BuildContext context) {
+    return ListView.builder(
+      controller: scrollController,
+      itemCount:
+          controller.filteredNews.length +
+          (controller.isMoreLoading.value ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index < controller.filteredNews.length) {
+          final news = controller.filteredNews[index];
+          return NewsCard(news: news);
+        } else {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildNewsGrid(BuildContext context) {
+    final cols = context.isWide ? 4 : 3;
+    return GridView.builder(
+      controller: scrollController,
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: cols,
+        childAspectRatio: 0.65,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      itemCount:
+          controller.filteredNews.length +
+          (controller.isMoreLoading.value ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index < controller.filteredNews.length) {
+          final news = controller.filteredNews[index];
+          return NewsCard(news: news);
+        } else {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          );
+        }
+      },
     );
   }
 }
