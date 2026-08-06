@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
+import '../../../core/values/app_breakpoints.dart';
+import '../../../core/values/app_dimensions.dart';
 import '../../../data/models/game_model.dart';
 import '../../../routes/app_routes.dart';
 import '../../wishlist/controllers/wishlist_controller.dart';
@@ -18,31 +20,39 @@ class ComingSoonCard extends StatelessWidget {
     String value,
     String label,
     Color color,
-    Color textColor,
-  ) {
+    Color textColor, {
+    required bool isDesktop,
+  }) {
+    final valSize = isDesktop ? 15.0 : 13.0;
+    final lblSize = isDesktop ? 9.0 : 8.0;
     return Container(
-      width: 45,
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
-          Text(
-            value,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.bold,
+                fontSize: valSize,
+              ),
             ),
           ),
-          Text(
-            label,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 8,
-              fontWeight: FontWeight.w500,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: textColor,
+                fontSize: lblSize,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -50,27 +60,12 @@ class ComingSoonCard extends StatelessWidget {
     );
   }
 
-  // Widget _getPlatformIcon(String p) {
-  //   p = p.toLowerCase();
-  //   if (p.contains('pc') || p.contains('windows')) {
-  //     return const Icon(Icons.computer, size: 20, color: Colors.white);
-  //   }
-  //   if (p.contains('ps') || p.contains('playstation')) {
-  //     return const Icon(Icons.games, size: 20, color: Colors.white);
-  //   }
-  //   if (p.contains('xbox')) {
-  //     return const Icon(Icons.videogame_asset, size: 20, color: Colors.white);
-  //   }
-  //   if (p.contains('switch')) {
-  //     return const Icon(Icons.switch_left, size: 20, color: Colors.white);
-  //   }
-  //   return const Icon(Icons.gamepad, size: 20, color: Colors.white);
-  // }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
+    final isDesktop = context.isDesktop;
+    final titleFontSize = AppDimensions.scaledFontSize(context, 12);
     final countdown = game.countdown;
 
     // Fallback countdown from deal expiry if released is null
@@ -101,9 +96,8 @@ class ComingSoonCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Game Image
-            AspectRatio(
-              aspectRatio: 1, // Make image container square for consistency
+            // Game Image — fills remaining space
+            Expanded(
               child: Stack(
                 children: [
                   Padding(
@@ -164,7 +158,7 @@ class ComingSoonCard extends StatelessWidget {
                                 ? Icons.favorite
                                 : Icons.favorite_border,
                             color: isInWishlist ? Colors.red : Colors.white,
-                            size: 20,
+                            size: isDesktop ? 22 : 20,
                           ),
                         ),
                       ),
@@ -178,25 +172,42 @@ class ComingSoonCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildTimeBox(
-                    activeCountdown['minutes'].toString().padLeft(2, '0'),
-                    'دقائق',
-                    primaryColor,
-                    theme.colorScheme.onPrimary,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: _buildTimeBox(
+                        activeCountdown['minutes'].toString().padLeft(2, '0'),
+                        'دقائق',
+                        primaryColor,
+                        theme.colorScheme.onPrimary,
+                        isDesktop: isDesktop,
+                      ),
+                    ),
                   ),
-                  _buildTimeBox(
-                    activeCountdown['hours'].toString().padLeft(2, '0'),
-                    'ساعات',
-                    primaryColor,
-                    theme.colorScheme.onPrimary,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: _buildTimeBox(
+                        activeCountdown['hours'].toString().padLeft(2, '0'),
+                        'ساعات',
+                        primaryColor,
+                        theme.colorScheme.onPrimary,
+                        isDesktop: isDesktop,
+                      ),
+                    ),
                   ),
-                  _buildTimeBox(
-                    activeCountdown['days'].toString().padLeft(2, '0'),
-                    'يوماً',
-                    primaryColor,
-                    theme.colorScheme.onPrimary,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: _buildTimeBox(
+                        activeCountdown['days'].toString().padLeft(2, '0'),
+                        'يوماً',
+                        primaryColor,
+                        theme.colorScheme.onPrimary,
+                        isDesktop: isDesktop,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -206,17 +217,17 @@ class ComingSoonCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               child: SizedBox(
-                height: 30,
+                height: isDesktop ? 34 : 30,
                 child: Center(
                   child: Text(
                     (game.title ?? '').toUpperCase(),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                      fontSize: titleFontSize,
                       letterSpacing: 0.5,
                       height: 1.1,
                     ),
@@ -234,7 +245,10 @@ class ComingSoonCard extends StatelessWidget {
                     : (game.deal?.expiry != null
                           ? 'تصدر بتاريخ ${DateFormat('yyyy/MM/dd', 'ar').format(DateTime.tryParse(game.deal!.expiry!) ?? DateTime.now())}'
                           : 'يحدد لاحقاً'),
-                style: const TextStyle(color: Colors.white70, fontSize: 9),
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: isDesktop ? 10 : 9,
+                ),
               ),
             ),
 
@@ -242,13 +256,13 @@ class ComingSoonCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
               child: SizedBox(
-                height: 24, // Fix height for platforms area
+                height: 24,
                 child: Wrap(
                   alignment: WrapAlignment.center,
                   spacing: 4,
                   runSpacing: 2,
                   children: (game.platforms ?? [])
-                      .take(3) // Limit to 3 for better fit in grid
+                      .take(isDesktop ? 5 : 3)
                       .map(
                         (p) => Container(
                           padding: const EdgeInsets.symmetric(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_dimensions.dart';
 import 'package:game_city_app/shared/header.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
 import 'package:game_city_app/shared/widgets/adaptive_grid_view.dart';
@@ -15,6 +16,10 @@ class GameComingSoon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cols = AppDimensions.gameGridCrossAxisCount(context);
+    // Narrower ratio for mobile (2 cols), wider for desktop (4-5 cols)
+    final aspect = cols >= 4 ? 0.62 : 0.52;
+
     return LayoutMine(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,9 +47,9 @@ class GameComingSoon extends StatelessWidget {
 
                 return AdaptiveGridView(
                   padding: const EdgeInsets.only(bottom: 20),
-                  aspectRatio: 0.52,
+                  aspectRatio: aspect,
                   itemCount: controller.games.length,
-                  gridColumns: 2,
+                  gridColumns: cols,
                   itemBuilder: (context, index) {
                     return ComingSoonCard(game: controller.games[index]);
                   },

@@ -3,6 +3,8 @@ import 'package:game_city_app/modules/bases/views/bases_page.dart';
 import 'package:game_city_app/modules/game_coming_soon/views/game_coming_soon.dart';
 import 'package:game_city_app/modules/online_search/online_search.dart';
 import 'package:get/get.dart';
+import '../../notifications/views/notifications_view.dart';
+import '../../wishlist/views/wishlist_view.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/responsive_shell.dart';
 import '../../notifications/controllers/notifications_controller.dart';
@@ -22,6 +24,8 @@ class HomeView extends StatelessWidget {
     OnlineSearch(),
     GamesHubView(),
     GameComingSoon(),
+    NotificationsView(), // Uncomment when NotificationsPage is implemented
+    WishlistView(), // Uncomment when WishlistPage is implemented
   ];
 
   @override

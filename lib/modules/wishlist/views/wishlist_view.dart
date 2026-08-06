@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_breakpoints.dart';
+import 'package:game_city_app/core/values/app_dimensions.dart';
 import 'package:game_city_app/shared/header.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
 import 'package:game_city_app/shared/widgets/adaptive_grid_view.dart';
@@ -14,6 +16,8 @@ class WishlistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cols = AppDimensions.gameGridCrossAxisCount(context);
+
     return LayoutMine(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,7 +48,7 @@ class WishlistView extends StatelessWidget {
                   ),
                   aspectRatio: 0.65,
                   itemCount: controller.wishlist.length,
-                  gridColumns: 2,
+                  gridColumns: cols,
                   itemBuilder: (context, index) {
                     final entry = controller.wishlist[index];
                     final game = entry.game;

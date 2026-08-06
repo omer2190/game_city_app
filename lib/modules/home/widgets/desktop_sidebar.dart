@@ -46,6 +46,8 @@ class DesktopSidebar extends StatelessWidget {
     _SidebarTab(icon: Icons.saved_search_rounded, label: 'بحث'),
     _SidebarTab(icon: Icons.sports_esports_rounded, label: 'ألعاب'),
     _SidebarTab(icon: Icons.timelapse_rounded, label: 'تقويم'),
+    _SidebarTab(icon: Icons.notifications_rounded, label: 'الإشعارات'),
+    _SidebarTab(icon: Icons.favorite_rounded, label: 'قائمة الأمنيات'),
   ];
 
   @override
@@ -109,6 +111,15 @@ class DesktopSidebar extends StatelessWidget {
           // ── Bottom Actions ─────────────────────────────────────────
           const Divider(height: 1, indent: 16, endIndent: 16),
           const SizedBox(height: 8),
+
+          // Wishlist
+          _SidebarItem(
+            icon: Icons.favorite_rounded,
+            label: 'قائمة الأمنيات',
+            isSelected: false,
+            isExpanded: isExpanded,
+            onTap: () => Get.toNamed(AppRoutes.wishlist),
+          ),
 
           // Settings
           _SidebarItem(
