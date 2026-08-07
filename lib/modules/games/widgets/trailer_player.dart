@@ -68,7 +68,6 @@ video { width: 100%; max-height: 100vh; outline: none; }
 
   @override
   void initState() {
-    debugPrint('🎬 trailerUrl: ${widget.trailerUrl}');
     super.initState();
 
     if (_isYouTube) {
@@ -110,7 +109,6 @@ video { width: 100%; max-height: 100vh; outline: none; }
     }
 
     if (_ytController!.value.hasError && !_loadError) {
-      debugPrint('⚠️ YouTube player error');
       setState(() {
         _loadError = true;
         _loadErrorMsg = 'تعذر تشغيل فيديو يوتيوب';
@@ -129,9 +127,6 @@ video { width: 100%; max-height: 100vh; outline: none; }
             if (mounted) setState(() => _loaded = true);
           },
           onWebResourceError: (error) {
-            debugPrint(
-              '⚠️ WebView error: ${error.errorCode} ${error.description}',
-            );
             if (mounted) {
               setState(() {
                 _loadError = true;
@@ -187,9 +182,7 @@ video { width: 100%; max-height: 100vh; outline: none; }
                   playedColor: Colors.red,
                   handleColor: Colors.red,
                 ),
-                onReady: () {
-                  debugPrint('✅ YouTube player ready');
-                },
+                onReady: () {},
               ),
               // Loading overlay
               if (!_loaded && !_loadError)

@@ -99,10 +99,6 @@ class SettingsController extends GetxController {
 
       // For apple platforms, make sure the APNS token is available before making any FCM plugin API calls
       final apnsToken = await FirebaseMessaging.instance.getToken();
-      if (apnsToken != null) {
-        print("///////////////////////////////////////////////////////////");
-        print('APNS Token: $apnsToken');
-      }
 
       // // 2. Get and update FCM token
       // await Get.find<AuthController>().updateFcmToken();

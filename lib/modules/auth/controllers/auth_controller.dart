@@ -151,11 +151,6 @@ class AuthController extends GetxController {
   Future<void> updateFcmToken() async {
     try {
       if (!Get.isRegistered<NotificationService>()) {
-        if (kDebugMode) {
-          debugPrint(
-            'NotificationService not yet registered. Skipping FCM token update.',
-          );
-        }
         return;
       }
       final token = await NotificationService.to.getToken();
@@ -227,10 +222,6 @@ class AuthController extends GetxController {
 
       if (token != null) {
         await _storage.write('token', token);
-        debugPrint(
-          'Final Verification - storage instance: ${_storage.hashCode}',
-        );
-        debugPrint('Token written successfully');
 
         if (userData != null) {
           await _storage.write('user', userData);
@@ -248,8 +239,7 @@ class AuthController extends GetxController {
           backgroundColor: Colors.green.withOpacity(0.1),
           colorText: Colors.white,
         );
-        debugPrint('Reading token back immediately: ${_storage.read('token')}');
-        debugPrint('Login success, navigating to: ${AppRoutes.home}');
+
         Get.offAllNamed(AppRoutes.home);
       } else {
         throw 'فشل تسجيل الدخول: بيانات ناقصة';

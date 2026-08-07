@@ -20,7 +20,6 @@ class VersionService extends GetxService {
 
       // Call API to check for updates
       final response = await _apiClient.get(ApiConstants.checkVersion);
-      debugPrint('Version Check Response: $response');
 
       if (response != null && response['success'] == true) {
         _latestVersion = response['data']['version'];

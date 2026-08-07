@@ -59,9 +59,8 @@ class HomeDashboardModel {
                   .toList()
             : null,
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       print('Error parsing HomeDashboardModel: $e');
-      print(stackTrace);
       rethrow;
     }
   }

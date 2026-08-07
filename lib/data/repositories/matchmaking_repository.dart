@@ -19,15 +19,6 @@ class MatchmakingRepository {
       body: {'gameId': gameId, 'type': type, 'notes': notes},
     );
 
-    debugPrint("matchmaking response: ${response['data']}");
-
-    // if (response['match'] != null) {
-    //   return MatchmakingRecord(
-    //     status: MatchmakingStatus.matched,
-    //     match: MatchResult.fromJson(response['match']),
-    //   );
-    // }
-
     if (response['data'] != null) {
       return List.from(
         response['data'].map((x) => MatchmakingRecord.fromJson(x)),

@@ -19,10 +19,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import '../../auth/controllers/auth_controller.dart';
 import '../../chat/views/chat_view.dart';
 import '../../../core/values/app_breakpoints.dart';
 import '../../../data/models/user_model.dart';
 import '../../../shared/widgets/widgets.dart';
+import '../controllers/friends_controller.dart';
 import '../views/user_profile_view.dart';
 
 class CommunitySplitShell extends StatefulWidget {
@@ -137,6 +140,7 @@ class _CommunitySplitShellState extends State<CommunitySplitShell> {
               return _buildChatPlaceholder(context);
             }
             return ChatView(
+              key: ValueKey('chat_${user.id}'),
               recipient: user,
               embedded: true,
               embeddedOnClose: () => _selectedUser.value = null,
@@ -157,6 +161,10 @@ class _CommunitySplitShellState extends State<CommunitySplitShell> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDesktop = context.isDesktop;
+
+    // ── Controllers (read reactively inside Obx) ──────────────────────
+    final FriendsController fc = Get.find<FriendsController>();
+    final AuthController ac = Get.find<AuthController>();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -211,10 +219,11 @@ class _CommunitySplitShellState extends State<CommunitySplitShell> {
                 ),
               ),
               const SizedBox(width: 12),
-              // Info
+              // ── Info (name + last message preview) ──────────────────
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       user.userName ?? 'مستخدم',
@@ -224,14 +233,109 @@ class _CommunitySplitShellState extends State<CommunitySplitShell> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    const SizedBox(height: 2),
+                    // ── Reactive last-message preview ────────────────
+                    Obx(() {
+                      final lastMsg = fc.lastMessages[user.chatRoomId ?? ''];
+                      if (lastMsg != null) {
+                        final isMe =
+                            lastMsg['senderId'] == ac.userModel.value?.id;
+                        final isUnread = lastMsg['read'] == false && !isMe;
+
+                        return Text.rich(
+                          TextSpan(
+                            children: [
+                              if (isMe)
+                                TextSpan(
+                                  text: 'أنت: ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.onSurfaceVariant,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              TextSpan(
+                                text: lastMsg['text'] ?? '',
+                                style: TextStyle(
+                                  color: isUnread
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurfaceVariant,
+                                  fontSize: 11,
+                                  fontWeight: isUnread
+                                      ? FontWeight.bold
+                                      : FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      }
+                      return Text(
+                        isFriend ? 'لا توجد رسائل' : 'انقر لبدء المحادثة',
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          fontSize: 11,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    }),
                   ],
                 ),
               ),
-              // Online indicator or arrow
+              const SizedBox(width: 4),
+              // ── Timestamp + unread dot ──────────────────────────────
+              Obx(() {
+                final lastMsg = fc.lastMessages[user.chatRoomId ?? ''];
+                if (lastMsg != null && isFriend) {
+                  final timestamp = lastMsg['timestamp'];
+                  final date = timestamp is int
+                      ? DateTime.fromMillisecondsSinceEpoch(timestamp)
+                      : null;
+                  final timeStr = date != null
+                      ? timeago.format(date, locale: 'en_short')
+                      : '';
+                  final isMe = lastMsg['senderId'] == ac.userModel.value?.id;
+                  final isUnread = lastMsg['read'] == false && !isMe;
+
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        timeStr,
+                        style: TextStyle(
+                          color: isUnread
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant,
+                          fontSize: 9,
+                          fontWeight: isUnread
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      if (isUnread)
+                        Container(
+                          margin: const EdgeInsets.only(top: 4),
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              }),
+              const SizedBox(width: 4),
               Icon(
                 Icons.chevron_left_rounded,
                 color: colorScheme.onSurface.withAlpha(70),
-                size: 20,
+                size: 18,
               ),
             ],
           ),

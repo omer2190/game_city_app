@@ -18,7 +18,6 @@ class SuggestedFriendsController extends GetxController {
     try {
       isLoading(true);
       final list = await _socialRepository.getSuggestedFriends();
-      debugPrint(list.toString());
       final Map<String, UserModel> uniqueMap = {};
       for (var u in list) {
         if (u.id != null) uniqueMap[u.id!] = u;

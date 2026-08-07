@@ -39,7 +39,6 @@ class SplashController extends GetxController {
 
     try {
       if (!Get.isRegistered<NotificationService>()) {
-        debugPrint('NotificationService not registered yet. Skipping token send.');
         return;
       }
       final fcmToken = await NotificationService.to.getToken();

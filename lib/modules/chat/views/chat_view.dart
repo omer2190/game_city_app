@@ -31,7 +31,8 @@ class ChatView extends StatefulWidget {
 }
 
 class _ChatViewState extends State<ChatView> {
-  final ChatController controller = Get.put(ChatController());
+  late final String _instanceTag;
+  late final ChatController controller;
   final AuthController authController = Get.find<AuthController>();
   final TextEditingController messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -40,11 +41,40 @@ class _ChatViewState extends State<ChatView> {
   @override
   void initState() {
     super.initState();
+    // Tag each controller per recipient so switching friends creates a fresh instance.
+    _instanceTag = 'chat_${widget.recipient.id ?? 'new'}';
+    if (Get.isRegistered<ChatController>(tag: _instanceTag)) {
+      Get.delete<ChatController>(tag: _instanceTag, force: true);
+    }
+    controller = Get.put(ChatController(), tag: _instanceTag);
+    _initChat();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    messageController.dispose();
+    // Clean up this chat's controller when the view is removed
+    if (Get.isRegistered<ChatController>(tag: _instanceTag)) {
+      Get.delete<ChatController>(tag: _instanceTag, force: true);
+    }
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(ChatView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.recipient.id != widget.recipient.id) {
+      _initChat();
+    }
+  }
+
+  void _initChat() {
     if (widget.recipient.chatRoomId != null) {
       controller.listenToMessages(widget.recipient.chatRoomId!);
     }
-    print(
-      'ChatView initialized for recipient: ${widget.recipient.userName} (ID: ${widget.recipient.id})',
+    debugPrint(
+      'ChatView initialized for: ${widget.recipient.userName} (ID: ${widget.recipient.id})',
     );
   }
 

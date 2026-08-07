@@ -6,7 +6,6 @@ class StorageService {
 
   static Future<void> init() async {
     await gs.GetStorage.init();
-    print('StorageService: GetStorage initialized');
   }
 
   dynamic read<T>(String key) {

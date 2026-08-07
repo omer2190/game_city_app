@@ -22,11 +22,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       'Background message: ${message.notification?.title} | ${message.data}',
     );
   }
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  }
+  // if (Firebase.apps.isEmpty) {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // }
 }
 
 void main() async {
@@ -36,11 +34,11 @@ void main() async {
   try {
     timeago.setLocaleMessages('ar', timeago.ArMessages());
 
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-    }
+    // if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    // }
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   } catch (e) {

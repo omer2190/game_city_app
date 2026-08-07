@@ -102,19 +102,6 @@ class _CommunityViewState extends State<CommunityView>
               ],
             ),
           ),
-          TabBar(
-            controller: _tabController,
-            indicatorColor: colorScheme.primary,
-            labelColor: colorScheme.primary,
-            unselectedLabelColor: colorScheme.onBackground.withOpacity(0.5),
-            indicatorSize: TabBarIndicatorSize.label,
-            dividerColor: Colors.transparent,
-            isScrollable: true,
-            tabs: const [
-              Tab(text: 'أصدقائي'),
-              Tab(text: 'المجموعات'),
-            ],
-          ),
           // ── Desktop: split-panel layout ─────────────────────────────
           if (context.isDesktop)
             Expanded(

@@ -70,12 +70,6 @@ class NotificationService extends GetxService {
   }
 
   void _foregroundHandler(RemoteMessage message) {
-    if (kDebugMode) {
-      print(
-        'Foreground message: ${message.notification?.title} | ${message.data}',
-      );
-    }
-
     final roomId = message.data['targetId'];
     if (activeRoomId != null && activeRoomId == roomId) return;
 
@@ -110,10 +104,6 @@ class NotificationService extends GetxService {
   }
 
   void _handleNotificationClick(Map<String, dynamic> data) {
-    if (kDebugMode) {
-      print('Notification clicked: $data');
-    }
-
     final type = data['type'] as String?;
     final targetId = data['targetId'] as String?;
 

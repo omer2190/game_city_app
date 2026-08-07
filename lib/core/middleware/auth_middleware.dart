@@ -9,10 +9,6 @@ class AuthMiddleware extends GetMiddleware {
     final storage = GetStorage();
     final token = storage.read('token');
 
-    debugPrint(
-      'AuthMiddleware: checking route $route, token exists: ${token != null}',
-    );
-
     // If the user is not logged in and is trying to access a restricted route,
     // redirect them to the login page.
     // We allow access to splash, login, and register without authentication.
