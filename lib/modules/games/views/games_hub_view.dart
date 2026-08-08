@@ -199,7 +199,7 @@ class _GamesHubViewState extends State<GamesHubView> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final cols = constraints.maxWidth > 1024
-              ? 4
+              ? 5
               : constraints.maxWidth > 600
               ? 3
               : 2;
@@ -208,7 +208,7 @@ class _GamesHubViewState extends State<GamesHubView> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: cols,
-              childAspectRatio: 0.7,
+              childAspectRatio: 0.85,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),

@@ -9,9 +9,9 @@
 ///   child: YourContent(),
 /// )
 /// ```
+library;
 
 import 'package:flutter/material.dart';
-import '../../core/values/app_breakpoints.dart';
 import '../../core/values/app_dimensions.dart';
 
 class ResponsiveContainer extends StatelessWidget {

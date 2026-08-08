@@ -21,8 +21,6 @@ class ProfilePlayNowSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('ألعب الآن', style: theme.textTheme.headlineSmall),
-              // const SizedBox(width: 10),
               IconButton(
                 onPressed: () => Get.to(() => GlobalGamesView()),
                 icon: Icon(
@@ -44,9 +42,11 @@ class ProfilePlayNowSection extends StatelessWidget {
       return CustomCard(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
-        child: const Text(
+        child: Text(
           'لم تضف أي ألعاب بعد',
-          style: TextStyle(color: Colors.white38),
+          style: TextStyle(
+            color: Get.theme.colorScheme.onSurface.withOpacity(0.4),
+          ),
           textAlign: TextAlign.center,
         ),
       );
@@ -60,15 +60,15 @@ class ProfilePlayNowSection extends StatelessWidget {
     }).toList();
 
     return SizedBox(
-      height: 160,
+      height: 180,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: games.length,
         itemBuilder: (context, index) {
           final game = games[index];
           return Container(
-            width: 120,
-            margin: const EdgeInsets.only(left: 14),
+            width: 130,
+            margin: const EdgeInsetsDirectional.only(start: 14),
             child: CustomCard(
               padding: EdgeInsets.zero,
               child: ClipRRect(

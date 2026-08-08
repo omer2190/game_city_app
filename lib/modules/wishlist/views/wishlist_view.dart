@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/core/values/app_dimensions.dart';
 import 'package:game_city_app/shared/header.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
@@ -46,7 +45,7 @@ class WishlistView extends StatelessWidget {
                     left: 16,
                     right: 16,
                   ),
-                  aspectRatio: 0.65,
+                  aspectRatio: 0.85,
                   itemCount: controller.wishlist.length,
                   gridColumns: cols,
                   itemBuilder: (context, index) {

@@ -66,7 +66,7 @@ class GameSectionRow extends StatelessWidget {
 
   Widget _buildHorizontalList(BuildContext context) {
     return SizedBox(
-      height: 200,
+      height: 175,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -86,14 +86,14 @@ class GameSectionRow extends StatelessWidget {
   }
 
   Widget _buildGrid(BuildContext context) {
-    final cols = context.isWide ? 5 : 4;
+    final cols = context.isWide ? 6 : 4;
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: cols,
-        childAspectRatio: 0.7,
+        childAspectRatio: 0.75,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),

@@ -66,7 +66,7 @@ class GeneralInfoGrid extends StatelessWidget {
                       Text(
                         data['text'] ?? 'لا توجد معلومات',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: colorScheme.onSurface,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),

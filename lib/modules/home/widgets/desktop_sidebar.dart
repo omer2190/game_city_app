@@ -16,7 +16,6 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/values/app_breakpoints.dart';
 import '../../auth/controllers/auth_controller.dart';
 import '../../notifications/controllers/notifications_controller.dart';
 import '../../../routes/app_routes.dart';

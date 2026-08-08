@@ -6,7 +6,7 @@
 /// AdaptiveGridView(
 ///   itemCount: games.length,
 ///   itemBuilder: (context, index) => GameCard(game: games[index]),
-///   aspectRatio: 0.7,
+///   aspectRatio: 0.85,
 /// )
 /// ```
 
@@ -18,7 +18,7 @@ class AdaptiveGridView extends StatelessWidget {
     super.key,
     required this.itemCount,
     required this.itemBuilder,
-    this.aspectRatio = 0.7,
+    this.aspectRatio = 0.85,
     this.padding,
     this.crossAxisSpacing,
     this.mainAxisSpacing,
@@ -35,7 +35,7 @@ class AdaptiveGridView extends StatelessWidget {
   /// Builder function for each grid item.
   final Widget Function(BuildContext context, int index) itemBuilder;
 
-  /// Aspect ratio for each grid cell (default 0.7 for game cards).
+  /// Aspect ratio for each grid cell (default 0.85 for game cards).
   final double aspectRatio;
 
   /// Optional padding around the grid.

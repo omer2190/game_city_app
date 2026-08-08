@@ -18,7 +18,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/values/app_breakpoints.dart';
-import '../../../core/values/app_dimensions.dart';
 import '../../notifications/controllers/notifications_controller.dart';
 import 'desktop_sidebar.dart';
 
