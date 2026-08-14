@@ -28,6 +28,7 @@ class FriendsController extends GetxController {
 
   final Map<String, Timer> _roomTimers = {};
   bool _sortScheduled = false;
+  Timer? _searchDebounce;
 
   @override
   void onInit() {
@@ -36,17 +37,24 @@ class FriendsController extends GetxController {
     fetchPendingRequests();
   }
 
+  bool _tokenWarned = false; // suppress repeated "no user" logs
+
   Future<String?> _getIdToken() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        final t = await user.getIdToken();
-        debugPrint('🔵 Friends: Auth token ${t != null ? "GOT" : "NULL"}');
-        return t;
+        _tokenWarned = false;
+        return await user.getIdToken();
       }
-      debugPrint('🔴 Friends: no currentUser');
+      if (!_tokenWarned) {
+        debugPrint('🔴 Friends: no currentUser (Firebase Auth)');
+        _tokenWarned = true;
+      }
     } catch (e) {
-      debugPrint('🔴 Friends: Auth token error: $e');
+      if (!_tokenWarned) {
+        debugPrint('🔴 Friends: Auth token error: $e');
+        _tokenWarned = true;
+      }
     }
     return null;
   }
@@ -145,7 +153,7 @@ class FriendsController extends GetxController {
 
     fetch();
     _roomTimers[roomId] = Timer.periodic(
-      const Duration(seconds: 2),
+      const Duration(seconds: 5),
       (_) => fetch(),
     );
   }
@@ -211,57 +219,64 @@ class FriendsController extends GetxController {
     }
   }
 
-  void search(String query) async {
+  void search(String query) {
+    _searchDebounce?.cancel();
     if (query.isEmpty) {
       searchResults.clear();
       return;
     }
-    try {
-      isSearchLoading(true);
-      final list = await _socialRepository.searchUsers(query);
-      final Map<String, UserModel> uniqueMap = {};
-      for (var u in list) {
-        if (u.id != null) uniqueMap[u.id!] = u;
+    _searchDebounce = Timer(const Duration(milliseconds: 400), () async {
+      try {
+        isSearchLoading(true);
+        final list = await _socialRepository.searchUsers(query);
+        final Map<String, UserModel> uniqueMap = {};
+        for (var u in list) {
+          if (u.id != null) uniqueMap[u.id!] = u;
+        }
+        searchResults.assignAll(uniqueMap.values.toList());
+      } catch (e) {
+        debugPrint('Search error: $e');
+      } finally {
+        isSearchLoading(false);
       }
-      searchResults.assignAll(uniqueMap.values.toList());
-    } catch (e) {
-      debugPrint('Search error: $e');
-    } finally {
-      isSearchLoading(false);
-    }
+    });
   }
 
-  void acceptRequest(String senderId) async {
+  Future<void> acceptRequest(String requestId) async {
     try {
-      await _socialRepository.acceptFriendRequest(senderId);
-      fetchFriends();
-      fetchPendingRequests();
+      await _socialRepository.acceptFriendRequest(requestId);
+      Get.snackbar('نجاح', 'تم قبول طلب الصداقة بنجاح');
+      await Future.wait([fetchFriends(), fetchPendingRequests()]);
     } catch (e) {
-      Get.snackbar('خطأ', e.toString());
+      Get.snackbar('خطأ', 'فشل قبول الطلب: $e');
     }
   }
 
-  void removeOrRejectFriend(String targetId) async {
+  Future<void> removeOrRejectFriend(String targetId) async {
     try {
       await _socialRepository.removeFriend(targetId);
-      fetchFriends();
-      fetchPendingRequests();
+      Get.snackbar('نجاح', 'تم حذف الصديق بنجاح');
+      await Future.wait([fetchFriends(), fetchPendingRequests()]);
     } catch (e) {
-      Get.snackbar('خطأ', e.toString());
+      Get.snackbar('خطأ', 'فشل حذف الصديق: $e');
     }
   }
 
-  void sendFriendRequest(String targetId) async {
+  Future<void> sendFriendRequest(String targetId) async {
     try {
       await _socialRepository.sendFriendRequest(targetId);
+      Get.snackbar('نجاح', 'تم إرسال طلب الصداقة بنجاح');
     } catch (e) {
-      Get.snackbar('خطأ', e.toString());
+      Get.snackbar('خطأ', 'فشل إرسال الطلب: $e');
     }
   }
 
   @override
   void onClose() {
-    _roomTimers.values.forEach((t) => t.cancel());
+    _searchDebounce?.cancel();
+    for (var t in _roomTimers.values) {
+      t.cancel();
+    }
     _http.close();
     super.onClose();
   }

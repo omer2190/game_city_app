@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'owner_mobile_content.dart';
 
 class OwnerMobileShell extends StatelessWidget {
-  const OwnerMobileShell();
+  const OwnerMobileShell({super.key});
 
   @override
   Widget build(BuildContext context) {

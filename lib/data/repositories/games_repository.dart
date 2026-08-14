@@ -118,7 +118,7 @@ class GamesRepository {
     final response = await getGames(type: 'global', page: page, search: search);
     final items = response['items'];
     if (items is List) {
-      return items.where((item) => item is Map<String, dynamic>).toList();
+      return items.whereType<Map<String, dynamic>>().toList();
     }
     return [];
   }

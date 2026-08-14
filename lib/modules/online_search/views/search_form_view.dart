@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/modules/global_games/views/global_games_view.dart';
 import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
@@ -22,6 +23,135 @@ class SearchFormView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth >= AppBreakpoints.tabletBreakpoint;
+
+    if (isDesktop) {
+      return _buildDesktopLayout(context);
+    }
+    return _buildMobileLayout(context);
+  }
+
+  // ── Desktop Layout (≥1024px) ──────────────────────────────────────────
+  Widget _buildDesktopLayout(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 40),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1100),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Top Row: Title + Info Button ──
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildSectionTitle('اختر اللعبة', primary, fontSize: 22),
+                  IconButton(
+                    onPressed: () => Get.to(() => GlobalGamesView()),
+                    icon: Icon(Icons.add_rounded, color: primary, size: 26),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // ── Game List ──
+              _buildGameListDesktop(),
+              const SizedBox(height: 40),
+
+              // ── Two Column Section ──
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Left Column: Search Mode ──
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            _buildSectionTitle(
+                              'نوع البحث',
+                              primary,
+                              fontSize: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              iconSize: 18,
+                              onPressed: () {
+                                Get.defaultDialog(
+                                  title: 'أنواع البحث',
+                                  content: Column(
+                                    children: [
+                                      ListTile(
+                                        leading: const Icon(Icons.person),
+                                        title: const Text('أنا لاعب'),
+                                        subtitle: const Text(
+                                          'تبحث عن لاعبين آخرين للعب معهم',
+                                        ),
+                                      ),
+                                      ListTile(
+                                        leading: const Icon(Icons.group),
+                                        title: const Text('أنا الفريق'),
+                                        subtitle: const Text(
+                                          'تبحث عن فرق أخرى للتنافس معها',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              icon: Icon(
+                                Icons.info_outline,
+                                color: Colors.white54,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        _buildModeSelectorsDesktop(),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 40),
+
+                  // ── Right Column: Notes + Button ──
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle(
+                          'ملاحظات إضافية',
+                          primary,
+                          fontSize: 20,
+                        ),
+                        const SizedBox(height: 16),
+                        CustomTextField(
+                          hintColor: Colors.white,
+                          controller: controller.notesController,
+                          maxLines: 4,
+                          hint: 'أهلاً، أحتاج لاعب محترف لرفع الرنك...',
+                          prefixIcon: Icons.edit_note,
+                        ),
+                        const SizedBox(height: 32),
+                        _buildStartButton(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Mobile / Tablet Layout ────────────────────────────────────────────
+  Widget _buildMobileLayout(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 90),
       child: Column(
@@ -33,10 +163,8 @@ class SearchFormView extends StatelessWidget {
             children: [
               _buildSectionTitle('اختر اللعبة', primary),
               IconButton(
-                // iconSize: 16,
                 onPressed: () => Get.to(() => GlobalGamesView()),
-
-                icon: Icon(Icons.add_rounded),
+                icon: const Icon(Icons.add_rounded),
               ),
             ],
           ),
@@ -62,7 +190,7 @@ class SearchFormView extends StatelessWidget {
                         ),
                         ListTile(
                           leading: const Icon(Icons.group),
-                          title: const Text('أنا فريق'),
+                          title: const Text('أنا الفريق'),
                           subtitle: const Text('تبحث عن فرق أخرى للتنافس معها'),
                         ),
                       ],
@@ -92,6 +220,49 @@ class SearchFormView extends StatelessWidget {
     );
   }
 
+  // ── Game List (Desktop - wider cards, larger height) ───────────────────
+  Widget _buildGameListDesktop() {
+    return SizedBox(
+      height: 170,
+      child: Obx(() {
+        if (controller.myGames.isEmpty) {
+          return Container(
+            decoration: BoxDecoration(
+              color: surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white10),
+            ),
+            child: const Center(
+              child: Text(
+                "لا توجد ألعاب مضافة في قائمة العب الآن",
+                style: TextStyle(color: Colors.grey, fontSize: 15),
+              ),
+            ),
+          );
+        }
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          itemCount: controller.myGames.length,
+          itemBuilder: (context, index) {
+            final game = controller.myGames[index];
+            return Obx(() {
+              final String gameId = game['id'].toString();
+              return GameSelectorCard(
+                game: game,
+                isSelected: controller.selectedGameId.value == gameId,
+                primary: primary,
+                surface: surface,
+                onTap: () => controller.selectedGameId.value = gameId,
+              );
+            });
+          },
+        );
+      }),
+    );
+  }
+
+  // ── Game List (Mobile - original) ─────────────────────────────────────
   Widget _buildGameList() {
     return SizedBox(
       height: 140,
@@ -133,6 +304,40 @@ class SearchFormView extends StatelessWidget {
     );
   }
 
+  // ── Mode Selectors (Desktop - horizontal layout with bigger buttons) ──
+  Widget _buildModeSelectorsDesktop() {
+    return Row(
+      children: [
+        Expanded(
+          child: Obx(
+            () => SearchModeToggle(
+              label: 'انا لاعب',
+              icon: Icons.person,
+              isSelected: controller.selectedType.value == 'solo',
+              primary: primary,
+              surface: surface,
+              onTap: () => controller.selectedType.value = 'solo',
+            ),
+          ),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: Obx(
+            () => SearchModeToggle(
+              label: 'انا الفريق',
+              icon: Icons.group,
+              isSelected: controller.selectedType.value == 'team',
+              primary: primary,
+              surface: surface,
+              onTap: () => controller.selectedType.value = 'team',
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Mode Selectors (Mobile - original) ───────────────────────────────
   Widget _buildModeSelectors() {
     return Row(
       children: [
@@ -152,7 +357,7 @@ class SearchFormView extends StatelessWidget {
         Expanded(
           child: Obx(
             () => SearchModeToggle(
-              label: 'انا فريق',
+              label: 'انا الفريق',
               icon: Icons.group,
               isSelected: controller.selectedType.value == 'team',
               primary: primary,
@@ -165,6 +370,7 @@ class SearchFormView extends StatelessWidget {
     );
   }
 
+  // ── Start Button ─────────────────────────────────────────────────────
   Widget _buildStartButton() {
     return Obx(
       () => CustomButton(
@@ -178,11 +384,12 @@ class SearchFormView extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title, Color color) {
+  // ── Section Title ────────────────────────────────────────────────────
+  Widget _buildSectionTitle(String title, Color color, {double fontSize = 18}) {
     return Text(
       title,
       style: TextStyle(
-        fontSize: 18,
+        fontSize: fontSize,
         fontWeight: FontWeight.bold,
         color: color,
         fontFamily: 'Almarai',

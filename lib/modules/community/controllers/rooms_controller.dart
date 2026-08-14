@@ -28,17 +28,24 @@ class RoomsController extends GetxController {
     fetchRooms();
   }
 
+  bool _tokenWarned = false; // suppress repeated "no user" logs
+
   Future<String?> _getIdToken() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        final t = await user.getIdToken();
-        debugPrint('🔵 Rooms: Auth token ${t != null ? "GOT" : "NULL"}');
-        return t;
+        _tokenWarned = false;
+        return await user.getIdToken();
       }
-      debugPrint('🔴 Rooms: no currentUser');
+      if (!_tokenWarned) {
+        debugPrint('🔴 Rooms: no currentUser (Firebase Auth)');
+        _tokenWarned = true;
+      }
     } catch (e) {
-      debugPrint('🔴 Rooms: Auth token error: $e');
+      if (!_tokenWarned) {
+        debugPrint('🔴 Rooms: Auth token error: $e');
+        _tokenWarned = true;
+      }
     }
     return null;
   }
@@ -149,7 +156,7 @@ class RoomsController extends GetxController {
 
     fetch();
     _roomTimers[roomId] = Timer.periodic(
-      const Duration(seconds: 2),
+      const Duration(seconds: 5),
       (_) => fetch(),
     );
   }
@@ -189,18 +196,21 @@ class RoomsController extends GetxController {
     }
   }
 
-  void leaveRoom(String roomId) async {
+  Future<void> leaveRoom(String roomId) async {
     try {
-      await _chatRepository.joinRoom(roomId);
+      await _chatRepository.leaveRoom(roomId);
       fetchRooms();
+      Get.snackbar('نجاح', 'تم مغادرة الغرفة بنجاح');
     } catch (e) {
-      Get.snackbar('خطأ', e.toString());
+      Get.snackbar('خطأ', 'فشلت مغادرة الغرفة: $e');
     }
   }
 
   @override
   void onClose() {
-    _roomTimers.values.forEach((t) => t.cancel());
+    for (var t in _roomTimers.values) {
+      t.cancel();
+    }
     _http.close();
     super.onClose();
   }

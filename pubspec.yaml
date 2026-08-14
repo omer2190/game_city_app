@@ -59,6 +59,8 @@ dependencies:
   webview_flutter: ^4.10.0
   youtube_player_flutter: ^9.1.1
   http: ^1.2.0
+  installed_apps: ^2.1.1
+  any_image_view: ^2.3.0
 
 dev_dependencies:
   flutter_test:

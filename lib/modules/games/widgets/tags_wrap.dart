@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class TagsWrap extends StatelessWidget {
   final List<dynamic> tags;
 
-  const TagsWrap({required this.tags});
+  const TagsWrap({super.key, required this.tags});
 
   @override
   Widget build(BuildContext context) {

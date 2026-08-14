@@ -10,7 +10,7 @@ import '../../widgets/build_visitor_sections.dart';
 class VisitorMobileShell extends StatelessWidget {
   final String userId;
   final String? heroTag;
-  const VisitorMobileShell({required this.userId, this.heroTag});
+  const VisitorMobileShell({super.key, required this.userId, this.heroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +20,9 @@ class VisitorMobileShell extends StatelessWidget {
 
     return LayoutMine(
       body: Obx(() {
-        if (ctrl.isLoading.value)
+        if (ctrl.isLoading.value) {
           return const LoadingWidget(message: 'جاري تحميل الملف الشخصي...');
+        }
         final user = ctrl.user.value;
         if (user == null) {
           return Center(
@@ -31,13 +32,13 @@ class VisitorMobileShell extends StatelessWidget {
                 Icon(
                   Icons.person_off_outlined,
                   size: 64,
-                  color: cs.onBackground.withOpacity(0.3),
+                  color: cs.onSurface.withOpacity(0.3),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   'المستخدم غير موجود',
                   style: TextStyle(
-                    color: cs.onBackground.withOpacity(0.6),
+                    color: cs.onSurface.withOpacity(0.6),
                     fontSize: 16,
                   ),
                 ),

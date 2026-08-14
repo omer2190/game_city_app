@@ -9,7 +9,7 @@ import '../widgets/game_card.dart';
 import '../widgets/game_section_row.dart';
 
 class GamesHubView extends StatefulWidget {
-  GamesHubView({super.key});
+  const GamesHubView({super.key});
 
   @override
   State<GamesHubView> createState() => _GamesHubViewState();

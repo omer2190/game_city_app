@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 class DesktopScaffold extends StatelessWidget {
   final Widget child;
-  const DesktopScaffold({required this.child});
+  const DesktopScaffold({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

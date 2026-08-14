@@ -6,7 +6,7 @@ import 'fullscreen_image_viewer.dart';
 class ScreenshotsGallery extends StatelessWidget {
   final List<String> screenshots;
 
-  const ScreenshotsGallery({required this.screenshots});
+  const ScreenshotsGallery({super.key, required this.screenshots});
 
   @override
   Widget build(BuildContext context) {

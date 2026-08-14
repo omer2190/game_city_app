@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../data/models/game_model.dart';
@@ -699,19 +700,15 @@ class _GameReviewSectionState extends State<GameReviewSection> {
           Row(
             children: [
               // Avatar
-              CircleAvatar(
+              SafeCachedAvatar(
+                imageUrl:
+                    (review.userId?.userImage != null &&
+                        review.userId!.userImage!.isNotEmpty)
+                    ? review.userId!.userImage!.first
+                    : null,
+                fallbackName: review.userId?.firstName,
                 radius: 16,
                 backgroundColor: primaryColor.withValues(alpha: 0.2),
-                backgroundImage:
-                    review.userId?.userImage != null &&
-                        review.userId!.userImage!.isNotEmpty
-                    ? NetworkImage(review.userId!.userImage!.first)
-                    : null,
-                child:
-                    review.userId?.userImage == null ||
-                        review.userId!.userImage!.isEmpty
-                    ? Icon(Icons.person, size: 16, color: primaryColor)
-                    : null,
               ),
               const SizedBox(width: 8),
               Expanded(

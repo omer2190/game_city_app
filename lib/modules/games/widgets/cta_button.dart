@@ -6,7 +6,7 @@ class CtaButton extends StatelessWidget {
   final Game game;
   final VoidCallback onPressed;
 
-  const CtaButton({required this.game, required this.onPressed});
+  const CtaButton({super.key, required this.game, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

@@ -4,6 +4,7 @@ import 'package:game_city_app/data/models/user_model.dart';
 import 'package:game_city_app/modules/auth/controllers/auth_controller.dart';
 import 'package:game_city_app/modules/community/controllers/user_profile_controller.dart';
 import 'package:game_city_app/modules/profile/widgets/visitor_action_row.dart';
+import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
 
 class VisitorAppBar extends StatelessWidget {
@@ -11,6 +12,7 @@ class VisitorAppBar extends StatelessWidget {
   final String? heroTag;
   final UserProfileController controller;
   const VisitorAppBar({
+    super.key,
     required this.user,
     this.heroTag,
     required this.controller,
@@ -129,25 +131,14 @@ class VisitorAppBar extends StatelessWidget {
                             width: 2.5,
                           ),
                         ),
-                        child: CircleAvatar(
-                          radius: 42,
-                          backgroundColor: cs.primary.withOpacity(0.25),
-                          backgroundImage:
+                        child: SafeCachedAvatar(
+                          imageUrl:
                               (user.userImage != null &&
                                   user.userImage!.isNotEmpty)
-                              ? CachedNetworkImageProvider(
-                                  user.userImage!.first,
-                                )
+                              ? user.userImage!.first
                               : null,
-                          child:
-                              (user.userImage == null ||
-                                  user.userImage!.isEmpty)
-                              ? Icon(
-                                  Icons.person,
-                                  size: 42,
-                                  color: Colors.white.withOpacity(0.7),
-                                )
-                              : null,
+                          radius: 42,
+                          backgroundColor: cs.primary.withOpacity(0.25),
                         ),
                       ),
                     ),

@@ -296,8 +296,7 @@ class AuthController extends GetxController {
         }
 
         // 2. Get authentication details (including tokens)
-        final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
+        final GoogleSignInAuthentication googleAuth = googleUser.authentication;
         googleIdToken = googleAuth.idToken;
       }
 

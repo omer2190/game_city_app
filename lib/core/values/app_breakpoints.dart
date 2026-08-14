@@ -8,6 +8,7 @@
 /// if (context.isMobile) { ... }
 /// switch (context.screenType) { ... }
 /// ```
+library;
 
 import 'package:flutter/material.dart';
 

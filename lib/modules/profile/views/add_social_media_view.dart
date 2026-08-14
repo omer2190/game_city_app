@@ -6,7 +6,7 @@ import '../../../data/models/user_model.dart';
 
 class AddSocialMediaView extends StatelessWidget {
   final SocialMediaService? preSelectedService;
-  AddSocialMediaView({super.key, this.preSelectedService});
+  const AddSocialMediaView({super.key, this.preSelectedService});
 
   @override
   Widget build(BuildContext context) {

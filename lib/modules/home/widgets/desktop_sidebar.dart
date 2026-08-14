@@ -11,14 +11,16 @@
 ///   onTap: controller.changePage,
 /// )
 /// ```
+library;
 
-import 'dart:ui';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
+import '../../../core/values/app_breakpoints.dart';
 import '../../auth/controllers/auth_controller.dart';
 import '../../notifications/controllers/notifications_controller.dart';
 import '../../../routes/app_routes.dart';
+import '../../profile/views/profile_view.dart';
 
 class DesktopSidebar extends StatelessWidget {
   const DesktopSidebar({
@@ -111,15 +113,6 @@ class DesktopSidebar extends StatelessWidget {
           const Divider(height: 1, indent: 16, endIndent: 16),
           const SizedBox(height: 8),
 
-          // Wishlist
-          _SidebarItem(
-            icon: Icons.favorite_rounded,
-            label: 'قائمة الأمنيات',
-            isSelected: false,
-            isExpanded: isExpanded,
-            onTap: () => Get.toNamed(AppRoutes.wishlist),
-          ),
-
           // Settings
           _SidebarItem(
             icon: Icons.settings_rounded,
@@ -154,15 +147,36 @@ class DesktopSidebar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GestureDetector(
-        onTap: () => Get.toNamed('/profile'),
+        onTap: () {
+          if (Get.width > AppBreakpoints.mobileBreakpoint) {
+            Get.dialog(
+              ProfileView(
+                // userId: authController.userModel.value?.id ?? '',
+                // heroTag: 'avatar_${authController.userModel.value?.id}',
+              ),
+            );
+          } else {
+            Get.toNamed('/profile');
+          }
+        },
         child: isExpanded
             ? Row(
                 children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: colorScheme.primary,
-                    backgroundImage: _userImage(authController),
-                  ),
+                  Obx(() {
+                    final user = authController.userModel.value;
+                    final img =
+                        (user?.userImage != null &&
+                            user!.userImage!.isNotEmpty &&
+                            user.userImage!.first.isNotEmpty)
+                        ? user.userImage!.first
+                        : null;
+                    return SafeCachedAvatar(
+                      imageUrl: img,
+                      fallbackName: user?.firstName,
+                      radius: 20,
+                      backgroundColor: colorScheme.primary,
+                    );
+                  }),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Obx(() {
@@ -181,23 +195,25 @@ class DesktopSidebar extends StatelessWidget {
               )
             : Column(
                 children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: colorScheme.primary,
-                    backgroundImage: _userImage(authController),
-                  ),
+                  Obx(() {
+                    final user = authController.userModel.value;
+                    final img =
+                        (user?.userImage != null &&
+                            user!.userImage!.isNotEmpty &&
+                            user.userImage!.first.isNotEmpty)
+                        ? user.userImage!.first
+                        : null;
+                    return SafeCachedAvatar(
+                      imageUrl: img,
+                      fallbackName: user?.firstName,
+                      radius: 20,
+                      backgroundColor: colorScheme.primary,
+                    );
+                  }),
                 ],
               ),
       ),
     );
-  }
-
-  ImageProvider? _userImage(AuthController authController) {
-    final images = authController.userModel.value?.userImage;
-    if (images != null && images.isNotEmpty && images.first.isNotEmpty) {
-      return CachedNetworkImageProvider(images.first);
-    }
-    return null;
   }
 }
 

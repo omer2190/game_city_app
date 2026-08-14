@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/modules/community/views/user_profile_view.dart';
@@ -9,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../controllers/suggested_friends_controller.dart';
 import '../controllers/friends_controller.dart';
+import '../controllers/rooms_controller.dart';
 import '../../chat/views/chat_view.dart';
 import '../../../data/models/user_model.dart';
 import 'user_search_view.dart';
@@ -31,6 +31,7 @@ class _CommunityViewState extends State<CommunityView>
     SuggestedFriendsController(),
   );
   final FriendsController friendsController = Get.put(FriendsController());
+  final RoomsController roomsController = Get.put(RoomsController());
   final AuthController authController = Get.find<AuthController>();
 
   @override
@@ -55,10 +56,13 @@ class _CommunityViewState extends State<CommunityView>
             ),
             trailing: Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.search, color: colorScheme.onBackground),
-                  onPressed: () => Get.to(() => UserSearchView()),
-                ),
+                // Hide search icon on desktop – the split-panel search bar
+                // handles searching all users via the backend.
+                if (!context.isDesktop)
+                  IconButton(
+                    icon: Icon(Icons.search, color: colorScheme.onSurface),
+                    onPressed: () => Get.to(() => UserSearchView()),
+                  ),
                 Obx(() {
                   final count = friendsController.pendingRequests.length;
                   return Stack(
@@ -66,7 +70,7 @@ class _CommunityViewState extends State<CommunityView>
                       IconButton(
                         icon: Icon(
                           Icons.person_add_rounded,
-                          color: colorScheme.onBackground,
+                          color: colorScheme.onSurface,
                         ),
                         onPressed: () =>
                             Get.to(() => const FriendRequestsView()),
@@ -102,7 +106,7 @@ class _CommunityViewState extends State<CommunityView>
               ],
             ),
           ),
-          // ── Desktop: split-panel layout ─────────────────────────────
+          // ── Desktop/Tablet: unified split-panel (friends + groups) ─
           if (context.isDesktop)
             Expanded(
               child: Obx(() {
@@ -112,7 +116,6 @@ class _CommunityViewState extends State<CommunityView>
                         'سجل دخولك الآن لتتمكن من إضافة أصدقاء والانضمام لمجموعات الدردشة',
                   );
                 }
-                // Show split: friends left, chat right
                 return _buildDesktopSplit(context);
               }),
             )
@@ -122,7 +125,7 @@ class _CommunityViewState extends State<CommunityView>
               controller: _tabController,
               indicatorColor: colorScheme.primary,
               labelColor: colorScheme.primary,
-              unselectedLabelColor: colorScheme.onBackground.withAlpha(127),
+              unselectedLabelColor: colorScheme.onSurface.withAlpha(127),
               indicatorSize: TabBarIndicatorSize.label,
               dividerColor: Colors.transparent,
               isScrollable: true,
@@ -185,7 +188,7 @@ class _CommunityViewState extends State<CommunityView>
                 child: Text(
                   'اقتراحات',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -214,13 +217,13 @@ class _CommunityViewState extends State<CommunityView>
         Icon(
           Icons.person_off_rounded,
           size: 64,
-          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
         ),
         const SizedBox(height: 16),
         Text(
           'قائمة أصدقائك فارغة حالياً',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
             fontSize: 14,
           ),
         ),
@@ -246,38 +249,29 @@ class _CommunityViewState extends State<CommunityView>
           child: Row(
             children: [
               GestureDetector(
-                onTap: () => Get.to(
-                  () => UserProfileView(
-                    userId: user.id ?? '',
-                    heroTag:
-                        'avatar_${isFriend ? "friend" : "suggested"}_${user.id}',
-                  ),
-                ),
+                onTap: () {
+                  if (Get.width > AppBreakpoints.mobileBreakpoint) {
+                    Get.dialog(
+                      UserProfileView(
+                        userId: user.id ?? '',
+                        heroTag: 'avatar_${user.id}',
+                      ),
+                    );
+                  } else {
+                    Get.to(() => UserProfileView(userId: user.id!));
+                  }
+                },
                 child: Hero(
                   tag: 'avatar_${isFriend ? "friend" : "suggested"}_${user.id}',
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: colorScheme.primary.withOpacity(0.2),
-                        width: 2,
-                      ),
-                    ),
-                    child: CircleAvatar(
-                      radius: 24,
-                      backgroundColor: colorScheme.surface,
-                      backgroundImage:
-                          (user.userImage != null && user.userImage!.isNotEmpty)
-                          ? CachedNetworkImageProvider(user.userImage!.first)
-                          : null,
-                      child: (user.userImage == null || user.userImage!.isEmpty)
-                          ? Icon(
-                              Icons.person,
-                              color: colorScheme.primary,
-                              size: 24,
-                            )
-                          : null,
-                    ),
+                  child: SafeCachedAvatar(
+                    imageUrl: user.userImage?.isNotEmpty == true
+                        ? user.userImage!.first
+                        : null,
+                    fallbackName: user.userName,
+                    radius: 24,
+                    borderColor: colorScheme.primary.withOpacity(0.2),
+                    borderWidth: 2,
+                    backgroundColor: colorScheme.surface,
                   ),
                 ),
               ),
@@ -451,6 +445,7 @@ class _CommunityViewState extends State<CommunityView>
           friendsController.fetchFriends(),
           friendsController.fetchPendingRequests(),
           suggestedController.fetchSuggestions(),
+          roomsController.fetchRooms(),
         ]);
       },
       child: Obx(() {
@@ -460,6 +455,7 @@ class _CommunityViewState extends State<CommunityView>
         return CommunitySplitShell(
           friends: friendsController.friendsList,
           suggestions: suggestedController.suggestions,
+          rooms: roomsController.rooms,
           onUserTapMobile: (user) => Get.to(() => ChatView(recipient: user)),
         );
       }),

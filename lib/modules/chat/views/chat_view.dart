@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:game_city_app/modules/community/views/user_profile_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart' as intl;
+import '../../../core/values/app_breakpoints.dart';
 import '../controllers/chat_controller.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/models/message_model.dart';
@@ -37,6 +37,7 @@ class _ChatViewState extends State<ChatView> {
   final TextEditingController messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final Rx<String?> editingMessageId = Rx<String?>(null);
+  int _previousMsgCount = 0;
 
   @override
   void initState() {
@@ -65,6 +66,7 @@ class _ChatViewState extends State<ChatView> {
   void didUpdateWidget(ChatView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.recipient.id != widget.recipient.id) {
+      _previousMsgCount = 0; // reset for new conversation
       _initChat();
     }
   }
@@ -76,16 +78,6 @@ class _ChatViewState extends State<ChatView> {
     debugPrint(
       'ChatView initialized for: ${widget.recipient.userName} (ID: ${widget.recipient.id})',
     );
-  }
-
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
   }
 
   @override
@@ -103,7 +95,7 @@ class _ChatViewState extends State<ChatView> {
               color: theme.cardColor.withAlpha(127),
               border: Border(
                 bottom: BorderSide(
-                  color: colorScheme.onBackground.withAlpha(25),
+                  color: colorScheme.onSurface.withAlpha(25),
                   width: 1,
                 ),
               ),
@@ -111,33 +103,31 @@ class _ChatViewState extends State<ChatView> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_rounded, size: 20),
+                  icon: const Icon(Icons.close_rounded, size: 20),
+                  tooltip: 'إغلاق المحادثة',
                   onPressed: widget.embeddedOnClose,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(
                     minWidth: 32,
                     minHeight: 32,
                   ),
-                  color: colorScheme.onBackground,
+                  color: colorScheme.onSurface,
                 ),
                 const SizedBox(width: 8),
-                CircleAvatar(
+                SafeCachedAvatar(
+                  imageUrl: widget.recipient.userImage?.isNotEmpty == true
+                      ? widget.recipient.userImage![0]
+                      : null,
+                  fallbackName: widget.recipient.userName,
                   radius: 16,
                   backgroundColor: colorScheme.primary.withAlpha(25),
-                  backgroundImage:
-                      (widget.recipient.userImage != null &&
-                          widget.recipient.userImage!.isNotEmpty)
-                      ? CachedNetworkImageProvider(
-                          widget.recipient.userImage![0],
-                        )
-                      : null,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     widget.recipient.userName ?? 'مجهول',
                     style: TextStyle(
-                      color: colorScheme.onBackground,
+                      color: colorScheme.onSurface,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -166,54 +156,41 @@ class _ChatViewState extends State<ChatView> {
         appBar: AppBar(
           title: GestureDetector(
             onTap: () {
-              Get.to(
-                () => UserProfileView(
-                  userId: widget.recipient.id ?? '',
-                  heroTag: 'chat_avatar_${widget.recipient.id}',
-                ),
-              );
+              if (Get.width > AppBreakpoints.mobileBreakpoint) {
+                Get.dialog(
+                  UserProfileView(
+                    userId: widget.recipient.id ?? '',
+                    heroTag: 'avatar_${widget.recipient.id}',
+                  ),
+                );
+              } else {
+                Get.to(() => UserProfileView(userId: widget.recipient.id!));
+              }
             },
             child: Row(
               children: [
                 Hero(
                   tag: 'chat_avatar_${widget.recipient.id}',
-                  child: CircleAvatar(
+                  child: SafeCachedAvatar(
+                    imageUrl: widget.recipient.userImage?.isNotEmpty == true
+                        ? widget.recipient.userImage![0]
+                        : null,
+                    fallbackName: widget.recipient.userName,
                     radius: 18,
                     backgroundColor: colorScheme.primary.withOpacity(0.1),
-                    backgroundImage:
-                        (widget.recipient.userImage != null &&
-                            widget.recipient.userImage!.isNotEmpty)
-                        ? CachedNetworkImageProvider(
-                            widget.recipient.userImage![0],
-                          )
-                        : null,
-                    child:
-                        (widget.recipient.userImage == null ||
-                            widget.recipient.userImage!.isEmpty)
-                        ? Text(
-                            (widget.recipient.userName ?? 'U')[0].toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: colorScheme.primary,
-                            ),
-                          )
-                        : null,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Text(
                   widget.recipient.userName ?? 'مجهول',
-                  style: TextStyle(
-                    color: colorScheme.onBackground,
-                    fontSize: 18,
-                  ),
+                  style: TextStyle(color: colorScheme.onSurface, fontSize: 18),
                 ),
               ],
             ),
           ),
           backgroundColor: theme.cardColor.withOpacity(0.5),
           elevation: 0,
-          iconTheme: IconThemeData(color: colorScheme.onBackground),
+          iconTheme: IconThemeData(color: colorScheme.onSurface),
         ),
         body: _buildBodyContent(context, theme, colorScheme),
       ),
@@ -242,14 +219,14 @@ class _ChatViewState extends State<ChatView> {
                     Icon(
                       Icons.chat_bubble_outline,
                       size: 64,
-                      color: colorScheme.onBackground.withOpacity(0.1),
+                      color: colorScheme.onSurface.withOpacity(0.1),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'لا توجد رسائل بعد.\nابدأ المحادثة الآن!',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: colorScheme.onBackground.withOpacity(0.3),
+                        color: colorScheme.onSurface.withOpacity(0.3),
                       ),
                     ),
                   ],
@@ -257,9 +234,29 @@ class _ChatViewState extends State<ChatView> {
               );
             }
 
-            WidgetsBinding.instance.addPostFrameCallback(
-              (_) => _scrollToBottom(),
-            );
+            // Smart auto-scroll:
+            // - On initial load (_previousMsgCount == 0), always scroll to bottom.
+            // - On new message, only scroll if user is already near the bottom.
+            final previousMsgCount = _previousMsgCount;
+            final isNewMessage = controller.messages.length > previousMsgCount;
+            final isInitialLoad = previousMsgCount == 0;
+            _previousMsgCount = controller.messages.length;
+
+            if (isNewMessage) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (_scrollController.hasClients) {
+                  final pos = _scrollController.position;
+                  final isNearBottom = pos.pixels >= pos.maxScrollExtent - 200;
+                  if (isInitialLoad || isNearBottom) {
+                    _scrollController.animateTo(
+                      pos.maxScrollExtent,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOut,
+                    );
+                  }
+                }
+              });
+            }
 
             return ListView.builder(
               controller: _scrollController,

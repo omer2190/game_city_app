@@ -9,6 +9,7 @@
 ///   aspectRatio: 0.85,
 /// )
 /// ```
+library;
 
 import 'package:flutter/material.dart';
 import '../../core/values/app_dimensions.dart';

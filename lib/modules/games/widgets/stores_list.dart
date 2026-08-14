@@ -5,7 +5,7 @@ class StoresList extends StatelessWidget {
   final List<dynamic> stores;
   final ValueSetter<String?> onTap;
 
-  const StoresList({required this.stores, required this.onTap});
+  const StoresList({super.key, required this.stores, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

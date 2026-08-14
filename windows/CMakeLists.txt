@@ -1,5 +1,7 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
+# Override CMAKE_POLICY_VERSION_MINIMUM for Firebase C++ SDK compatibility.
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
 project(game_city_app LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change

@@ -17,7 +17,7 @@ import 'desktop_section.dart';
 import 'desktop_two_columns.dart';
 
 class OwnerDesktopContent extends StatelessWidget {
-  OwnerDesktopContent();
+  const OwnerDesktopContent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -250,8 +250,9 @@ class OwnerDesktopContent extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Obx(() {
                   final team = auth.myTeam;
-                  if (auth.isTeamLoading.value)
+                  if (auth.isTeamLoading.value) {
                     return const Center(child: CircularProgressIndicator());
+                  }
                   if (team.isEmpty) {
                     return Center(
                       child: Padding(

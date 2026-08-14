@@ -54,8 +54,9 @@ class ChangePasswordView extends StatelessWidget {
                     prefixIcon: Icons.lock_outline,
                     obscureText: true,
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'يرجى إدخال كلمة المرور الحالية';
+                      }
                       return null;
                     },
                   ),
@@ -67,10 +68,12 @@ class ChangePasswordView extends StatelessWidget {
                     prefixIcon: Icons.lock_reset,
                     obscureText: true,
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'يرجى إدخال كلمة المرور الجديدة';
-                      if (value.length < 6)
+                      }
+                      if (value.length < 6) {
                         return 'يجب أن تكون 6 أحرف على الأقل';
+                      }
                       return null;
                     },
                   ),
@@ -82,8 +85,9 @@ class ChangePasswordView extends StatelessWidget {
                     prefixIcon: Icons.lock_clock_outlined,
                     obscureText: true,
                     validator: (value) {
-                      if (value != newPasswordController.text)
+                      if (value != newPasswordController.text) {
                         return 'كلمات المرور غير متطابقة';
+                      }
                       return null;
                     },
                   ),

@@ -96,15 +96,10 @@ class BlockedUsersView extends StatelessWidget {
         child: Row(
           children: [
             // صورة المستخدم
-            CircleAvatar(
+            SafeCachedAvatar(
+              imageUrl: userImage,
               radius: 28,
               backgroundColor: colorScheme.primary.withOpacity(0.2),
-              backgroundImage: userImage != null
-                  ? NetworkImage(userImage)
-                  : null,
-              child: userImage == null
-                  ? Icon(Icons.person, size: 28, color: colorScheme.primary)
-                  : null,
             ),
             const SizedBox(width: 12),
 

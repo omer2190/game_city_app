@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../../core/values/app_breakpoints.dart';
 import '../../../data/models/news_model.dart';
 import '../controllers/news_details_controller.dart';
 
@@ -17,76 +18,85 @@ class NewsDetailsInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDesktop = context.isDesktop;
+    final horizontalPad = isDesktop ? 24.0 : 16.0;
 
     return Column(
       children: [
         if (news.images != null && news.images!.isNotEmpty)
-          CachedNetworkImage(
-            imageUrl: news.images!.first,
-            placeholder: (context, url) => const CircularProgressIndicator(),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-            imageBuilder: (context, imageProvider) => Container(
-              constraints: const BoxConstraints(
-                minHeight: 150,
-                maxHeight: 300,
-                maxWidth: double.infinity,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: isDesktop ? 400 : 300),
+              child: CachedNetworkImage(
+                imageUrl: news.images!.first,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  height: isDesktop ? 300 : 200,
+                  color: Colors.grey[300],
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  height: isDesktop ? 300 : 200,
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.error, color: Colors.red),
+                ),
               ),
             ),
           ),
         if (news.images != null && news.images!.isNotEmpty)
-          const SizedBox(height: 16),
-        Row(
-          children: [
-            if (news.newsType?.title != null)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
+          SizedBox(height: isDesktop ? 20 : 16),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPad),
+          child: Row(
+            children: [
+              if (news.newsType?.title != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    news.newsType!.title!,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: isDesktop ? 13 : 12,
+                    ),
+                  ),
                 ),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  news.newsType!.title!,
+              const Spacer(),
+              Obx(
+                () => Text(
+                  '${controller.likesCount.value}',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: colorScheme.primary,
+                    fontSize: isDesktop ? 22 : 20,
                     fontWeight: FontWeight.bold,
-                    fontSize: 12,
                   ),
                 ),
               ),
-            const Spacer(),
-
-            Obx(
-              () => Text(
-                '${controller.likesCount.value}',
-                style: TextStyle(
-                  color: colorScheme.primary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              Obx(
+                () => IconButton(
+                  icon: Icon(
+                    controller.isLiked.value
+                        ? Icons.thumb_up_alt_rounded
+                        : Icons.thumb_up_alt_outlined,
+                    color: controller.isLiked.value
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withOpacity(0.5),
+                    size: isDesktop ? 30 : 28,
+                  ),
+                  onPressed: () => controller.toggleLike(news.id!),
                 ),
               ),
-            ),
-            Obx(
-              () => IconButton(
-                icon: Icon(
-                  controller.isLiked.value
-                      ? Icons.thumb_up_alt_rounded
-                      : Icons.thumb_up_alt_outlined,
-                  color: controller.isLiked.value
-                      ? colorScheme.primary
-                      : colorScheme.onSurface.withOpacity(0.5),
-                  size: 28,
-                ),
-                onPressed: () => controller.toggleLike(news.id!),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );

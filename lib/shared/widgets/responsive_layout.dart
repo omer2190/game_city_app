@@ -11,6 +11,7 @@
 ///   desktop: DesktopWidget(),
 /// )
 /// ```
+library;
 
 import 'package:flutter/material.dart';
 import '../../core/values/app_breakpoints.dart';

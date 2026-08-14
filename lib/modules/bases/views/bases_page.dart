@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:any_image_view/any_image_view.dart';
 import 'package:flutter/material.dart';
 import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/routes/app_routes.dart';
@@ -66,11 +68,11 @@ class BasesPage extends StatelessWidget {
               // --- Header ---
               SliverToBoxAdapter(child: Header(title: 'الواجهة الرئيسية')),
 
-              // --- Advertisements Carousel (responsive height) ---
+              // --- Advertisements Carousel (auto-slide, responsive) ---
               if (data.advertisements != null &&
                   data.advertisements!.isNotEmpty)
                 SliverToBoxAdapter(
-                  child: _buildAdsCarousel(context, data.advertisements!),
+                  child: AdsCarouselWidget(ads: data.advertisements!),
                 ),
 
               // --- Suggested Players ---
@@ -145,59 +147,7 @@ class BasesPage extends StatelessWidget {
     );
   }
 
-  // ─── Ads Carousel (responsive height) ──────────────────────────────────────
-
-  Widget _buildAdsCarousel(BuildContext context, List<Advertisement> ads) {
-    final isDesktop = context.isDesktop;
-    final height = isDesktop ? 320.0 : 180.0;
-    return SizedBox(
-      height: height,
-      child: PageView.builder(
-        controller: PageController(viewportFraction: isDesktop ? 0.85 : 0.9),
-        itemCount: ads.length,
-        itemBuilder: (context, index) {
-          final ad = ads[index];
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              image: (ad.imageUrl != null && ad.imageUrl!.isNotEmpty)
-                  ? DecorationImage(
-                      image: CachedNetworkImageProvider(ad.imageUrl!),
-                      fit: BoxFit.cover,
-                    )
-                  : const DecorationImage(
-                      image: NetworkImage(AppConstants.defaultGameImage),
-                      fit: BoxFit.cover,
-                    ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.6)],
-                ),
-              ),
-              child: const ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  // ─── Suggested Players ─────────────────────────────────────────────────────
+  // ─── News Item ─────────────────────────────────────────────────────────────
 
   Widget _buildSuggestedPlayers(
     BuildContext context,
@@ -226,7 +176,19 @@ class BasesPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final player = players[index];
               return GestureDetector(
-                onTap: () => Get.to(() => UserProfileView(userId: player.id!)),
+                // onTap: () => Get.to(() => UserProfileView(userId: player.id!)),
+                onTap: () {
+                  if (Get.width > AppBreakpoints.mobileBreakpoint) {
+                    Get.dialog(
+                      UserProfileView(
+                        userId: player.id ?? '',
+                        heroTag: 'avatar_${player.id}',
+                      ),
+                    );
+                  } else {
+                    Get.to(() => UserProfileView(userId: player.id!));
+                  }
+                },
                 child: Container(
                   width: 80,
                   margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -249,29 +211,11 @@ class BasesPage extends StatelessWidget {
                                 (player.userImage != null &&
                                     player.userImage!.isNotEmpty &&
                                     player.userImage!.first.isNotEmpty)
-                                ? CachedNetworkImage(
-                                    imageUrl: player.userImage!.first,
+                                ? AnyImageView(
+                                    imagePath: player.userImage!.first,
                                     width: 56,
                                     height: 56,
                                     fit: BoxFit.cover,
-                                    placeholder: (context, url) => Container(
-                                      color: Colors.transparent,
-                                      child: const Center(
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(
-                                          Icons.person,
-                                          color: Colors.white30,
-                                          size: 28,
-                                        ),
                                   )
                                 : const Icon(
                                     Icons.person,
@@ -658,7 +602,18 @@ class BasesPage extends StatelessWidget {
               if (user == null) return const SizedBox.shrink();
 
               return GestureDetector(
-                onTap: () => Get.to(() => UserProfileView(userId: user.id!)),
+                onTap: () {
+                  if (Get.width > AppBreakpoints.mobileBreakpoint) {
+                    Get.dialog(
+                      UserProfileView(
+                        userId: user.id ?? '',
+                        heroTag: 'avatar_${user.id}',
+                      ),
+                    );
+                  } else {
+                    Get.to(() => UserProfileView(userId: user.id!));
+                  }
+                },
                 child: Container(
                   width: 160,
                   margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -771,39 +726,19 @@ class BasesPage extends StatelessWidget {
                           child: Row(
                             children: [
                               // Avatar
-                              Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: game != null
-                                        ? colorScheme.primary
-                                        : Colors.grey,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 18,
-                                  backgroundColor: Colors.white10,
-                                  backgroundImage:
-                                      (user.userImage != null &&
-                                          user.userImage!.isNotEmpty &&
-                                          user.userImage!.first.isNotEmpty)
-                                      ? CachedNetworkImageProvider(
-                                          user.userImage!.first,
-                                        )
-                                      : null,
-                                  child:
-                                      (user.userImage == null ||
-                                          user.userImage!.isEmpty ||
-                                          user.userImage!.first.isEmpty)
-                                      ? const Icon(
-                                          Icons.person,
-                                          color: Colors.white30,
-                                          size: 18,
-                                        )
-                                      : null,
-                                ),
+                              SafeCachedAvatar(
+                                imageUrl:
+                                    (user.userImage != null &&
+                                        user.userImage!.isNotEmpty &&
+                                        user.userImage!.first.isNotEmpty)
+                                    ? user.userImage!.first
+                                    : null,
+                                radius: 18,
+                                backgroundColor: Colors.white10,
+                                borderColor: game != null
+                                    ? colorScheme.primary
+                                    : Colors.grey,
+                                borderWidth: 2,
                               ),
                               const SizedBox(width: 8),
                               // Name
@@ -931,6 +866,185 @@ class BasesPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Ads Carousel Widget – auto-slide, desktop-compatible, no image crop/distort
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class AdsCarouselWidget extends StatefulWidget {
+  final List<Advertisement> ads;
+
+  const AdsCarouselWidget({super.key, required this.ads});
+
+  @override
+  State<AdsCarouselWidget> createState() => _AdsCarouselWidgetState();
+}
+
+class _AdsCarouselWidgetState extends State<AdsCarouselWidget> {
+  late PageController _pageController;
+  Timer? _autoSlideTimer;
+  int _currentPage = 0;
+  bool _isUserInteracting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _startAutoSlide();
+  }
+
+  void _startAutoSlide() {
+    _autoSlideTimer?.cancel();
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!mounted || _isUserInteracting) return;
+
+      final total = widget.ads.length;
+      if (total == 0) return;
+
+      final nextPage = (_currentPage + 1) % total;
+      _pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
+      );
+    });
+  }
+
+  void _onUserInteraction() {
+    _isUserInteracting = true;
+    _autoSlideTimer?.cancel();
+    // Resume auto-slide after 6 seconds of no interaction
+    Future.delayed(const Duration(seconds: 6), () {
+      if (mounted) {
+        _isUserInteracting = false;
+        _startAutoSlide();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoSlideTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > AppBreakpoints.mobileBreakpoint;
+
+    // Responsive sizing
+    final carouselHeight = isDesktop ? 340.0 : 200.0;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // ─── Carousel ────────────────────────────────────────────────
+        SizedBox(
+          height: carouselHeight,
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (_) {
+              _onUserInteraction();
+              return false;
+            },
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: carouselHeight,
+                minWidth: 500,
+                maxWidth: 700,
+              ),
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: widget.ads.length,
+                onPageChanged: (index) {
+                  setState(() => _currentPage = index);
+                },
+                itemBuilder: (context, index) {
+                  final ad = widget.ads[index];
+                  return _AdCard(ad: ad);
+                },
+              ),
+            ),
+          ),
+        ),
+
+        // ─── Dot Indicators ─────────────────────────────────────────
+        if (widget.ads.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.ads.length, (index) {
+                final isActive = _currentPage == index;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 350),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: isActive ? 24 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: isActive
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.white24,
+                  ),
+                );
+              }),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ─── Single Ad Card ─────────────────────────────────────────────────────────
+
+class _AdCard extends StatelessWidget {
+  final Advertisement ad;
+  const _AdCard({required this.ad});
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > AppBreakpoints.mobileBreakpoint;
+
+    return Container(
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+      child: (ad.imageUrl != null && ad.imageUrl!.isNotEmpty)
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: CachedNetworkImage(
+                imageUrl: ad.imageUrl!,
+                fit: BoxFit.contain,
+                imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Image(image: imageProvider, fit: BoxFit.cover),
+                ),
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                errorWidget: (context, url, error) => const Center(
+                  child: Icon(
+                    Icons.campaign_outlined,
+                    color: Colors.white24,
+                    size: 56,
+                  ),
+                ),
+              ),
+            )
+          : const Center(
+              child: Icon(
+                Icons.campaign_outlined,
+                color: Colors.white24,
+                size: 56,
+              ),
+            ),
     );
   }
 }

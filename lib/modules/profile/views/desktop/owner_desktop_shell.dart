@@ -10,6 +10,8 @@ import 'package:get/get.dart';
 import 'owner_desktop_content.dart';
 
 class OwnerDesktopShell extends StatelessWidget {
+  const OwnerDesktopShell({super.key});
+
   @override
   Widget build(BuildContext context) {
     final AuthController auth = Get.put(AuthController());

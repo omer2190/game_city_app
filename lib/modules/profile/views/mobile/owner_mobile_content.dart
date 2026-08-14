@@ -14,7 +14,7 @@ import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
 
 class OwnerMobileContent extends StatelessWidget {
-  OwnerMobileContent();
+  const OwnerMobileContent({super.key});
 
   void _showTeamSheet(BuildContext context) {
     final auth = Get.find<AuthController>();
@@ -70,8 +70,9 @@ class OwnerMobileContent extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Obx(() {
                   final team = auth.myTeam;
-                  if (auth.isTeamLoading.value)
+                  if (auth.isTeamLoading.value) {
                     return const Center(child: CircularProgressIndicator());
+                  }
                   if (team.isEmpty) {
                     return Center(
                       child: Padding(

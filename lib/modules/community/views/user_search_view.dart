@@ -1,7 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/shared/header.dart';
 import 'package:game_city_app/shared/layout_mine.dart';
+import 'package:game_city_app/shared/widgets/safe_cached_avatar.dart';
 import 'package:get/get.dart';
 import '../controllers/friends_controller.dart';
 import '../controllers/suggested_friends_controller.dart';
@@ -180,23 +181,32 @@ class UserSearchView extends StatelessWidget {
           child: Row(
             children: [
               GestureDetector(
-                onTap: () => Get.to(
-                  () => UserProfileView(
-                    userId: user.id ?? '',
-                    heroTag: 'search_avatar_${user.id}',
-                  ),
-                ),
+                // onTap: () => Get.to(
+                //   () => UserProfileView(
+                //     userId: user.id ?? '',
+                //     heroTag: 'search_avatar_${user.id}',
+                //   ),
+                // ),
+                onTap: () {
+                  if (Get.width > AppBreakpoints.mobileBreakpoint) {
+                    Get.dialog(
+                      UserProfileView(
+                        userId: user.id ?? '',
+                        heroTag: 'search_avatar_${user.id}',
+                      ),
+                    );
+                  } else {
+                    Get.to(() => UserProfileView(userId: user.id!));
+                  }
+                },
                 child: Hero(
                   tag: 'search_avatar_${user.id}',
-                  child: CircleAvatar(
+                  child: SafeCachedAvatar(
+                    imageUrl: user.userImage?.isNotEmpty == true
+                        ? user.userImage!.first
+                        : null,
+                    fallbackName: user.userName,
                     radius: 25,
-                    backgroundImage:
-                        (user.userImage != null && user.userImage!.isNotEmpty)
-                        ? CachedNetworkImageProvider(user.userImage!.first)
-                        : null,
-                    child: (user.userImage == null || user.userImage!.isEmpty)
-                        ? const Icon(Icons.person)
-                        : null,
                   ),
                 ),
               ),

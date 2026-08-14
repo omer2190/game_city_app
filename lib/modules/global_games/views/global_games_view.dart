@@ -45,13 +45,13 @@ class GlobalGamesView extends StatelessWidget {
                       Icon(
                         Icons.search_off,
                         size: 64,
-                        color: colorScheme.onBackground.withOpacity(0.1),
+                        color: colorScheme.onSurface.withOpacity(0.1),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'لم نجد هذه اللعبة في مكتبتنا',
                         style: TextStyle(
-                          color: colorScheme.onBackground.withOpacity(0.3),
+                          color: colorScheme.onSurface.withOpacity(0.3),
                           fontSize: 16,
                         ),
                       ),

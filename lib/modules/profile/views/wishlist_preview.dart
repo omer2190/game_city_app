@@ -5,6 +5,8 @@ import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
 
 class WishlistPreview extends StatelessWidget {
+  const WishlistPreview({super.key});
+
   @override
   Widget build(BuildContext context) {
     final WishlistController wc = Get.find<WishlistController>();

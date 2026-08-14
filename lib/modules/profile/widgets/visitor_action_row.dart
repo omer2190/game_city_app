@@ -11,6 +11,7 @@ class VisitorActionRow extends StatelessWidget {
   final ColorScheme colorScheme;
 
   const VisitorActionRow({
+    super.key,
     required this.controller,
     required this.user,
     required this.colorScheme,
@@ -19,8 +20,9 @@ class VisitorActionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = Get.find<AuthController>();
-    if (auth.userModel.value?.id?.toString() == user.id?.toString())
+    if (auth.userModel.value?.id?.toString() == user.id?.toString()) {
       return const SizedBox.shrink();
+    }
 
     return Obx(() {
       if (controller.isSendingRequest.value || controller.isBlocking.value) {

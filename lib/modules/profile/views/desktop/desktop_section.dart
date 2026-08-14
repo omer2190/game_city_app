@@ -4,7 +4,7 @@ import 'package:game_city_app/modules/profile/widgets/section_title.dart';
 class DesktopSection extends StatelessWidget {
   final String title;
   final Widget child;
-  const DesktopSection({required this.title, required this.child});
+  const DesktopSection({super.key, required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {

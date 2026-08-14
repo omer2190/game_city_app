@@ -77,7 +77,19 @@ class _NewsDetailsViewState extends State<NewsDetailsView> {
                   ),
                 ),
                 const Expanded(
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text(
+                          'جاري تحميل تفاصيل الخبر...',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -95,9 +107,38 @@ class _NewsDetailsViewState extends State<NewsDetailsView> {
                     icon: const Icon(Icons.arrow_back_ios_new_rounded),
                   ),
                 ),
-                const Expanded(
+                Expanded(
                   child: Center(
-                    child: Text('حدث خطأ أثناء تحميل تفاصيل الخبر.'),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline_rounded,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'حدث خطأ أثناء تحميل تفاصيل الخبر.',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _newsFuture = _newsRepository
+                                  .getNewsById(newsId)
+                                  .then((fetchedNews) {
+                                    controller.initDetails(fetchedNews);
+                                    return fetchedNews;
+                                  });
+                            });
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('إعادة المحاولة'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -124,8 +165,18 @@ class _NewsDetailsViewState extends State<NewsDetailsView> {
               if (snapshot.connectionState == ConnectionState.waiting)
                 Positioned.fill(
                   child: Container(
-                    color: Colors.black26,
-                    child: const Center(child: CircularProgressIndicator()),
+                    color: Theme.of(
+                      context,
+                    ).scaffoldBackgroundColor.withOpacity(0.3),
+                    child: const Center(
+                      child: Card(
+                        elevation: 4,
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -158,36 +209,57 @@ class _NewsDetailsViewState extends State<NewsDetailsView> {
   }
 
   Widget _buildDesktopContent(News displayNews) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const NewsDetailsHeader(),
-                    NewsDetailsInfo(news: displayNews, controller: controller),
-                    NewsDetailsBody(news: displayNews),
-                  ],
-                ),
+    final screenWidth = MediaQuery.of(context).size.width;
+    final maxContentWidth = screenWidth > 1400 ? 1200.0 : screenWidth * 0.85;
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxContentWidth),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Main content column (left side)
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const NewsDetailsHeader(),
+                        NewsDetailsInfo(
+                          news: displayNews,
+                          controller: controller,
+                        ),
+                        NewsDetailsBody(news: displayNews),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  // Comments column (right side) - independently scrollable
+                  Expanded(
+                    flex: 3,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height - 120,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: NewsDetailsComments(
+                          newsId: displayNews.id!,
+                          controller: controller,
+                          commentController: commentController,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 24),
-              Expanded(
-                flex: 2,
-                child: NewsDetailsComments(
-                  newsId: displayNews.id!,
-                  controller: controller,
-                  commentController: commentController,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:game_city_app/modules/community/views/user_profile_view.dart'
     show UserProfileView;
 import 'package:get/get.dart';
+import '../../../core/values/app_breakpoints.dart';
 import '../../../data/models/comments.dart';
 import '../controllers/news_details_controller.dart';
 import '../../../shared/widgets/widgets.dart';
@@ -21,142 +22,159 @@ class NewsDetailsComments extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDesktop = context.isDesktop;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'التعليقات',
-            style: TextStyle(
-              color: colorScheme.onSurface,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+    final commentsContent = Obx(() {
+      if (controller.isLoadingComments.value) {
+        return const Center(
+          child: LoadingWidget(message: 'جاري تحميل التعليقات...'),
+        );
+      }
+      if (controller.comments.isEmpty) {
+        return CustomCard(
+          width: double.infinity,
+          padding: const EdgeInsets.all(30),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.chat_bubble_outline_rounded,
+                  size: 48,
+                  color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'كن أول من يعلق!',
+                  style: TextStyle(
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Obx(() {
-          if (controller.isLoadingComments.value) {
-            return const Center(
-              child: LoadingWidget(message: 'جاري تحميل التعليقات...'),
-            );
-          }
-          if (controller.comments.isEmpty) {
-            return CustomCard(
-              width: double.infinity,
-              padding: const EdgeInsets.all(30),
-              child: Center(
-                child: Text(
-                  'كن أول من يعلق!',
-                  style: TextStyle(color: colorScheme.onSurfaceVariant),
-                ),
-              ),
-            );
-          }
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: controller.comments.length,
-              itemBuilder: (context, index) {
-                final Comments comment = controller.comments[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: CustomCard(
-                    color: Theme.of(context).primaryColor,
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
+        );
+      }
+      return ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: isDesktop ? 8 : 16),
+        itemCount: controller.comments.length,
+        itemBuilder: (context, index) {
+          final Comments comment = controller.comments[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: CustomCard(
+              color: Theme.of(context).primaryColor,
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      if (isDesktop) {
+                        Get.dialog(
+                          UserProfileView(
+                            userId: comment.userId!.id ?? '',
+                            heroTag: 'avatar_${comment.userId!.id}',
+                          ),
+                        );
+                      } else {
+                        Get.to(
+                          () => UserProfileView(userId: comment.userId!.id!),
+                        );
+                      }
+                    },
+                    child: SafeCachedAvatar(
+                      imageUrl:
+                          (comment.userId?.userImage != null &&
+                              comment.userId!.userImage!.isNotEmpty)
+                          ? comment.userId!.userImage!.first
+                          : null,
+                      fallbackName: comment.userId?.firstName,
+                      radius: 20,
+                      backgroundColor: colorScheme.secondary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GestureDetector(
-                          onTap: () => Get.to(
-                            () => UserProfileView(userId: comment.userId!.id!),
-                          ),
-                          child: CircleAvatar(
-                            radius: 20,
-                            backgroundColor: colorScheme.secondary,
-                            child: comment.userId!.userImage!.isEmpty
-                                ? Text(
-                                    (comment.userId?.firstName ?? 'U')[0]
-                                        .toUpperCase(),
-                                    style: TextStyle(
-                                      color: colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                : CircleAvatar(
-                                    radius: 18,
-                                    backgroundImage: NetworkImage(
-                                      comment.userId!.userImage!.first,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                "${comment.userId?.firstName ?? 'مستخدم'} ${comment.userId?.lastName ?? ''}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (controller.isMyComment(comment.userId?.id))
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(
-                                    "${comment.userId?.firstName ?? 'مستخدم'} ${comment.userId?.lastName ?? ''}",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      color: Colors.black,
+                                  IconButton(
+                                    constraints: const BoxConstraints(),
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      size: 16,
+                                      color: Colors.redAccent,
                                     ),
+                                    onPressed: () =>
+                                        _confirmDelete(context, comment.id!),
                                   ),
-                                  if (controller.isMyComment(
-                                    comment.userId?.id,
-                                  ))
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          constraints: const BoxConstraints(),
-                                          padding: EdgeInsets.zero,
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            size: 16,
-                                            color: Colors.redAccent,
-                                          ),
-                                          onPressed: () => _confirmDelete(
-                                            context,
-                                            comment.id!,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                comment.content ?? '',
-                                style: const TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 13,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          comment.content ?? '',
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontSize: 13,
+                            height: 1.4,
                           ),
                         ),
                       ],
                     ),
                   ),
-                );
-              },
+                ],
+              ),
             ),
           );
-        }),
-        const SizedBox(height: 24),
+        },
+      );
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (isDesktop) SizedBox(height: isDesktop ? 28 : 24),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 8 : 16),
+          child: Text(
+            'التعليقات',
+            style: TextStyle(
+              color: colorScheme.onSurface,
+              fontSize: isDesktop ? 16 : 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        // On desktop: Expanded makes the list scrollable within bounded height.
+        // On mobile: flexible height inside the page scroll.
+        if (isDesktop) Expanded(child: commentsContent) else commentsContent,
+        const SizedBox(height: 16),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 8 : 16),
           child: Row(
             children: [
               Expanded(
@@ -188,7 +206,7 @@ class NewsDetailsComments extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 24),
       ],
     );
   }

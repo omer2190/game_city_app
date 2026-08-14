@@ -43,7 +43,7 @@ class GuestView extends StatelessWidget {
               'مرحباً بك في مدينة الألعاب',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: colorScheme.onBackground,
+                color: colorScheme.onSurface,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -53,7 +53,7 @@ class GuestView extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: colorScheme.onBackground.withOpacity(0.6),
+                color: colorScheme.onSurface.withOpacity(0.6),
                 fontSize: 16,
                 height: 1.5,
               ),

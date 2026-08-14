@@ -1,5 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:game_city_app/shared/widgets/widgets.dart';
+import '../../../core/values/app_breakpoints.dart';
 import '../../../data/models/news_model.dart';
 
 class NewsDetailsBody extends StatelessWidget {
@@ -10,92 +11,90 @@ class NewsDetailsBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDesktop = context.isDesktop;
+    final horizontalPad = isDesktop ? 24.0 : 16.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 24),
+        SizedBox(height: isDesktop ? 28 : 24),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPad),
           child: Text(
             news.title ?? 'تفاصيل الخبر',
-            style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: isDesktop ? 20 : 16.0,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         // تاريخ النشر
         if (news.updatedAt != null)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPad,
+              vertical: 8,
+            ),
             child: Text(
               'اخر تحديث: ${news.updatedAt!.toLocal().toString().split(' ')[0]}',
               style: TextStyle(
                 color: colorScheme.onSurfaceVariant,
-                fontSize: 12,
+                fontSize: isDesktop ? 13 : 12,
               ),
             ),
           ),
-        const SizedBox(height: 16),
+        SizedBox(height: isDesktop ? 20 : 16),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPad),
           child: Text(
             news.contentNew ?? '',
             style: TextStyle(
               color: colorScheme.onSurfaceVariant,
-              fontSize: 16,
+              fontSize: isDesktop ? 17 : 16,
               height: 1.8,
             ),
           ),
         ),
-        const SizedBox(height: 40),
+        SizedBox(height: isDesktop ? 48 : 40),
         // معلومات الكاتب
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPad),
           child: Text(
             'الكاتب',
             style: TextStyle(
               color: colorScheme.onSurface,
-              fontSize: 14,
+              fontSize: isDesktop ? 15 : 14,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: isDesktop ? 14 : 12),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPad),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 20,
+              SafeCachedAvatar(
+                imageUrl:
+                    (news.userId?.userImage != null &&
+                        news.userId!.userImage!.isNotEmpty)
+                    ? news.userId!.userImage!.first
+                    : null,
+                fallbackName: news.userId?.firstName,
+                radius: isDesktop ? 22 : 20,
                 backgroundColor: colorScheme.primary.withOpacity(0.1),
-                backgroundImage:
-                    news.userId?.userImage != null &&
-                        news.userId!.userImage!.isNotEmpty
-                    ? CachedNetworkImageProvider(news.userId!.userImage!.first)
-                    : null,
-                child:
-                    news.userId?.userImage == null ||
-                        news.userId!.userImage!.isEmpty
-                    ? Text(
-                        (news.userId?.firstName ?? 'U')[0].toUpperCase(),
-                        style: TextStyle(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    : null,
               ),
               const SizedBox(width: 12),
               Text(
                 "${news.userId?.firstName ?? 'كاتب'} ${news.userId?.lastName ?? ''}",
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: isDesktop ? 15 : 14,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: isDesktop ? 28 : 24),
       ],
     );
   }

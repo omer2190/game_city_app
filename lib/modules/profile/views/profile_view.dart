@@ -9,7 +9,7 @@ class ProfileView extends StatelessWidget {
   final String? userId;
   final String? heroTag;
 
-  ProfileView({super.key, this.userId, this.heroTag});
+  const ProfileView({super.key, this.userId, this.heroTag});
 
   bool get isOwner => userId == null;
 

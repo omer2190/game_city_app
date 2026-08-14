@@ -94,30 +94,23 @@ class _NewsViewState extends State<NewsView> {
   }
 
   Widget _buildNewsGrid(BuildContext context) {
-    final cols = context.isWide ? 4 : 3;
-    return GridView.builder(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: cols,
-        childAspectRatio: 0.65,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
+    return SingleChildScrollView(
+      child: Wrap(
+        spacing: 16,
+        runSpacing: 16,
+        children: [
+          for (final news in controller.filteredNews)
+            Container(
+              constraints: const BoxConstraints(maxWidth: 400, minHeight: 350),
+              child: NewsCard(news: news),
+            ),
+          if (controller.isMoreLoading.value)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            ),
+        ],
       ),
-      itemCount:
-          controller.filteredNews.length +
-          (controller.isMoreLoading.value ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index < controller.filteredNews.length) {
-          final news = controller.filteredNews[index];
-          return NewsCard(news: news);
-        } else {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 20),
-            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-          );
-        }
-      },
     );
   }
 }

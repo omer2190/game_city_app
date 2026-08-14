@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DesktopTwoColumns extends StatelessWidget {
   final Widget left;
   final Widget right;
-  const DesktopTwoColumns({required this.left, required this.right});
+  const DesktopTwoColumns({super.key, required this.left, required this.right});
 
   @override
   Widget build(BuildContext context) {

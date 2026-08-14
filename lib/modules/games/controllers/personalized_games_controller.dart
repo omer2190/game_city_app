@@ -99,6 +99,7 @@ class PersonalizedGamesController extends GetxController {
   }
 
   /// Pull-to-refresh: refresh sections or search results depending on mode
+  @override
   Future<void> refresh() async {
     if (isSearchMode.value) {
       await _fetchGames(reset: true);

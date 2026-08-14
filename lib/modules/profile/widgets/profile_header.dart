@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../auth/controllers/auth_controller.dart';
@@ -491,22 +492,14 @@ class ProfileHeader extends StatelessWidget {
 
   Widget _buildAvatar(Map<String, dynamic> userData, ColorScheme colorScheme) {
     final images = userData['userImage'] as List?;
-    return (images != null && images.isNotEmpty)
-        ? CircleAvatar(
-            radius: 44,
-            backgroundImage: CachedNetworkImageProvider(images[0]),
-          )
-        : CircleAvatar(
-            radius: 44,
-            backgroundColor: colorScheme.primary.withOpacity(0.25),
-            child: Text(
-              (userData['userName'] ?? 'U')[0].toUpperCase(),
-              style: const TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          );
+    final userName = userData['userName'] as String? ?? 'U';
+    return SafeCachedAvatar(
+      imageUrl: (images != null && images.isNotEmpty)
+          ? images[0] as String?
+          : null,
+      fallbackName: userName,
+      radius: 44,
+      backgroundColor: colorScheme.primary.withOpacity(0.25),
+    );
   }
 }

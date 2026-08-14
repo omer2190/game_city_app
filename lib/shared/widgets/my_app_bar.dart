@@ -1,11 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:game_city_app/modules/auth/controllers/auth_controller.dart';
+import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../core/values/app_breakpoints.dart';
 import '../../core/values/app_dimensions.dart';
 import '../../modules/notifications/controllers/notifications_controller.dart';
+import '../../modules/profile/views/profile_view.dart';
 import 'notifications_popup.dart';
 
 AppBar myAppBar(BuildContext context) {
@@ -37,22 +38,33 @@ AppBar myAppBar(BuildContext context) {
               children: [
                 if (Get.width < 600) ...[
                   GestureDetector(
-                    onTap: () => Get.toNamed('/profile'),
-                    child: CircleAvatar(
-                      radius: isDesktop ? 24 : 20,
-                      backgroundColor: theme.colorScheme.primary,
-                      backgroundImage:
-                          authController.userModel.value?.userImage != null &&
-                              authController
-                                  .userModel
-                                  .value!
-                                  .userImage!
-                                  .isNotEmpty
-                          ? CachedNetworkImageProvider(
-                              authController.userModel.value!.userImage![0],
-                            )
-                          : null,
-                    ),
+                    onTap: () {
+                      if (Get.width > AppBreakpoints.mobileBreakpoint) {
+                        Get.dialog(
+                          ProfileView(
+                            // userId: authController.userModel.value?.id ?? '',
+                            // heroTag:
+                            //     'avatar_${authController.userModel.value?.id}',
+                          ),
+                        );
+                      } else {
+                        Get.toNamed('/profile');
+                      }
+                    },
+                    child: Obx(() {
+                      final user = authController.userModel.value;
+                      final img =
+                          (user?.userImage != null &&
+                              user!.userImage!.isNotEmpty)
+                          ? user.userImage!.first
+                          : null;
+                      return SafeCachedAvatar(
+                        imageUrl: img,
+                        fallbackName: user?.firstName,
+                        radius: isDesktop ? 24 : 20,
+                        backgroundColor: theme.colorScheme.primary,
+                      );
+                    }),
                   ),
                   const SizedBox(width: 12),
                   Obx(() {

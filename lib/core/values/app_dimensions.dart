@@ -8,6 +8,7 @@
 /// final pad = AppDimensions.horizontalPadding(context); // 16 | 24 | 32
 /// final cols = AppDimensions.gridCrossAxisCount(context); // 2 | 3 | 5
 /// ```
+library;
 
 import 'package:flutter/material.dart';
 import 'app_breakpoints.dart';

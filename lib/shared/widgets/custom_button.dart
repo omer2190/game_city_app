@@ -36,28 +36,28 @@ class CustomButton extends StatelessWidget {
     final fontSize = AppDimensions.scaledFontSize(context, 16);
 
     Color backgroundColor = this.backgroundColor ?? colorScheme.primary;
-    Color foregroundColor = this.textColor ?? colorScheme.onPrimary;
+    Color foregroundColor = textColor ?? colorScheme.onPrimary;
     BorderSide? borderSide;
 
     switch (type) {
       case ButtonType.primary:
         backgroundColor = this.backgroundColor ?? colorScheme.primary;
-        foregroundColor = this.textColor ?? colorScheme.onPrimary;
+        foregroundColor = textColor ?? colorScheme.onPrimary;
         borderSide = null;
         break;
       case ButtonType.secondary:
         backgroundColor = this.backgroundColor ?? colorScheme.secondary;
-        foregroundColor = this.textColor ?? colorScheme.onSecondary;
+        foregroundColor = textColor ?? colorScheme.onSecondary;
         borderSide = null;
         break;
       case ButtonType.outline:
         backgroundColor = Colors.transparent;
-        foregroundColor = this.textColor ?? colorScheme.primary;
+        foregroundColor = textColor ?? colorScheme.primary;
         borderSide = BorderSide(color: colorScheme.primary, width: 2);
         break;
       case ButtonType.text:
         backgroundColor = Colors.transparent;
-        foregroundColor = this.textColor ?? colorScheme.primary;
+        foregroundColor = textColor ?? colorScheme.primary;
         borderSide = null;
         break;
     }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../data/models/invitation_model.dart';
 import '../../../shared/widgets/widgets.dart';
 
@@ -100,19 +99,10 @@ class TeamListCard extends StatelessWidget {
                   child: Row(
                     children: [
                       // Avatar
-                      CircleAvatar(
+                      SafeCachedAvatar(
+                        imageUrl: imageUrl,
                         radius: 22,
                         backgroundColor: colorScheme.primary.withOpacity(0.15),
-                        backgroundImage: imageUrl != null
-                            ? CachedNetworkImageProvider(imageUrl)
-                            : null,
-                        child: imageUrl == null
-                            ? Icon(
-                                Icons.person,
-                                color: colorScheme.primary,
-                                size: 24,
-                              )
-                            : null,
                       ),
                       const SizedBox(width: 14),
 

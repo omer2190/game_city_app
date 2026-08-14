@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../data/models/game_model.dart';
 import '../../../shared/widgets/widgets.dart';
 import '../../global_games/views/global_games_view.dart';
+import '../../installed_games/views/installed_games_view.dart';
 
 class ProfilePlayNowSection extends StatelessWidget {
   final List<dynamic> playNow;
@@ -23,8 +24,17 @@ class ProfilePlayNowSection extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: () => Get.to(() => GlobalGamesView()),
+                tooltip: 'إضافة لعبة من المكتبة',
                 icon: Icon(
                   Icons.add_circle_outline,
+                  color: colorScheme.primary,
+                ),
+              ),
+              IconButton(
+                onPressed: () => Get.to(() => InstalledGamesView()),
+                tooltip: 'استيراد الألعاب المثبتة على جهازك',
+                icon: Icon(
+                  Icons.download_for_offline_outlined,
                   color: colorScheme.primary,
                 ),
               ),

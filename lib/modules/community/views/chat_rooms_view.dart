@@ -29,14 +29,12 @@ class ChatRoomsView extends StatelessWidget {
               Icon(
                 Icons.chat_bubble_outline,
                 size: 64,
-                color: colorScheme.onBackground.withOpacity(0.1),
+                color: colorScheme.onSurface.withOpacity(0.1),
               ),
               const SizedBox(height: 12),
               Text(
                 'لا توجد غرف متاحة حالياً',
-                style: TextStyle(
-                  color: colorScheme.onBackground.withOpacity(0.3),
-                ),
+                style: TextStyle(color: colorScheme.onSurface.withOpacity(0.3)),
               ),
             ],
           ),
@@ -98,8 +96,9 @@ class ChatRoomsView extends StatelessWidget {
                             ),
                             Obx(() {
                               final lastMsg = controller.lastMessages[roomId];
-                              if (lastMsg == null)
+                              if (lastMsg == null) {
                                 return const SizedBox.shrink();
+                              }
 
                               final date = DateTime.fromMillisecondsSinceEpoch(
                                 lastMsg['timestamp'] as int,

@@ -4,6 +4,7 @@ import 'package:game_city_app/data/models/user_model.dart';
 import 'package:game_city_app/modules/auth/controllers/auth_controller.dart';
 import 'package:game_city_app/modules/community/controllers/user_profile_controller.dart';
 import 'package:game_city_app/modules/profile/widgets/visitor_action_row.dart';
+import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -122,36 +123,11 @@ class DesktopBanner extends StatelessWidget {
                           ),
                           color: cs.surface,
                         ),
-                        child: CircleAvatar(
+                        child: SafeCachedAvatar(
+                          imageUrl: avatarUrl,
+                          fallbackName: name,
                           radius: 46,
                           backgroundColor: cs.primary.withOpacity(0.2),
-                          backgroundImage: avatarUrl != null
-                              ? CachedNetworkImageProvider(avatarUrl!)
-                              : null,
-                          child: isLoading
-                              ? Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.black54,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Center(
-                                    child: SizedBox(
-                                      width: 28,
-                                      height: 28,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.5,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : avatarUrl == null
-                              ? Icon(
-                                  Icons.person,
-                                  size: 46,
-                                  color: Colors.white.withOpacity(0.7),
-                                )
-                              : null,
                         ),
                       ),
                     ),

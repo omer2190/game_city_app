@@ -29,6 +29,12 @@ class ChatRepository {
     );
   }
 
+  Future<Map<String, dynamic>> leaveRoom(String roomId) async {
+    return await _apiClient.post(
+      '${ApiConstants.baseUrl}/api/chat/rooms/$roomId/leave',
+    );
+  }
+
   Future<Map<String, dynamic>> sendRoomMessage(
     String roomId,
     String content, {

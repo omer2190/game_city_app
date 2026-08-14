@@ -22,9 +22,13 @@ class NewsCard extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               if (news.images != null && news.images!.isNotEmpty)
-                Expanded(flex: 3, child: _buildImageStack(context)),
+                AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: _buildImageStack(context),
+                ),
               if (news.images != null && news.images!.isNotEmpty)
                 const SizedBox(height: 8),
               _buildNewsTypeTag(context),
@@ -73,7 +77,7 @@ class NewsCard extends StatelessWidget {
               child: const Icon(Icons.error, color: Colors.red),
             ),
             width: double.infinity,
-            fit: BoxFit.cover,
+            fit: BoxFit.fitWidth,
           ),
           if (news.newsType?.title != null)
             Positioned(top: 8, right: 8, child: _buildBadge(context)),

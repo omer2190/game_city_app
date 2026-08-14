@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 
 Widget buildVisitorSocialMediaCard(BuildContext context, UserModel user) {
   final links = user.socialMedia;
-  if (links == null || links.isEmpty)
+  if (links == null || links.isEmpty) {
     return CustomCard(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -21,6 +21,7 @@ Widget buildVisitorSocialMediaCard(BuildContext context, UserModel user) {
         ),
       ),
     );
+  }
   return CustomCard(
     padding: EdgeInsets.zero,
     child: Column(

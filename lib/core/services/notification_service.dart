@@ -13,7 +13,10 @@ class NotificationService extends GetxService {
   final _fcm = FirebaseMessaging.instance;
   final _local = FlutterLocalNotificationsPlugin();
 
-  static String? activeRoomId;
+  /// Tracks all currently active (open) room IDs to suppress notifications
+  /// for rooms the user is currently viewing. Supports split-panel scenarios
+  /// where multiple chats may be open simultaneously.
+  static final Set<String> activeRoomIds = {};
 
   Future<NotificationService> init() async {
     try {
@@ -71,7 +74,7 @@ class NotificationService extends GetxService {
 
   void _foregroundHandler(RemoteMessage message) {
     final roomId = message.data['targetId'];
-    if (activeRoomId != null && activeRoomId == roomId) return;
+    if (roomId != null && activeRoomIds.contains(roomId)) return;
 
     _showLocalNotification(message);
   }
