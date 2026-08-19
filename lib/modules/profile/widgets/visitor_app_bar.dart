@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/level_assets.dart';
 import 'package:game_city_app/data/models/user_model.dart';
 import 'package:game_city_app/modules/auth/controllers/auth_controller.dart';
 import 'package:game_city_app/modules/community/controllers/user_profile_controller.dart';
@@ -113,63 +114,80 @@ class VisitorAppBar extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       boxShadow: [
-                        BoxShadow(
-                          color: cs.primary.withOpacity(0.35),
-                          blurRadius: 12,
-                          spreadRadius: 2,
-                        ),
+                        // BoxShadow(
+                        //   color: cs.primary.withOpacity(0.35),
+                        //   blurRadius: 12,
+                        //   spreadRadius: 2,
+                        // ),
                       ],
                     ),
                     child: Hero(
                       tag: heroTag ?? 'avatar_${user.id}',
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: cs.primary.withOpacity(0.6),
-                            width: 2.5,
-                          ),
-                        ),
+                        // decoration: BoxDecoration(
+                        //   shape: BoxShape.circle,
+                        //   border: Border.all(
+                        //     color: cs.primary.withOpacity(0.6),
+                        //     width: 2.5,
+                        //   ),
+                        // ),
                         child: SafeCachedAvatar(
-                          imageUrl:
-                              (user.userImage != null &&
-                                  user.userImage!.isNotEmpty)
-                              ? user.userImage!.first
-                              : null,
+                          user: user,
                           radius: 42,
-                          backgroundColor: cs.primary.withOpacity(0.25),
+                          // backgroundColor: cs.primary.withOpacity(0.25),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
                   if (fullName.isNotEmpty)
-                    Text(
-                      fullName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black54,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            fullName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black54,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                        ],
-                      ),
-                    ),
-                  Text(
-                    '@${user.userName ?? ''}',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.75),
-                      fontSize: 14,
-                      shadows: const [
-                        Shadow(color: Colors.black38, blurRadius: 4),
+                        ),
                       ],
                     ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        user.levelName ?? '',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.75),
+                          fontSize: 14,
+                          shadows: const [
+                            Shadow(color: Colors.black38, blurRadius: 4),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      LevelEmoji(
+                        level: LevelAssets.levelOf(user) ?? 0,
+                        height: 24,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   if (auth.userModel.value?.id?.toString() !=

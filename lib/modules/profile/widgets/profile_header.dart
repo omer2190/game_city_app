@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/level_assets.dart';
 import 'package:game_city_app/shared/widgets/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../data/models/user_model.dart';
 import '../../auth/controllers/auth_controller.dart';
 import 'edit_profile_bottom_sheet.dart';
 
@@ -332,22 +334,37 @@ class ProfileHeader extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  // Name
-                  Text(
-                    '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withOpacity(0.7),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                  // Name + level emoji
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '${user['firstName'] ?? ''} ${user['lastName'] ?? ''}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.7),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 6),
+                      LevelEmoji(
+                        level: LevelAssets.levelFromMap(user) ?? 0,
+                        height: 24,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                 ],
@@ -491,13 +508,8 @@ class ProfileHeader extends StatelessWidget {
   }
 
   Widget _buildAvatar(Map<String, dynamic> userData, ColorScheme colorScheme) {
-    final images = userData['userImage'] as List?;
-    final userName = userData['userName'] as String? ?? 'U';
     return SafeCachedAvatar(
-      imageUrl: (images != null && images.isNotEmpty)
-          ? images[0] as String?
-          : null,
-      fallbackName: userName,
+      user: UserModel.fromJson(userData),
       radius: 44,
       backgroundColor: colorScheme.primary.withOpacity(0.25),
     );

@@ -115,10 +115,7 @@ class _ChatViewState extends State<ChatView> {
                 ),
                 const SizedBox(width: 8),
                 SafeCachedAvatar(
-                  imageUrl: widget.recipient.userImage?.isNotEmpty == true
-                      ? widget.recipient.userImage![0]
-                      : null,
-                  fallbackName: widget.recipient.userName,
+                  user: widget.recipient,
                   radius: 16,
                   backgroundColor: colorScheme.primary.withAlpha(25),
                 ),
@@ -172,10 +169,7 @@ class _ChatViewState extends State<ChatView> {
                 Hero(
                   tag: 'chat_avatar_${widget.recipient.id}',
                   child: SafeCachedAvatar(
-                    imageUrl: widget.recipient.userImage?.isNotEmpty == true
-                        ? widget.recipient.userImage![0]
-                        : null,
-                    fallbackName: widget.recipient.userName,
+                    user: widget.recipient,
                     radius: 18,
                     backgroundColor: colorScheme.primary.withOpacity(0.1),
                   ),

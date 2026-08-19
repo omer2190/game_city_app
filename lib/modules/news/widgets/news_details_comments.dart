@@ -85,12 +85,7 @@ class NewsDetailsComments extends StatelessWidget {
                       }
                     },
                     child: SafeCachedAvatar(
-                      imageUrl:
-                          (comment.userId?.userImage != null &&
-                              comment.userId!.userImage!.isNotEmpty)
-                          ? comment.userId!.userImage!.first
-                          : null,
-                      fallbackName: comment.userId?.firstName,
+                      user: comment.userId!,
                       radius: 20,
                       backgroundColor: colorScheme.secondary,
                     ),

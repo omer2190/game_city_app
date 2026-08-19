@@ -53,14 +53,8 @@ AppBar myAppBar(BuildContext context) {
                     },
                     child: Obx(() {
                       final user = authController.userModel.value;
-                      final img =
-                          (user?.userImage != null &&
-                              user!.userImage!.isNotEmpty)
-                          ? user.userImage!.first
-                          : null;
                       return SafeCachedAvatar(
-                        imageUrl: img,
-                        fallbackName: user?.firstName,
+                        user: user!,
                         radius: isDesktop ? 24 : 20,
                         backgroundColor: theme.colorScheme.primary,
                       );

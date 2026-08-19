@@ -1,5 +1,6 @@
 import 'package:game_city_app/data/models/game_model.dart';
 import 'package:game_city_app/data/models/news_model.dart';
+import 'package:game_city_app/data/models/user_model.dart';
 
 class HomeDashboardModel {
   final List<Advertisement>? advertisements;
@@ -123,6 +124,15 @@ class RandomUser {
 
   String get fullName =>
       [firstName, lastName].where((e) => e != null).join(' ');
+
+  /// Converts this lightweight user object to a full [UserModel].
+  UserModel toUserModel() => UserModel(
+    id: id,
+    userName: userName,
+    firstName: firstName,
+    lastName: lastName,
+    userImage: userImage,
+  );
 }
 
 class MatchmakerUser {

@@ -66,7 +66,7 @@ class WhoInvitedMeCard extends StatelessWidget {
               children: [
                 // Avatar
                 SafeCachedAvatar(
-                  imageUrl: imageUrl,
+                  user: inviter!,
                   radius: 24,
                   backgroundColor: colorScheme.primary.withOpacity(0.15),
                 ),

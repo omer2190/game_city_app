@@ -19,6 +19,10 @@ class UserModel {
   final bool? isFriend;
   final bool? isVerified;
   final bool? isBlocked;
+  final String? level;
+  final String? levelName;
+  final String? levelArabicName;
+  final String? levelProgress;
   final String? codeInvite;
   final String? invitedBy;
 
@@ -43,6 +47,10 @@ class UserModel {
     this.isFriend,
     this.isVerified,
     this.isBlocked,
+    this.level,
+    this.levelName,
+    this.levelArabicName,
+    this.levelProgress,
     this.codeInvite,
     this.invitedBy,
   });
@@ -140,6 +148,10 @@ class UserModel {
           json['chatRoomId'] ??
           displayData['roomId'] ??
           json['roomId'],
+      level: displayData['level'].toString(),
+      levelName: displayData['levelName'].toString(),
+      levelArabicName: displayData['levelArabicName'].toString(),
+      levelProgress: displayData['levelProgress'].toString(),
       codeInvite: displayData['codeInvite'],
       invitedBy: displayData['invitedBy']?.toString(),
     );

@@ -74,6 +74,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.4
   package_rename: ^1.10.1
+  msix: ^3.18.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -89,6 +90,8 @@ flutter:
   assets:
     - assets/adi-registration.properties
     - assets/images/
+    - assets/images/frem/
+    - assets/images/emojis/
     - assets/images/logo.svg
     - assets/images/logom.svg
     - assets/images/asset34.svg
@@ -140,3 +143,12 @@ flutter_launcher_icons:
 package_rename_config:
   android:
     package_name: "com.gamingcity.gaming2190"
+
+msix_config:
+  display_name: Gaming City
+  publisher_display_name: Gaming City
+  identity_name: com.gamingcity.gaming2190
+  msix_version: 1.3.1.0
+  logo_path: assets/images/logoIcon.png
+  capabilities: internetClient
+  publisher: CN=Gaming City

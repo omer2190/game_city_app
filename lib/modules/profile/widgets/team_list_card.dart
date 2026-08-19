@@ -100,7 +100,7 @@ class TeamListCard extends StatelessWidget {
                     children: [
                       // Avatar
                       SafeCachedAvatar(
-                        imageUrl: imageUrl,
+                        user: invitee!,
                         radius: 22,
                         backgroundColor: colorScheme.primary.withOpacity(0.15),
                       ),

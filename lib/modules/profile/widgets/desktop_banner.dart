@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:game_city_app/core/values/level_assets.dart';
 import 'package:game_city_app/data/models/user_model.dart';
 import 'package:game_city_app/modules/auth/controllers/auth_controller.dart';
 import 'package:game_city_app/modules/community/controllers/user_profile_controller.dart';
@@ -33,6 +34,7 @@ class DesktopBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final avatarUser = isOwner ? authController?.userModel.value : visitorUser;
     return Container(
       height: 300,
       width: double.infinity,
@@ -115,40 +117,78 @@ class DesktopBanner extends StatelessWidget {
                       tag: heroTag ?? '',
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: cs.primary.withOpacity(0.6),
-                            width: 3,
-                          ),
-                          color: cs.surface,
-                        ),
-                        child: SafeCachedAvatar(
-                          imageUrl: avatarUrl,
-                          fallbackName: name,
-                          radius: 46,
-                          backgroundColor: cs.primary.withOpacity(0.2),
-                        ),
+                        // decoration: BoxDecoration(
+                        //   shape: BoxShape.circle,
+                        //   border: Border.all(
+                        //     // color: cs.primary.withOpacity(0.6),
+                        //     width: 3,
+                        //   ),
+                        //   color: cs.surface,
+                        // ),
+                        child: avatarUser != null
+                            ? SafeCachedAvatar(
+                                user: avatarUser,
+                                radius: 46,
+                                backgroundColor: cs.primary.withOpacity(0.2),
+                              )
+                            : Container(
+                                width: 92,
+                                height: 92,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: cs.primary.withOpacity(0.2),
+                                ),
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.person,
+                                  color: cs.primary,
+                                  size: 46,
+                                ),
+                              ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 12),
                   if (name.isNotEmpty)
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black54,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black54,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 6),
+                        LevelEmoji(
+                          level: isOwner
+                              ? (authController?.userModel.value != null
+                                    ? LevelAssets.levelOf(
+                                            authController!.userModel.value!,
+                                          ) ??
+                                          0
+                                    : 0)
+                              : (visitorUser != null
+                                    ? LevelAssets.levelOf(visitorUser!) ?? 0
+                                    : 0),
+                          height: 22,
+                        ),
+                      ],
                     ),
                   const SizedBox(height: 2),
                   Text(

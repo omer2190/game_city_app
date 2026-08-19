@@ -342,10 +342,7 @@ class _CommunitySplitShellState extends State<CommunitySplitShell> {
                 child: Hero(
                   tag: 'avatar_${isFriend ? "friend" : "suggested"}_${user.id}',
                   child: SafeCachedAvatar(
-                    imageUrl: user.userImage?.isNotEmpty == true
-                        ? user.userImage!.first
-                        : null,
-                    fallbackName: user.userName,
+                    user: user,
                     radius: 22,
                     borderColor: colorScheme.primary.withAlpha(50),
                     borderWidth: 2,

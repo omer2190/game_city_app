@@ -66,6 +66,10 @@ class AuthController extends GetxController {
                 },
               )
               .toList(),
+          'level': userModel.value!.level,
+          'levelName': userModel.value!.levelName,
+          'levelArabicName': userModel.value!.levelArabicName,
+          'levelProgress': userModel.value!.levelProgress,
         }
       : {};
 

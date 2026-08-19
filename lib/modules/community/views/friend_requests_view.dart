@@ -98,10 +98,7 @@ class FriendRequestsView extends StatelessWidget {
                 }
               },
               child: SafeCachedAvatar(
-                imageUrl: user.userImage?.isNotEmpty == true
-                    ? user.userImage!.first
-                    : null,
-                fallbackName: user.userName,
+                user: user,
                 radius: 32,
                 borderColor: cs.primary.withOpacity(0.15),
                 borderWidth: 2,
@@ -227,13 +224,7 @@ class FriendRequestsView extends StatelessWidget {
                 Get.to(() => UserProfileView(userId: user.id!));
               }
             },
-            child: SafeCachedAvatar(
-              imageUrl: user.userImage?.isNotEmpty == true
-                  ? user.userImage!.first
-                  : null,
-              fallbackName: user.userName,
-              radius: 26,
-            ),
+            child: SafeCachedAvatar(user: user, radius: 26),
           ),
           const SizedBox(width: 12),
           Expanded(

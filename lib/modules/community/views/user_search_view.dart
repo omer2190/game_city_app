@@ -201,13 +201,7 @@ class UserSearchView extends StatelessWidget {
                 },
                 child: Hero(
                   tag: 'search_avatar_${user.id}',
-                  child: SafeCachedAvatar(
-                    imageUrl: user.userImage?.isNotEmpty == true
-                        ? user.userImage!.first
-                        : null,
-                    fallbackName: user.userName,
-                    radius: 25,
-                  ),
+                  child: SafeCachedAvatar(user: user, radius: 25),
                 ),
               ),
               const SizedBox(width: 12),

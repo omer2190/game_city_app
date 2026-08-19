@@ -171,8 +171,7 @@ class DesktopSidebar extends StatelessWidget {
                         ? user.userImage!.first
                         : null;
                     return SafeCachedAvatar(
-                      imageUrl: img,
-                      fallbackName: user?.firstName,
+                      user: user!,
                       radius: 20,
                       backgroundColor: colorScheme.primary,
                     );
@@ -197,15 +196,8 @@ class DesktopSidebar extends StatelessWidget {
                 children: [
                   Obx(() {
                     final user = authController.userModel.value;
-                    final img =
-                        (user?.userImage != null &&
-                            user!.userImage!.isNotEmpty &&
-                            user.userImage!.first.isNotEmpty)
-                        ? user.userImage!.first
-                        : null;
                     return SafeCachedAvatar(
-                      imageUrl: img,
-                      fallbackName: user?.firstName,
+                      user: user!,
                       radius: 20,
                       backgroundColor: colorScheme.primary,
                     );

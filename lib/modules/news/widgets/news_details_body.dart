@@ -74,12 +74,7 @@ class NewsDetailsBody extends StatelessWidget {
           child: Row(
             children: [
               SafeCachedAvatar(
-                imageUrl:
-                    (news.userId?.userImage != null &&
-                        news.userId!.userImage!.isNotEmpty)
-                    ? news.userId!.userImage!.first
-                    : null,
-                fallbackName: news.userId?.firstName,
+                user: news.userId!,
                 radius: isDesktop ? 22 : 20,
                 backgroundColor: colorScheme.primary.withOpacity(0.1),
               ),

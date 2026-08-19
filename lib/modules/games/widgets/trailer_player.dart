@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -6,6 +8,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 /// Inline video player for game trailers.
 /// - YouTube URLs    → plays inline via [youtube_player_flutter]
 /// - Direct MP4 URLs → plays inline via WebView + HTML5 <video>
+/// - Windows/Linux   → opens the trailer externally (no inline WebView)
 class TrailerPlayer extends StatefulWidget {
   final String trailerUrl;
 
@@ -26,6 +29,17 @@ class _TrailerPlayerState extends State<TrailerPlayer> {
   static const String _customUserAgent =
       'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 '
       '(KHTML, like Gecko) Chrome/126.0.6478.122 Mobile Safari/537.36';
+
+  /// Inline playback is only reliable on mobile, macOS and web.
+  /// - Windows: `webview_flutter` has no Windows backend, and YouTube embeds
+  ///   fail inside WebView2 (IFrame API error 153).
+  /// - Linux: no WebView backend is available.
+  bool get _supportsInlinePlayback {
+    if (kIsWeb) return true;
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS;
+  }
 
   // ── URL helpers ───────────────────────────────────────────────────
 
@@ -69,6 +83,10 @@ video { width: 100%; max-height: 100vh; outline: none; }
   @override
   void initState() {
     super.initState();
+
+    // Desktop (Windows/Linux) has no reliable inline WebView playback;
+    // the fallback UI opens the trailer externally instead.
+    if (!_supportsInlinePlayback) return;
 
     if (_isYouTube) {
       _initYouTubePlayer();
@@ -146,6 +164,54 @@ video { width: 100%; max-height: 100vh; outline: none; }
     super.dispose();
   }
 
+  /// Fallback for platforms without inline WebView playback (Windows/Linux).
+  /// Tapping the card opens the trailer in the default browser / YouTube app.
+  Widget _buildExternalFallback(BorderRadius borderRadius) {
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: Container(
+        height: 200,
+        decoration: BoxDecoration(
+          color: Colors.grey[900],
+          borderRadius: borderRadius,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: _openExternally,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _isYouTube
+                        ? Icons.play_circle_fill
+                        : Icons.play_circle_outline,
+                    size: 56,
+                    color: Colors.white70,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    _isYouTube
+                        ? 'اضغط لتشغيل الفيديو في يوتيوب'
+                        : 'اضغط لتشغيل الفيديو',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'سيتم فتح الرابط في المتصفح',
+                    style: TextStyle(color: Colors.white38, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _openExternally() async {
     final uri = Uri.parse(widget.trailerUrl);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
@@ -160,6 +226,11 @@ video { width: 100%; max-height: 100vh; outline: none; }
   @override
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(12);
+
+    // ── Desktop (Windows/Linux) — open externally ──────────────────
+    if (!_supportsInlinePlayback) {
+      return _buildExternalFallback(borderRadius);
+    }
 
     // ── YouTube — inline player ────────────────────────────────────
     if (_isYouTube && _ytController != null) {

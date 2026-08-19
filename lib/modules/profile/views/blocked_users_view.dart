@@ -97,7 +97,7 @@ class BlockedUsersView extends StatelessWidget {
           children: [
             // صورة المستخدم
             SafeCachedAvatar(
-              imageUrl: userImage,
+              user: user,
               radius: 28,
               backgroundColor: colorScheme.primary.withOpacity(0.2),
             ),

@@ -264,10 +264,7 @@ class _CommunityViewState extends State<CommunityView>
                 child: Hero(
                   tag: 'avatar_${isFriend ? "friend" : "suggested"}_${user.id}',
                   child: SafeCachedAvatar(
-                    imageUrl: user.userImage?.isNotEmpty == true
-                        ? user.userImage!.first
-                        : null,
-                    fallbackName: user.userName,
+                    user: user,
                     radius: 24,
                     borderColor: colorScheme.primary.withOpacity(0.2),
                     borderWidth: 2,

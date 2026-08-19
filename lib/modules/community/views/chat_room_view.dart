@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:game_city_app/data/models/user_model.dart';
 import 'package:get/get.dart';
 import '../../../core/values/app_breakpoints.dart';
 import '../controllers/chat_controller.dart';
@@ -634,8 +635,7 @@ class _ChatRoomViewState extends State<ChatRoomView> {
           ),
         ),
         child: SafeCachedAvatar(
-          imageUrl: imageUrl.isNotEmpty ? imageUrl : null,
-          fallbackName: name,
+          user: UserModel.fromJson(senderId != null ? {'id': senderId} : {}),
           radius: 17.5,
           backgroundColor: colorScheme.primary.withOpacity(0.1),
         ),

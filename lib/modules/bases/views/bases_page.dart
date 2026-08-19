@@ -211,11 +211,33 @@ class BasesPage extends StatelessWidget {
                                 (player.userImage != null &&
                                     player.userImage!.isNotEmpty &&
                                     player.userImage!.first.isNotEmpty)
-                                ? AnyImageView(
-                                    imagePath: player.userImage!.first,
+                                ? CachedNetworkImage(
+                                    imageUrl: player.userImage!.first,
                                     width: 56,
                                     height: 56,
                                     fit: BoxFit.cover,
+                                    placeholder: (_, __) => const Icon(
+                                      Icons.person,
+                                      color: Colors.white30,
+                                      size: 28,
+                                    ),
+                                    errorWidget: (_, __, ___) => const Icon(
+                                      Icons.person,
+                                      color: Colors.white30,
+                                      size: 28,
+                                    ),
+                                    imageBuilder: (_, p) => Container(
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: p,
+                                          fit: BoxFit.cover,
+                                          colorFilter: ColorFilter.mode(
+                                            Colors.black.withOpacity(0.3),
+                                            BlendMode.darken,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   )
                                 : const Icon(
                                     Icons.person,
@@ -727,12 +749,7 @@ class BasesPage extends StatelessWidget {
                             children: [
                               // Avatar
                               SafeCachedAvatar(
-                                imageUrl:
-                                    (user.userImage != null &&
-                                        user.userImage!.isNotEmpty &&
-                                        user.userImage!.first.isNotEmpty)
-                                    ? user.userImage!.first
-                                    : null,
+                                user: user.toUserModel(),
                                 radius: 18,
                                 backgroundColor: Colors.white10,
                                 borderColor: game != null

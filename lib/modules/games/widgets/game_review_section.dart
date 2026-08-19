@@ -701,12 +701,7 @@ class _GameReviewSectionState extends State<GameReviewSection> {
             children: [
               // Avatar
               SafeCachedAvatar(
-                imageUrl:
-                    (review.userId?.userImage != null &&
-                        review.userId!.userImage!.isNotEmpty)
-                    ? review.userId!.userImage!.first
-                    : null,
-                fallbackName: review.userId?.firstName,
+                user: review.userId!,
                 radius: 16,
                 backgroundColor: primaryColor.withValues(alpha: 0.2),
               ),
