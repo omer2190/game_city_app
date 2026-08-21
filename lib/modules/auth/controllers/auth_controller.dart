@@ -9,7 +9,30 @@ import '../../../data/repositories/auth_repository.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/models/invitation_model.dart';
 import '../../../core/services/notification_service.dart';
+import '../../../core/services/google_auth_helper.dart';
 import '../../../routes/app_routes.dart';
+
+/// ═══════════════════════════════════════════════════════════════
+/// إعدادات تسجيل الدخول بواسطة جوجل على ويندوز
+/// ═══════════════════════════════════════════════════════════════
+/// ⚠️ مهم جداً: يجب استخدام نفس الـ Client ID الذي يستخدمه الويب
+/// (uiehqmoi4ufjken3n8g9r2kv865o3e0a) وليس Client ID منفصل.
+///
+/// السبب: الخادم الخلفي يتحقق من حقل `aud` في التوكن، وهو يطابق
+/// الـ Web client ID فقط. إذا استخدمنا Client ID آخر، سيرفض الخادم
+/// التوكن برسالة "Google Auth Failed".
+///
+/// ⚠️ يجب أيضاً وضع الـ Client secret الخاص بالـ Web client
+/// (وليس سر الـ Desktop client) في [_windowsGoogleClientSecret].
+const String _windowsGoogleClientId =
+    '1033131122028-uiehqmoi4ufjken3n8g9r2kv865o3e0a.apps.googleusercontent.com';
+
+/// ⚠️ ضع الـ Client secret الخاص بالـ **Web client** هنا
+/// (من Google Cloud Console → Credentials → اضغط على الـ Web client
+/// → انسخ "Client secret").
+/// بدون هذا القيمة سيظهر خطأ "client_secret is missing".
+const String? _windowsGoogleClientSecret =
+    "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";
 
 class AuthController extends GetxController {
   final AuthRepository _authRepository = AuthRepository();
@@ -264,30 +287,41 @@ class AuthController extends GetxController {
   }
 
   Future<void> loginWithGoogle({String? inviteCode}) async {
+    // ═══════════════════════════════════════════════════════════
+    // 🟦 مراقبة تسجيل الدخول بواسطة جوجل — خطوة بخطوة
+    // ═══════════════════════════════════════════════════════════
+
     try {
       isLoading.value = true;
       String? googleIdToken;
 
       if (kIsWeb) {
-        // الاعتماد على Firebase Auth في إصدار الويب
+        // ── Web: Firebase Auth signInWithPopup ──
+
         GoogleAuthProvider googleProvider = GoogleAuthProvider();
         final UserCredential userCredential = await FirebaseAuth.instance
             .signInWithPopup(googleProvider);
 
-        // 🔴 استخراج التوكن الخاص بجوجل (Google ID Token) بدلاً من توكن فايربيس
         final OAuthCredential? credential =
             userCredential.credential as OAuthCredential?;
         googleIdToken = credential?.idToken;
 
-        // كخيار احتياطي في حال عدم عودته من الكريدينشال
         if (googleIdToken == null) {
           throw 'لم يتم العثور على رمز توثيق جوجل (Google ID Token) ضمن بيانات الاعتماد.';
         }
+      } else if (defaultTargetPlatform == TargetPlatform.windows) {
+        // ── Windows: OAuth via system browser + local server ──
+
+        googleIdToken = await signInWithGoogleDesktop(
+          clientId: _windowsGoogleClientId,
+          clientSecret: _windowsGoogleClientSecret,
+          scopes: 'openid email profile',
+        );
       } else {
-        // Ensure Google Sign In is initialized once with serverClientId
+        // ── Android / iOS: google_sign_in native SDK ──
+
         await _initializeInternal();
 
-        // 1. Sign in with Google to get account details
         GoogleSignInAccount googleUser;
         try {
           googleUser = await _googleSignIn.authenticate();
@@ -299,7 +333,6 @@ class AuthController extends GetxController {
           rethrow;
         }
 
-        // 2. Get authentication details (including tokens)
         final GoogleSignInAuthentication googleAuth = googleUser.authentication;
         googleIdToken = googleAuth.idToken;
       }
@@ -309,6 +342,7 @@ class AuthController extends GetxController {
       }
 
       // 5. Send the GOOGLE ID Token to your backend server
+
       if (googleIdToken != "") {
         final response = await _authRepository.loginWithGoogle(
           googleIdToken,
@@ -327,7 +361,9 @@ class AuthController extends GetxController {
             await refreshProfile();
           }
           await fetchSocialMediaServices();
+
           await fetchGeneralInfoTypes();
+
           isLoggedIn.value = true;
           updateFcmToken();
           Get.snackbar(
@@ -336,7 +372,7 @@ class AuthController extends GetxController {
             backgroundColor: Colors.green.withOpacity(0.1),
             colorText: Colors.white,
           );
-          debugPrint('Google Login success, navigating to: ${AppRoutes.home}');
+
           Get.offAllNamed(AppRoutes.home);
         } else {
           throw 'فشل تسجيل الدخول: رمز غير صالح من الخادم';

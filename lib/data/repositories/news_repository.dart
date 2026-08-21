@@ -59,10 +59,19 @@ class NewsRepository {
     }
   }
 
-  Future<Map<String, dynamic>> addComment(String newsId, String content) async {
+  Future<Map<String, dynamic>> addComment(
+    String newsId,
+    String content, {
+    String? parentComment,
+  }) async {
     return await _apiClient.post(
       '${ApiConstants.baseUrl}/api/comments/',
-      body: {'newsId': newsId, 'content': content},
+      body: {
+        'newsId': newsId,
+        'content': content,
+        if (parentComment != null && parentComment.isNotEmpty)
+          'parentComment': parentComment,
+      },
     );
   }
 
@@ -91,6 +100,7 @@ class NewsRepository {
         '${ApiConstants.baseUrl}/api/comments/news/$newsId',
       );
       if (response['comments'] == null) return [];
+      print(response['comments']);
       return (response['comments'] as List<dynamic>)
           .map((c) => Comments.fromJson(c))
           .toList();

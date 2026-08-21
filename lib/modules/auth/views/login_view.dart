@@ -136,12 +136,6 @@ class LoginView extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Text(
-                      //   'ليس لديك حساب؟',
-                      //   style: TextStyle(
-                      //     color: colorScheme.onSurface.withOpacity(0.7),
-                      //   ),
-                      // ),
                       TextButton(
                         onPressed: () => Get.toNamed('/register'),
                         style: TextButton.styleFrom(

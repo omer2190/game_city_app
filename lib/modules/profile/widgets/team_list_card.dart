@@ -88,11 +88,6 @@ class TeamListCard extends StatelessWidget {
                     '${invitee?.firstName ?? ''} ${invitee?.lastName ?? ''}'
                         .trim();
                 final userName = invitee?.userName ?? '';
-                final imageUrl =
-                    (invitee?.userImage != null &&
-                        invitee!.userImage!.isNotEmpty)
-                    ? invitee.userImage!.first
-                    : null;
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),

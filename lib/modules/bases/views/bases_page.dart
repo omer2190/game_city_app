@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:any_image_view/any_image_view.dart';
 import 'package:flutter/material.dart';
 import 'package:game_city_app/core/values/app_breakpoints.dart';
 import 'package:game_city_app/routes/app_routes.dart';
@@ -1025,9 +1024,6 @@ class _AdCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > AppBreakpoints.mobileBreakpoint;
-
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
       child: (ad.imageUrl != null && ad.imageUrl!.isNotEmpty)

@@ -16,10 +16,6 @@ class WhoInvitedMeCard extends StatelessWidget {
     final name = '${inviter?.firstName ?? ''} ${inviter?.lastName ?? ''}'
         .trim();
     final userName = inviter?.userName ?? '';
-    final imageUrl =
-        (inviter?.userImage != null && inviter!.userImage!.isNotEmpty)
-        ? inviter.userImage!.first
-        : null;
 
     return CustomCard(
       padding: const EdgeInsets.all(20),

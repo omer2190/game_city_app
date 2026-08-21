@@ -5,6 +5,7 @@ class Comments {
   UserModel? userId;
   String? newsId;
   String? content;
+  String? parentComment;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
@@ -14,6 +15,7 @@ class Comments {
     this.userId,
     this.newsId,
     this.content,
+    this.parentComment,
     this.createdAt,
     this.updatedAt,
     this.v,
@@ -24,6 +26,7 @@ class Comments {
     userId: json["userId"] == null ? null : UserModel.fromJson(json["userId"]),
     newsId: json["newsId"],
     content: json["content"],
+    parentComment: json["parentComment"],
     createdAt: json["createdAt"] == null
         ? null
         : DateTime.parse(json["createdAt"]),
@@ -38,6 +41,7 @@ class Comments {
     // "userId": userId?.toJson(),
     "newsId": newsId,
     "content": content,
+    "parentComment": parentComment,
     "createdAt": createdAt?.toIso8601String(),
     "updatedAt": updatedAt?.toIso8601String(),
     "__v": v,

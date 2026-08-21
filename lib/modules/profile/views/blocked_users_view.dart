@@ -79,10 +79,6 @@ class BlockedUsersView extends StatelessWidget {
     dynamic user,
     ColorScheme colorScheme,
   ) {
-    final userImage = (user.userImage != null && user.userImage!.isNotEmpty)
-        ? user.userImage!.first
-        : null;
-
     final displayName = user.firstName != null && user.firstName!.isNotEmpty
         ? '${user.firstName} ${user.lastName ?? ''}'
         : user.userName ?? 'مستخدم';
