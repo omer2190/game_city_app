@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+
+import '../../settings/controllers/settings_controller.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -13,6 +15,7 @@ class _SplashViewState extends State<SplashView>
   late final AnimationController _anim;
   late final Animation<double> _scale;
   late final Animation<double> _fade;
+  final controller = Get.put<SettingsController>(SettingsController());
 
   @override
   void initState() {
@@ -40,24 +43,13 @@ class _SplashViewState extends State<SplashView>
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).cardColor;
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              primary.withOpacity(0.12),
-              Theme.of(context).scaffoldBackgroundColor,
-            ],
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedBuilder(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: AnimatedBuilder(
                 animation: _anim,
                 builder: (context, child) {
                   return Opacity(
@@ -67,46 +59,31 @@ class _SplashViewState extends State<SplashView>
                 },
                 child: Container(
                   padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    // shape: BoxShape.circle,
-                    // gradient: LinearGradient(
-                    //   colors: [primary, primary.withOpacity(0.85)],
-                    // ),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: primary.withOpacity(0.28),
-                    //     blurRadius: 18,
-                    //     spreadRadius: 2,
-                    //   ),
-                    // ],
-                  ),
-                  child: SvgPicture.asset(
-                    'assets/images/Asset 10.svg',
-                    height: 50,
-                    width: 50,
-                    color: Theme.of(context).primaryColor,
+                  decoration: BoxDecoration(),
+                  child: Image.asset(
+                    'assets/images/asset.png',
+                    width: Get.width * 0.4,
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
-              Text(
-                'Gaming City',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: primary.withOpacity(0.98),
-                ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text('Game City', style: Get.textTheme.labelSmall),
+                  Obx(() {
+                    return Text(
+                      "version ${controller.appVersion.value.isEmpty ? 'جاري التحميل...' : controller.appVersion.value}",
+                      style: Get.textTheme.labelSmall,
+                    );
+                  }),
+                ],
               ),
-              // const SizedBox(height: 8),
-              // Text(
-              //   'جاري التحضير...',
-              //   style: TextStyle(
-              //     fontSize: 12,
-              //     color: Colors.white.withOpacity(0.8),
-              //   ),
-              // ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

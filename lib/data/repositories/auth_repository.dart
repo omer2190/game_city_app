@@ -29,6 +29,13 @@ class AuthRepository {
     );
   }
 
+  Future<Map<String, dynamic>> resendVerificationCode(String email) async {
+    return await _apiClient.post(
+      ApiConstants.resendVerification,
+      body: {'email': email},
+    );
+  }
+
   Future<Map<String, dynamic>> forgotPassword(String email) async {
     return await _apiClient.post(
       ApiConstants.forgotPassword,

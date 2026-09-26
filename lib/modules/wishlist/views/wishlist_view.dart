@@ -5,7 +5,7 @@ import 'package:game_city_app/shared/layout_mine.dart';
 import 'package:game_city_app/shared/widgets/adaptive_grid_view.dart';
 import 'package:get/get.dart';
 import '../controllers/wishlist_controller.dart';
-import '../../games/widgets/game_card.dart';
+import '../../../shared/widgets/game_card.dart';
 import '../../../routes/app_routes.dart';
 
 class WishlistView extends StatelessWidget {

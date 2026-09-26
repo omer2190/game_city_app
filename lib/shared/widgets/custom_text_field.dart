@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/values/app_colors.dart';
+
 class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final String? label;
@@ -56,17 +58,6 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // if (label != null) ...[
-        //   Text(
-        //     label!,
-        //     style: TextStyle(
-        //       fontSize: 14,
-        //       fontWeight: FontWeight.w500,
-        //       color: colorScheme.onSurface.withOpacity(0.8),
-        //     ),
-        //   ),
-        //   const SizedBox(height: 8),
-        // ],
         TextFormField(
           controller: controller,
           obscureText: obscureText,
@@ -82,18 +73,18 @@ class CustomTextField extends StatelessWidget {
           inputFormatters: inputFormatters,
           textDirection: textDirection,
           focusNode: focusNode,
-          style: TextStyle(color: (colorScheme.onSurfaceVariant), fontSize: 14),
+          style: TextStyle(color: (colorScheme.onSecondary), fontSize: 14),
           decoration: InputDecoration(
             hintText: label ?? hint,
             hintStyle: TextStyle(
-              color: (colorScheme.onSurfaceVariant),
+              color: const Color.fromRGBO(121, 95, 157, 1),
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
             prefixIcon: prefixIcon != null
                 ? Icon(
                     prefixIcon,
-                    // color: hintColor ?? colorScheme.onSurface,
+                    color: hintColor ?? const Color.fromRGBO(121, 95, 157, 1),
                     size: 22,
                   )
                 : null,
@@ -101,36 +92,42 @@ class CustomTextField extends StatelessWidget {
                 ? IconButton(
                     icon: Icon(
                       suffixIcon,
-                      // color: hintColor ?? colorScheme.onSurface,
+                      color: hintColor ?? const Color.fromRGBO(121, 95, 157, 1),
                       size: 22,
                     ),
                     onPressed: onSuffixIconTap,
                   )
                 : null,
             filled: true,
-            fillColor: colorScheme.onSurfaceVariant.withOpacity(0.05),
+            fillColor: colorScheme.secondary,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.transparent, width: 1),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(
+                width: 10,
+                color: AppColors.secondaryLight2,
+              ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.transparent, width: 1),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(
+                color: AppColors.secondaryLight2,
+                width: 0.5,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: Colors.transparent, width: 2),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: colorScheme.error, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: colorScheme.error, width: 2),
             ),
             disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: Colors.transparent, width: 1),
             ),
             contentPadding: const EdgeInsets.symmetric(

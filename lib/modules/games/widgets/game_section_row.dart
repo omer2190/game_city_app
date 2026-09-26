@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/values/app_breakpoints.dart';
 import '../../../data/models/game_model.dart';
-import 'game_card.dart';
+import '../../../shared/widgets/game_card.dart';
 
 /// A responsive section with title and game cards.
 /// On mobile/tablet: horizontal scroll.

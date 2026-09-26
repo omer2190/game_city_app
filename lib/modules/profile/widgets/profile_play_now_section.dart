@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,6 +17,7 @@ class ProfilePlayNowSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isDesktop = Platform.isWindows || Platform.isLinux;
 
     return CustomCard(
       child: Column(
@@ -22,6 +25,15 @@ class ProfilePlayNowSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              if (!isDesktop)
+                Text(
+                  'يلعب الآن',
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               IconButton(
                 onPressed: () => Get.to(() => GlobalGamesView()),
                 tooltip: 'إضافة لعبة من المكتبة',
@@ -30,14 +42,15 @@ class ProfilePlayNowSection extends StatelessWidget {
                   color: colorScheme.primary,
                 ),
               ),
-              IconButton(
-                onPressed: () => Get.to(() => InstalledGamesView()),
-                tooltip: 'استيراد الألعاب المثبتة على جهازك',
-                icon: Icon(
-                  Icons.download_for_offline_outlined,
-                  color: colorScheme.primary,
+              if (isDesktop)
+                IconButton(
+                  onPressed: () => Get.to(() => InstalledGamesView()),
+                  tooltip: 'استيراد الألعاب المثبتة على جهازك',
+                  icon: Icon(
+                    Icons.download_for_offline_outlined,
+                    color: colorScheme.primary,
+                  ),
                 ),
-              ),
             ],
           ),
           SizedBox(height: 10),

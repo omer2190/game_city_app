@@ -5,7 +5,7 @@ import '../../../routes/app_routes.dart';
 import '../../../shared/header.dart';
 import '../../../shared/layout_mine.dart';
 import '../controllers/personalized_games_controller.dart';
-import '../widgets/game_card.dart';
+import '../../../shared/widgets/game_card.dart';
 import '../widgets/game_section_row.dart';
 
 class GamesHubView extends StatefulWidget {

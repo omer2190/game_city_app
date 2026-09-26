@@ -3,51 +3,51 @@ import 'package:google_fonts/google_fonts.dart';
 import '../values/app_colors.dart';
 
 class AppTheme {
-  static final ThemeData lightTheme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-    fontFamily: GoogleFonts.alexandria().fontFamily,
-    primaryColor: AppColors.primaryLight,
-    scaffoldBackgroundColor: AppColors.backgroundLight,
-    cardColor: AppColors.surfaceLight,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.primaryLight,
-      foregroundColor: Colors.white,
-      elevation: 0,
-      centerTitle: true,
-      titleTextStyle: TextStyle(
-        color: Colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-      iconTheme: IconThemeData(color: Colors.white),
-    ),
-    colorScheme: ColorScheme.light(
-      primary: AppColors.primaryLight,
-      secondary: AppColors.secondaryLight,
-      surface: AppColors.surfaceLight,
-      error: AppColors.error,
-      onPrimary: Colors.white,
-      onSecondary: Colors.white,
-      onSurface: AppColors
-          .primaryLight, // Following rule of primary for clickable/names
-      onSurfaceVariant:
-          AppColors.neutralLight, // Following rule of neutral for small details
-    ),
-    textTheme: GoogleFonts.alexandriaTextTheme(
-      const TextTheme(
-        bodyLarge: TextStyle(color: AppColors.primaryLight),
-        bodyMedium: TextStyle(color: AppColors.neutralLight),
-        labelSmall: TextStyle(color: AppColors.neutralLight, fontSize: 11),
-      ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primaryLight,
-        foregroundColor: Colors.white,
-      ),
-    ),
-  );
+  // static final ThemeData lightTheme = ThemeData(
+  //   useMaterial3: true,
+  //   brightness: Brightness.light,
+  //   fontFamily: GoogleFonts.alexandria().fontFamily,
+  //   primaryColor: AppColors.primaryLight,
+  //   scaffoldBackgroundColor: AppColors.backgroundLight,
+  //   cardColor: AppColors.surfaceLight,
+  //   appBarTheme: const AppBarTheme(
+  //     backgroundColor: AppColors.primaryLight,
+  //     foregroundColor: Colors.white,
+  //     elevation: 0,
+  //     centerTitle: true,
+  //     titleTextStyle: TextStyle(
+  //       color: Colors.white,
+  //       fontSize: 18,
+  //       fontWeight: FontWeight.bold,
+  //     ),
+  //     iconTheme: IconThemeData(color: Colors.white),
+  //   ),
+  //   colorScheme: ColorScheme.light(
+  //     primary: AppColors.primaryLight,
+  //     secondary: AppColors.secondaryLight,
+  //     surface: AppColors.surfaceLight,
+  //     error: AppColors.error,
+  //     onPrimary: Colors.white,
+  //     onSecondary: Colors.white,
+  //     onSurface: AppColors
+  //         .primaryLight, // Following rule of primary for clickable/names
+  //     onSurfaceVariant:
+  //         AppColors.neutralLight, // Following rule of neutral for small details
+  //   ),
+  //   textTheme: GoogleFonts.alexandriaTextTheme(
+  //     const TextTheme(
+  //       bodyLarge: TextStyle(color: AppColors.primaryLight),
+  //       bodyMedium: TextStyle(color: AppColors.neutralLight),
+  //       labelSmall: TextStyle(color: AppColors.neutralLight, fontSize: 11),
+  //     ),
+  //   ),
+  //   elevatedButtonTheme: ElevatedButtonThemeData(
+  //     style: ElevatedButton.styleFrom(
+  //       backgroundColor: AppColors.primaryLight,
+  //       foregroundColor: Colors.white,
+  //     ),
+  //   ),
+  // );
 
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
@@ -75,7 +75,7 @@ class AppTheme {
       surface: AppColors.surfaceDark,
       error: AppColors.error,
       onPrimary: Colors.black,
-      onSecondary: Colors.black,
+      onSecondary: AppColors.secondaryLight2,
       onSurface: AppColors.primaryDark, // Clickable items in primary
       onSurfaceVariant: AppColors.neutralDark, // Small details in neutral
     ),

@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/models/invitation_model.dart';
+import '../../../core/network/api_client.dart';
 import '../../../core/services/notification_service.dart';
 import '../../../core/services/google_auth_helper.dart';
 import '../../../routes/app_routes.dart';
@@ -272,6 +273,28 @@ class AuthController extends GetxController {
         throw 'فشل تسجيل الدخول: بيانات ناقصة';
       }
     } catch (e) {
+      // ═══════════════════════════════════════════════════════════
+      // الحساب غير موثق (403) → إرسال رمز OTP جديد والانتقال لصفحة التفعيل
+      // ═══════════════════════════════════════════════════════════
+      if (e is ApiException &&
+          e.statusCode == 403 &&
+          e.message.contains('غير موثق')) {
+        try {
+          await _authRepository.resendVerificationCode(email);
+        } catch (_) {
+          // تجاهل فشل إعادة الإرسال — سيتمكن المستخدم من إعادة الإرسال
+          // من داخل صفحة التفعيل نفسها
+        }
+        Get.offNamed(AppRoutes.verifyAccount, arguments: email);
+        Get.snackbar(
+          'تنبيه',
+          'حسابك غير موثق، تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني',
+          backgroundColor: Colors.orange.withOpacity(0.1),
+          colorText: Colors.white,
+        );
+        return;
+      }
+
       if (kDebugMode) {
         debugPrint(e.toString());
       }
@@ -647,6 +670,28 @@ class AuthController extends GetxController {
       Get.snackbar(
         'خطأ',
         'فشل تفعيل الحساب: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> resendVerificationCode(String email) async {
+    try {
+      isLoading.value = true;
+      await _authRepository.resendVerificationCode(email);
+      Get.snackbar(
+        'نجاح',
+        'تم إعادة إرسال رمز التحقق إلى بريدك الإلكتروني',
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'خطأ',
+        'فشل إعادة إرسال الرمز: $e',
         backgroundColor: Colors.red.withOpacity(0.1),
         colorText: Colors.white,
       );

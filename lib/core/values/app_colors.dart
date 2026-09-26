@@ -6,6 +6,7 @@ class AppColors {
   static const Color primaryLight = Color(0xFF23113E);
   // Secondary (30%) - Small/static buttons, chat bubbles, free/discount badges
   static const Color secondaryLight = Color(0xFF6D3A96);
+  static const Color secondaryLight2 = Color.fromRGBO(188, 139, 255, 1);
   // Neutral (10%) - Small text, message dates, game details, news body
   static const Color neutralLight = Color(0xFF151515);
 
@@ -13,7 +14,7 @@ class AppColors {
   // Primary (60%) - Same as purple but for dark mode (Gold)
   static const Color primaryDark = Color.fromRGBO(204, 175, 44, 1);
   // Secondary (30%) - Small/static buttons, chat bubbles, badges
-  static const Color secondaryDark = Color.fromRGBO(55, 2, 98, 1);
+  static const Color secondaryDark = Color.fromRGBO(36, 17, 62, 1);
   // Neutral (10%) - Small text, message dates, game details, news body (Off-white)
   static const Color neutralDark = Color.fromRGBO(238, 226, 210, 1);
 
@@ -21,7 +22,7 @@ class AppColors {
   static const Color backgroundLight = Color(
     0xFFF8F9FA,
   ); // Very light gray for contrast
-  static const Color backgroundDark = Color.fromRGBO(20, 9, 38, 1);
+  static const Color backgroundDark = Color.fromRGBO(17, 9, 29, 1);
   // Very dark brown/black for contrast with gold
 
   static const Color surfaceLight = Colors.white;

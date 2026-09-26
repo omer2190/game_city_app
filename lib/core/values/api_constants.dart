@@ -1,12 +1,14 @@
 class ApiConstants {
-  // static const String baseUrl = 'http://localhost:7000';
-  static const String baseUrl = 'https://gmaingcity.com';
+  static const String baseUrl = 'http://localhost:7000';
+  // static const String baseUrl = 'https://gmaingcity.com';
   // static const String baseUrl = 'https://gaming-city-seven.vercel.app';
 
   // Auth Endpoints
   static const String login = '$baseUrl/api/users/login';
   static const String register = '$baseUrl/api/users/register';
   static const String verifyAccount = '$baseUrl/api/users/verify';
+  static const String resendVerification =
+      '$baseUrl/api/users/resend-verification';
   static const String forgotPassword = '$baseUrl/api/users/forgot-password';
   static const String resetPassword = '$baseUrl/api/users/reset-password';
   static const String changePassword = '$baseUrl/api/users/change-password';
